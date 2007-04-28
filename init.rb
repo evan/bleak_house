@@ -1,1 +1,1 @@
-require 'lib/auto_rublique'
+require 'auto_rublique'

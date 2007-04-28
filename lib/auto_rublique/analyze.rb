@@ -32,7 +32,7 @@ class AutoRublique
       # find toplevel namespace
       require 'breakpoint'; breakpoint
       
-      Analyze.
+#      Analyze.
       # find and flatten all sublevel namespaces
     
     end

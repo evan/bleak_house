@@ -5,8 +5,6 @@ class Gruff::Base
     @legend_labels = @data.collect {|item| item[DATA_LABEL_INDEX] }
 
     legend_square_width = @legend_box_size # small square with color of this item
-
-    metrics = @d.get_type_metrics(@base_image, @legend_labels.join(''))
     legend_left = 10
 
     current_x_offset = legend_left
@@ -14,7 +12,10 @@ class Gruff::Base
 
     debug { @d.line 0.0, current_y_offset, @raw_columns, current_y_offset }
                                                   
-    @legend_labels.each_with_index do |legend_label, index|        
+    @legend_labels.each_with_index do |legend_label, index|      
+
+      next if index > MAX_LEGENDS
+      legend_label = "Some not shown" if index == MAX_LEGENDS
 
       # Draw label
       @d.fill = @font_color
@@ -28,13 +29,15 @@ class Gruff::Base
                         current_x_offset + (legend_square_width * 1.7), current_y_offset, 
                         legend_label.to_s, @scale)
       
+      if index < MAX_LEGENDS
       # Now draw box with color of this dataset
-      @d = @d.stroke('transparent')
-      @d = @d.fill @data[index][DATA_COLOR_INDEX]
-      @d = @d.rectangle(current_x_offset, 
-                        current_y_offset - legend_square_width / 2.0, 
-                        current_x_offset + legend_square_width, 
-                        current_y_offset + legend_square_width / 2.0)
+        @d = @d.stroke('transparent')
+        @d = @d.fill @data[index][DATA_COLOR_INDEX]
+        @d = @d.rectangle(current_x_offset, 
+                          current_y_offset - legend_square_width / 2.0, 
+                          current_x_offset + legend_square_width, 
+                          current_y_offset + legend_square_width / 2.0)
+      end
 
       @d.pointsize = @legend_font_size
       metrics = @d.get_type_metrics(@base_image, legend_label.to_s)

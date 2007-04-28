@@ -16,6 +16,7 @@ require "#{File.dirname(__FILE__)}/support_methods"
 
 Gruff::Base::LEFT_MARGIN = 200
 Gruff::Base::NEGATIVE_TOP_MARGIN = 30
+Gruff::Base::MAX_LEGENDS = 28
 
 class BleakHouse
   class Analyze
@@ -37,9 +38,9 @@ class BleakHouse
       g.marker_font_size = 14
               
       @data.map do |key, values|
-        ["#{key.to_s == "" ? '(unknown)' : key.gsub(/.*::/, '')} (#{values.sum})", values]
+        ["#{key.to_s == "" ? '[Unknown]' : key.gsub(/.*::/, '')} (#{values.sum})", values]
       end.sort_by do |key, values|
-        0 - key[/.*?([-\d]+)\)$/, 1].to_i
+        0 - key[/.*?([\d]+)\)$/, 1].to_i
       end.each do |key, values|
         g.data(key, values)
       end
@@ -118,7 +119,7 @@ class BleakHouse
           # in each action, by object class
           action_data.keys.each do |action|
             action = "unknown" if action.to_s == ""
-            puts "    ... in #{action} action"
+            puts "    ...in #{action} action"
             Dir.descend(action) do
               class_data, increments = aggregate data, /^#{controller}#{"\/#{action}" unless action == "unknown"}($|\/|::::)/, /::::(.*)/
               Analyze.new(class_data, increments, "objects per class in /#{controller}/#{action}").draw

@@ -6,8 +6,8 @@ Make sure you have the gems 'rublique', 'gruff', and either 'json' or 'fjson'.
 Run:
   RAILS_ENV=production BLEAK_HOUSE=true INTERVAL=10 ./script/server 
 Browse around in your app. Cause requests. Do stuff. Then:
-  RAILS_ENV=production rake auto_rublique:analyze
-And then look in log/auto_rublique/.
+  RAILS_ENV=production rake bleak_house:analyze
+And then look in log/bleak_house/.
 
 Copyright (c) 2007 Cloudburst, LLC. See included LICENSE file.
   

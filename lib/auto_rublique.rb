@@ -15,7 +15,7 @@ if ENV['AUTO_RUBLIQUE']
     cattr_accessor :log_interval
 
     self.dispatch_count = 0
-    self.log_interval = ENV['INTERVAL'] and ENV['INTERVAL'].to_i or 10
+    self.log_interval = (ENV['INTERVAL'] and ENV['INTERVAL'].to_i or 10)
 
     def self.set_request_name request, other = nil
       self.last_request_name = "#{request.parameters['controller']}/#{request.parameters['action']}/#{request.request_method}#{other}"
@@ -36,14 +36,15 @@ if ENV['AUTO_RUBLIQUE']
     end
 
     LOGFILE = "#{RAILS_ROOT}/log/#{RAILS_ENV}_rublique.log"
-    if File.exists?(LOGFILE)
-      File.rename(LOGFILE, "#{LOGFILE}.old") 
-      warn "renamed old logfile"
-    end
     RubliqueLogger.file = LOGFILE    
   end  
   
   AutoRublique.warn "enabled (log/#{RAILS_ENV}_rublique.log)"
+  if File.exists?(AutoRublique::LOGFILE)
+    File.rename(AutoRublique::LOGFILE, "#{AutoRublique::LOGFILE}.old") 
+    AutoRublique.warn "renamed old logfile"
+  end
+
 else
   AutoRublique.warn "not enabled"
 end

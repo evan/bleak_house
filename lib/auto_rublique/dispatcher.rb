@@ -14,6 +14,7 @@ class Dispatcher
       AutoRublique.dispatch_count += 1
       if AutoRublique.dispatch_count == AutoRublique.log_interval
         AutoRublique.dispatch_count = 0
+        AutoRublique.warn "wrote frameset"
         RubliqueLogger.log
       end
       reset_after_dispatch_without_auto_rublique

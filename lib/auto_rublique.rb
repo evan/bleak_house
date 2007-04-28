@@ -39,7 +39,7 @@ if ENV['AUTO_RUBLIQUE']
     RubliqueLogger.file = LOGFILE    
   end  
   
-  AutoRublique.warn "enabled (log/#{RAILS_ENV}_auto_rublique.log)"
+  AutoRublique.warn "enabled (log/#{RAILS_ENV}_auto_rublique.log) (#{AutoRublique.log_interval} requests per frame)"
   if File.exists?(AutoRublique::LOGFILE)
     File.rename(AutoRublique::LOGFILE, "#{AutoRublique::LOGFILE}.old") 
     AutoRublique.warn "renamed old logfile"

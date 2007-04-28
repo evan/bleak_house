@@ -8,6 +8,12 @@ rescue LoadError
   require 'json'
 end
 
+require "#{File.dirname(__FILE__)}/gruff_hacks"
+require "#{File.dirname(__FILE__)}/support_methods"
+
+Gruff::Base::LEFT_MARGIN = 200
+Gruff::Base::NEGATIVE_TOP_MARGIN = 30
+
 class AutoRublique
   class Analyze
     
@@ -20,11 +26,20 @@ class AutoRublique
     end 
     
     def draw
-      g = Gruff::Line.new
+    
+      g = Gruff::Line.new("1024x768")
       g.title = @name
-      
-      @data.each do |key, value|        
-        g.data(key.to_s == "" ? 'unknown' : key.gsub(/.*::/, ''), value)
+      g.x_axis_label = "time"
+      g.legend_font_size = g.legend_box_size = 14
+      g.title_font_size = 24
+      g.marker_font_size = 14
+              
+      @data.map do |key, values|
+        ["#{key} (#{values.sum})", values]
+      end.sort_by do |key, values|
+        0 - key[/.*?(\d+)\)$/, 1].to_i
+      end[0..30].each do |key, values|
+        g.data(key.to_s == "" ? 'unknown' : key.gsub(/.*::/, ''), values)
       end
       
       labels = {}
@@ -115,30 +130,3 @@ class AutoRublique
     
   end
 end
-
-class Array
-  alias :time :first
-  alias :data :last
-end
-
-class Dir
-  def self.descend path, &block
-    path = path.split("/") unless path.is_a? Array
-    top = path.shift
-    Dir.mkdir(top) unless File.exists? top
-    Dir.chdir(top) do
-      if path.any?
-        descend path, &block
-      else
-        block.call
-      end
-    end
-  end
-end
-
-class String
-  def to_filename
-    self.downcase.gsub(/[^\w\d\-]/, '_')
-  end
-end
-

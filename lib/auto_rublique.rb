@@ -1,60 +1,45 @@
 
 if ENV['AUTO_RUBLIQUE']
+  
+  require 'dispatcher' # rails  
+  require 'rublique' # gem
+  require 'rublique_logger' # gem
+  
+  require 'auto_rublique/dispatcher' # plugin
+  require 'auto_rublique/action_controller' # plugin
 
-  require 'dispatcher'
-  require 'rublique'
-  require 'rublique_logger'
-  RubliqueLogger.file = file = "#{RAILS_ROOT}/log/#{RAILS_ENV}_rublique.log"
-  File.rename(file, "#{file}.old") if File.exists?(file)
-    
-  class RubliqueLogger
+
+  class AutoRublique  
     cattr_accessor :last_request_name
     cattr_accessor :dispatch_count
     cattr_accessor :log_interval
 
     self.dispatch_count = 0
     self.log_interval = ENV['INTERVAL'] and ENV['INTERVAL'].to_i or 10
-  end
-  
-  # yeah crazyness, in an effort to not just blow away the existing dispatcher methods
-  class Dispatcher
-    class << self
-      def prepare_application_with_auto_rublique
-        prepare_application_without_auto_rublique
-        Rublique.snapshot('core')
-      end
-      alias_method_chain :prepare_application, :auto_rublique
-      
-      def reset_after_dispatch_with_auto_rublique
-        Rublique.snapshot(RubliqueLogger.last_request_name || 'unknown')
-        RubliqueLogger.dispatch_count += 1
-        if RubliqueLogger.dispatch_count == RubliqueLogger.log_interval
-          RubliqueLogger.dispatch_count = 0
-          RubliqueLogger.log
-        end
-        reset_after_dispatch_without_auto_rublique
-      end
-      alias_method_chain :reset_after_dispatch, :auto_rublique
+
+    def self.debug s
+      s = "#{name.underscore}: #{s}"
+      ::ActiveRecord::Base.logger.debug s if ::ActiveRecord::Base.logger
     end
-  end
-  
-  class ActionController::Base
-    class << self
-      def process_with_auto_rublique(r, *args)        
-        RubliqueLogger.last_request_name = "#{r.parameters['controller']}/#{r.parameters['action']}/#{r.request_method}"
-        process_without_auto_rublique(r, *args)
-      end
-      alias_method_chain :process, :auto_rublique
       
-      def process_with_exception_with_auto_rublique(r, *args)
-        RubliqueLogger.last_request_name = "#{r.parameters['controller']}/#{r.parameters['action']}/#{r.request_method}/error"
-        process_with_exception_without_auto_rublique(r, *args)
-      end
-      alias_method_chain :process_with_exception, :auto_rublique    
+    def self.warn s
+      s = "#{name.underscore}: #{s}"
+      if ::ActiveRecord::Base.logger
+        ::ActiveRecord::Base.logger.warn s
+      else
+        $stderr.puts s
+      end    
     end
-  end
-      
-  ActiveRecord::Base.logger.warn "auto_rublique: enabled (log/#{RAILS_ENV}_rublique.log)"
+
+    LOGFILE = "#{RAILS_ROOT}/log/#{RAILS_ENV}_rublique.log"
+    if File.exists?(LOGFILE)
+      File.rename(LOGFILE, "#{LOGFILE}.old") 
+      warn "renamed old logfile"
+    end
+    RubliqueLogger.file = LOGFILE    
+  end  
+  
+  AutoRublique.warn "enabled (log/#{RAILS_ENV}_rublique.log)"
 else
-  ActiveRecord::Base.logger.warn "auto_rublique: not enabled"
+  AutoRublique.warn "not enabled"
 end

@@ -5,11 +5,11 @@ if ENV['AUTO_RUBLIQUE']
   require 'rublique' # gem
   require 'rublique_logger' # gem
   
-  require 'auto_rublique/dispatcher' # plugin
-  require 'auto_rublique/action_controller' # plugin
+  require 'bleak_house/dispatcher' # plugin
+  require 'bleak_house/action_controller' # plugin
 
 
-  class AutoRublique  
+  class BleakHouse  
     cattr_accessor :last_request_name
     cattr_accessor :dispatch_count
     cattr_accessor :log_interval
@@ -35,16 +35,16 @@ if ENV['AUTO_RUBLIQUE']
       end    
     end
 
-    LOGFILE = "#{RAILS_ROOT}/log/#{RAILS_ENV}_auto_rublique.log"
+    LOGFILE = "#{RAILS_ROOT}/log/#{RAILS_ENV}_bleak_house.log"
     RubliqueLogger.file = LOGFILE    
   end  
   
-  AutoRublique.warn "enabled (log/#{RAILS_ENV}_auto_rublique.log) (#{AutoRublique.log_interval} requests per frame)"
-  if File.exists?(AutoRublique::LOGFILE)
-    File.rename(AutoRublique::LOGFILE, "#{AutoRublique::LOGFILE}.old") 
-    AutoRublique.warn "renamed old logfile"
+  BleakHouse.warn "enabled (log/#{RAILS_ENV}_bleak_house.log) (#{BleakHouse.log_interval} requests per frame)"
+  if File.exists?(BleakHouse::LOGFILE)
+    File.rename(BleakHouse::LOGFILE, "#{BleakHouse::LOGFILE}.old") 
+    BleakHouse.warn "renamed old logfile"
   end
 
 else
-  AutoRublique.warn "not enabled"
+  BleakHouse.warn "not enabled"
 end

@@ -17,10 +17,10 @@ require "#{File.dirname(__FILE__)}/support_methods"
 Gruff::Base::LEFT_MARGIN = 200
 Gruff::Base::NEGATIVE_TOP_MARGIN = 30
 
-class AutoRublique
+class BleakHouse
   class Analyze
     
-    DIR = "#{RAILS_ROOT}/log/auto_rublique/"
+    DIR = "#{RAILS_ROOT}/log/bleak_house/"
     
     def initialize(data, increments, name)
       @data = data

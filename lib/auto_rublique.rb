@@ -17,6 +17,10 @@ if ENV['AUTO_RUBLIQUE']
     self.dispatch_count = 0
     self.log_interval = ENV['INTERVAL'] and ENV['INTERVAL'].to_i or 10
 
+    def self.set_request_name request, other = nil
+      self.last_request_name = "#{request.parameters['controller']}/#{request.parameters['action']}/#{request.request_method}#{other}"
+    end
+
     def self.debug s
       s = "#{name.underscore}: #{s}"
       ::ActiveRecord::Base.logger.debug s if ::ActiveRecord::Base.logger
@@ -27,7 +31,7 @@ if ENV['AUTO_RUBLIQUE']
       if ::ActiveRecord::Base.logger
         ::ActiveRecord::Base.logger.warn s
       else
-        $stderr.puts s
+        $stderrequest.puts s
       end    
     end
 

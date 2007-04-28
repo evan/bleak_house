@@ -35,11 +35,11 @@ if ENV['AUTO_RUBLIQUE']
       end    
     end
 
-    LOGFILE = "#{RAILS_ROOT}/log/#{RAILS_ENV}_rublique.log"
+    LOGFILE = "#{RAILS_ROOT}/log/#{RAILS_ENV}_auto_rublique.log"
     RubliqueLogger.file = LOGFILE    
   end  
   
-  AutoRublique.warn "enabled (log/#{RAILS_ENV}_rublique.log)"
+  AutoRublique.warn "enabled (log/#{RAILS_ENV}_auto_rublique.log)"
   if File.exists?(AutoRublique::LOGFILE)
     File.rename(AutoRublique::LOGFILE, "#{AutoRublique::LOGFILE}.old") 
     AutoRublique.warn "renamed old logfile"

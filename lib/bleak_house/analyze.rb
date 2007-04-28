@@ -40,7 +40,7 @@ class BleakHouse
         ["#{key.to_s == "" ? '(unknown)' : key.gsub(/.*::/, '')} (#{values.sum})", values]
       end.sort_by do |key, values|
         0 - key[/.*?([-\d]+)\)$/, 1].to_i
-      end[0..28].each do |key, values|
+      end[0..-1].each do |key, values|
         g.data(key, values)
       end
       

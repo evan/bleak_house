@@ -1,7 +1,7 @@
 -----------------------------------------------------------------
 
 Bleak House
-Make sure you have the gems 'rublique', 'gruff', and 'json'.
+Make sure you have the gems 'gruff', and 'json'.
 
 To run:
   RAILS_ENV=production BLEAK_HOUSE=true INTERVAL=5 ./script/server 
@@ -9,7 +9,8 @@ Browse around in your app. Cause requests. Do stuff. Then:
   RAILS_ENV=production rake bleak_house:analyze
 And then look in log/bleak_house/.
 
-Copyright (c) 2007 Cloudburst, LLC. See included LICENSE file.
+Copyright (c) 2007 Cloudburst, LLC. See included LICENSE file. Portions
+copyright Tony Arcieri and Scott Barron and used under license.
   
 I was such a shy little thing that I seldom dared to open my lips, and never 
 dared to open my heart, to anybody else.

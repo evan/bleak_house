@@ -2,11 +2,18 @@
 if ENV['BLEAK_HOUSE']
   
   require 'dispatcher' # rails  
-  require 'rublique' # gem
-  require 'rublique_logger' # gem
+
+  begin
+    require 'json'
+  rescue LoadError
+    require 'fjson'
+  end
+
+  require 'vendor/rublique' # modified Rublique gem
+  require 'vendor/rublique_logger'
   
-  require 'bleak_house/dispatcher' # plugin
-  require 'bleak_house/action_controller' # plugin
+  require 'bleak_house/dispatcher' # our plugin
+  require 'bleak_house/action_controller'
 
 
   class BleakHouse  

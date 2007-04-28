@@ -1,0 +1,83 @@
+Hello.  I'm going to answer the one question I expect to get asked regarding
+this package.  Hopefully everything else you can figure out from the RDoc.
+
+That question is:
+
+How do I use this with Rails?
+
+Well, for now, it's an ugly hack.  I don't know Rails internals well enough
+to come up with a better solution.
+
+The Rublique distribution includes a rublique_dispatcher.rb file which contains
+a replacement implementation for Dispatcher.dispatch compatible with
+Rails 1.1.6 (other versions may work.  I don't know)
+
+If you know a better way to do this, than for the love of God please e-mail
+me at tony@clickcaster.com (and no, sticking it in environment.rb won't work)
+
+First, find your gems directory (/usr/lib/ruby/gems, /usr/local/lib/ruby/gems,
+/opt/local/lib/ruby/gems, etc. depending on your platform)
+
+Then, look underr gems/1.8/gems/rails-1.1.6/lib directory and you'll find
+dispatcher.rb
+
+At the BOTTOM of this file, add:
+
+require 'rublique_dispatcher'
+
+Then restart your Rails application.
+
+This will log to RAILS_ROOT/log/rublique.log by default.  The format is a
+series of newline delimited JSON arrays, containing:
+
+[timestamp,{section breakdown}]
+
+The section breakdown is a JSON object which keys code section names (which
+with the Rails instrumentation will be in the form of "controller/action" or
+"rails" for anything done outside the dispatcher.  Each section name keys
+to another JSON object, with class names that key to an object count.
+
+The object count represents how many objects of a given class were created
+in that particular section minus how many objects of a given class originally
+created within that section were garbage collected since the last time
+the object counts were logged.  By default these deltas are logged every
+10 requests, and right now there's no good way to change that besides
+hand-editing rublique_dispatcher.rb (this is a 0.0.1 release, after all)
+
+That information probably isn't very useful to you, but fortunately Rublique
+includes a log analyzer tool that outputs CSV files you can import into
+the graphing tool of your choice.
+
+Run:
+
+rublique_analyzer -s rublique.log
+
+to output a breakdown of net object creation by code section over time.  The
+first column represents time in seconds, and the others object counts.
+
+To inspect a particular section, use:
+
+rublique_analyzer -c controller/action rublique.log
+
+This will give you a CSV breakdown of object allocation by class per code 
+section over time.
+
+---
+
+Known bugs:
+
+Rublique is neither thread safe nor reentrant.  This can lead to some erroneous
+numbers when used in a threaded environment (which is pretty much guaranteed
+with Rails)
+
+Rublique provides no interface for nor keeps a stack of code sections.  This
+means it presently only works within a dispatcher-like framework where
+you have an outer environment section which dispatches to various inner
+processing sections.  Sections can be no deeper than two levels.
+
+Because of this, things like Rails components will mess up Rublique's
+housekeeping.  Rublique really needs to keep a stack of code sections, and have
+a .pop method to move down a level.  That will have to wait for a future 
+version, sorry folks.
+
+For now: don't use components!

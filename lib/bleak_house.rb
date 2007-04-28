@@ -1,5 +1,5 @@
 
-if ENV['AUTO_RUBLIQUE']
+if ENV['BLEAK_HOUSE']
   
   require 'dispatcher' # rails  
   require 'rublique' # gem
@@ -45,6 +45,4 @@ if ENV['AUTO_RUBLIQUE']
     BleakHouse.warn "renamed old logfile"
   end
 
-else
-  BleakHouse.warn "not enabled"
 end

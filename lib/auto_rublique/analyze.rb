@@ -1,7 +1,10 @@
 
 require 'rubygems'
 require 'fileutils'
+
+gem 'gruff', '= 0.2.8'
 require 'gruff'
+
 begin 
   require 'fjson'
 rescue LoadError
@@ -25,8 +28,7 @@ class AutoRublique
       @name = name
     end 
     
-    def draw
-    
+    def draw    
       g = Gruff::Line.new("1024x768")
       g.title = @name
       g.x_axis_label = "time"
@@ -37,7 +39,7 @@ class AutoRublique
       @data.map do |key, values|
         ["#{key.to_s == "" ? '(unknown)' : key.gsub(/.*::/, '')} (#{values.sum})", values]
       end.sort_by do |key, values|
-        0 - key[/.*?(\d+)\)$/, 1].to_i
+        0 - key[/.*?([-\d]+)\)$/, 1].to_i
       end[0..28].each do |key, values|
         g.data(key, values)
       end
@@ -110,15 +112,15 @@ class AutoRublique
         controller_data.keys.each do |controller|
           puts "  ...in #{controller} controller"
           Dir.descend(controller) do             
-            action_data, increments = aggregate data, /^#{controller}($|\/)/, /\/(.*?)($|\/|::::)/
+            action_data, increments = aggregate data, /^#{controller}($|\/|::::)/, /\/(.*?)($|\/|::::)/
             Analyze.new(action_data, increments, "objects per action in /#{controller}").draw
           
           # in each action, by object class
           action_data.keys.each do |action|
-            next if action.to_s == ""
+            action = "unknown" if action.to_s == ""
             puts "    ... in #{action} action"
             Dir.descend(action) do
-              class_data, increments = aggregate data, /^#{controller}\/#{action}($|\/|::::)/, /::::(.*)/
+              class_data, increments = aggregate data, /^#{controller}#{"\/#{action}" unless action == "unknown"}($|\/|::::)/, /::::(.*)/
               Analyze.new(class_data, increments, "objects per class in /#{controller}/#{action}").draw
             end
           end

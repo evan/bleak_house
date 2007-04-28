@@ -1,13 +1,17 @@
 
-Auto Rublique
+Bleak House
 
 Make sure you have the gems 'rublique', 'gruff', and either 'json' or 'fjson'.
-  RAILS_ENV=production AUTO_RUBLIQUE=true INTERVAL=10 ./script/server 
-  RAILS_ENV=production rake auto_rublique:graph
+
+Run:
+  RAILS_ENV=production BLEAK_HOUSE=true INTERVAL=10 ./script/server 
+Browse around in your app. Cause requests. Do stuff. Then:
+  RAILS_ENV=production rake auto_rublique:analyze
+And then look in log/auto_rublique/.
 
 Copyright (c) 2007 Cloudburst, LLC. See included LICENSE file.
   
 I was such a shy little thing that I seldom dared to open my lips, and never 
 dared to open my heart, to anybody else.
-- Bleak House
+- Dickens, Bleak House
  

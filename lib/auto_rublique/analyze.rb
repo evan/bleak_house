@@ -35,11 +35,11 @@ class AutoRublique
       g.marker_font_size = 14
               
       @data.map do |key, values|
-        ["#{key} (#{values.sum})", values]
+        ["#{key.to_s == "" ? '(unknown)' : key.gsub(/.*::/, '')} (#{values.sum})", values]
       end.sort_by do |key, values|
         0 - key[/.*?(\d+)\)$/, 1].to_i
-      end[0..30].each do |key, values|
-        g.data(key.to_s == "" ? 'unknown' : key.gsub(/.*::/, ''), values)
+      end[0..28].each do |key, values|
+        g.data(key, values)
       end
       
       labels = {}

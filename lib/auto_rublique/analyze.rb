@@ -23,8 +23,8 @@ class AutoRublique
       g = Gruff::Line.new
       g.title = @name
       
-      @data.each do |key, value|
-        g.data(key || 'unknown', value)
+      @data.each do |key, value|        
+        g.data(key.to_s == "" ? 'unknown' : key.gsub(/.*::/, ''), value)
       end
       
       labels = {}
@@ -47,18 +47,18 @@ class AutoRublique
           aggregate_data[key[namer, 1]] = []
         end
       end
-      data.each do |frameset|
+      data.each_with_index do |frameset, index|
         increments << frameset.time
-        remaining_keys = aggregate_data.keys
         frameset.data.keys.each do |key|
           aggregate_key = key[namer, 1]
-          # add the delta
-          aggregate_data[aggregate_key] << (frameset.data[key].values.inject(0) {|sum, x| sum + x} + aggregate_data[aggregate_key].last.to_i)
-          remaining_keys.delete aggregate_key              
+          # add the delta for this key or subkey
+          aggregate_data[aggregate_key][index] = 
+            aggregate_data[aggregate_key][index].to_i + frameset.data[key]
         end
-        remaining_keys.each do |aggregate_key|
-          # or no change
-          aggregate_data[aggregate_key] << aggregate_data[aggregate_key].last.to_i
+        aggregate_data.keys.each do |aggregate_key|
+          # add the previous value
+          aggregate_data[aggregate_key][index] = 
+            aggregate_data[aggregate_key][index].to_i + aggregate_data[aggregate_key][index - 1].to_i
         end
       end
       [aggregate_data, increments]
@@ -74,10 +74,20 @@ class AutoRublique
 
       Dir.chdir(DIR) do        
         puts "Parsing data"
-        data = JSON.parse("[" + File.open(filename).readlines.join(", ") + "]")
+        data = []
+        # need to flatten the namespace
+        JSON.parse("[" + File.open(filename).readlines.join(", ") + "]").each do |frameset|
+          subframes = {}
+          frameset.data.map do |key, value|
+            value.each do |object_key, count|
+              subframes["#{key}::::#{object_key}"] = count
+            end  
+          end
+          data << [frameset.time, subframes]
+        end        
         
         puts "By controller"
-        controller_data, increments = aggregate data, //, /^(.*?)($|\/)/
+        controller_data, increments = aggregate data, //, /^(.*?)($|\/|::::)/
         Analyze.new(controller_data, increments, "objects per controller").draw
         
         # in each controller, by action
@@ -85,10 +95,18 @@ class AutoRublique
         controller_data.keys.each do |controller|
           puts "  ...in #{controller} controller"
           Dir.descend(controller) do             
-            action_data, increments = aggregate data, /^#{controller}($|\/)/, /\/(.*?)($|\/)/
-            Analyze.new(action_data, increments, "objects per action in #{controller}").draw
+            action_data, increments = aggregate data, /^#{controller}($|\/)/, /\/(.*?)($|\/|::::)/
+            Analyze.new(action_data, increments, "objects per action in /#{controller}").draw
           
-          # in each action, by http method and object class
+          # in each action, by object class
+          action_data.keys.each do |action|
+            next if action.to_s == ""
+            puts "    ... in #{action} action"
+            Dir.descend(action) do
+              class_data, increments = aggregate data, /^#{controller}\/#{action}($|\/|::::)/, /::::(.*)/
+              Analyze.new(class_data, increments, "objects per class in /#{controller}/#{action}").draw
+            end
+          end
           
           end          
         end

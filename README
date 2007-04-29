@@ -1,7 +1,7 @@
 -----------------------------------------------------------------
 
-Bleak House
-Make sure you have the gems 'gruff', and 'json'.
+BleakHouse
+You need the 'gruff' gem, and 'rmagick', and all that.
 
 To run:
   RAILS_ENV=production BLEAK_HOUSE=true INTERVAL=5 ./script/server 

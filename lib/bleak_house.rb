@@ -2,19 +2,10 @@
 if ENV['BLEAK_HOUSE']
   
   require 'dispatcher' # rails  
-
-  begin
-    require 'json'
-  rescue LoadError
-    require 'fjson'
-  end
-
-  require 'vendor/rublique' # modified Rublique gem
-  require 'vendor/rublique_logger'
   
-  require 'bleak_house/dispatcher' # our plugin
+  require 'bleak_house/mem_logger'
+  require 'bleak_house/dispatcher'
   require 'bleak_house/action_controller'
-
 
   class BleakHouse  
     cattr_accessor :last_request_name
@@ -38,18 +29,17 @@ if ENV['BLEAK_HOUSE']
       if ::ActiveRecord::Base.logger
         ::ActiveRecord::Base.logger.warn s
       else
-        $stderrequest.puts s
+        $stderr.puts s
       end    
     end
 
-    LOGFILE = "#{RAILS_ROOT}/log/#{RAILS_ENV}_bleak_house.log"
-    RubliqueLogger.file = LOGFILE    
+    LOGFILE = "#{RAILS_ROOT}/log/bleak_house_#{RAILS_ENV}.dump"
+    if File.exists?(LOGFILE)
+      File.rename(LOGFILE, "#{LOGFILE}.old") 
+      warn "renamed old logfile"
+    end
+    
   end  
   
   BleakHouse.warn "enabled (log/#{RAILS_ENV}_bleak_house.log) (#{BleakHouse.log_interval} requests per frame)"
-  if File.exists?(BleakHouse::LOGFILE)
-    File.rename(BleakHouse::LOGFILE, "#{BleakHouse::LOGFILE}.old") 
-    BleakHouse.warn "renamed old logfile"
-  end
-
 end

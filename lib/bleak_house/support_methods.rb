@@ -4,7 +4,11 @@ class Array
   alias :data :last
   
   def sum
-    inject(0) {|s, x| s + x}
+    inject(0) {|s, x| x + s}
+  end
+  
+  def to_i
+    self.map{|s| s.to_i}
   end
     
 end
@@ -27,5 +31,17 @@ end
 class String
   def to_filename
     self.downcase.gsub(/[^\w\d\-]/, '_')
+  end
+end
+
+class NilClass
+  def +(op)
+    self.to_i + op
+  end
+end
+ 
+class Symbol
+  def =~ regex
+    self.to_s =~ regex
   end
 end

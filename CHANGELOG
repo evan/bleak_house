@@ -1,0 +1,6 @@
+
+BleakHouse Changelog
+
+2. dumped Rublique once I understood what it did; replaced with a lightweight non-delta marshalling version
+1. first version
+

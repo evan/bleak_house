@@ -30,7 +30,7 @@ if ENV['BLEAK_HOUSE']
         ::ActiveRecord::Base.logger.warn s
       else
         $stderr.puts s
-      end    
+      end
     end
 
     LOGFILE = "#{RAILS_ROOT}/log/bleak_house_#{RAILS_ENV}.dump"
@@ -40,6 +40,5 @@ if ENV['BLEAK_HOUSE']
     end
     
   end  
-  
-  BleakHouse.warn "enabled (log/#{RAILS_ENV}_bleak_house.log) (#{BleakHouse.log_interval} requests per frame)"
 end
+

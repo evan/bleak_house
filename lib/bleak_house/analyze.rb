@@ -48,7 +48,7 @@ class BleakHouse
       end.sort_by do |key, values|
         0 - key[/.*?([\d]+)\)$/, 1].to_i
       end.each do |key, values|
-        g.data(key, values)
+        g.data(key, values.to_i)
       end
       
       labels = {}

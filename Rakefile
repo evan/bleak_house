@@ -19,7 +19,7 @@ begin
   HOMEPATH = "http://blog.evanweaver.com"
   RELEASE_TYPES = ["gem"]
   REV = nil
-  VERS = `cat README`[/^([\d\.]+)\. /, 1]
+  VERS = `cat CHANGELOG`[/^([\d\.]+)\. /, 1]
   CLEAN.include ['**/.*.sw?', '*.gem', '.config']
   RDOC_OPTS = ['--quiet', '--title', "bleak_house documentation",
       "--opname", "index.html",

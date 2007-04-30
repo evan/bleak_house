@@ -21,14 +21,13 @@ begin
   REV = nil
   VERS = `cat CHANGELOG`[/^([\d\.]+)\. /, 1]
   CLEAN.include ['**/.*.sw?', '*.gem', '.config']
-  RDOC_OPTS = ['--quiet', '--title', "bleak_house documentation",
-      "--opname", "index.html",
-      "--line-numbers", 
-      "--main", "README",
-      "--inline-source"]
+  RDOC_OPTS = ['--quiet', '--title', "bleak_house documentation", "--opname", "index.html", "--line-numbers", "--main", "README", "--inline-source"]
   
   include FileUtils
-    
+  
+  taskmsg = File.open(File.dirname(__FILE__) + "/tasks/bleak_house_tasks.rake").readlines
+  taskmsg = taskmsg[0..3] + [taskmsg[7][2..-1]] + taskmsg[9..-1]
+  
   echoe = Echoe.new(GEM_NAME, VERS) do |p|
     p.author = AUTHOR 
     p.rubyforge_name = RUBYFORGE_NAME
@@ -42,6 +41,14 @@ begin
     p.need_tar_gz = true
     p.test_globs = ["*_test.rb"]
     p.clean_globs = CLEAN  
+    p.spec_extras = {:post_install_message => 
+"
+Thanks for installing Bleak House #{VERS}. 
+
+For each Rails app you want to profile, you will need to add the following 
+rake task in RAILS_ROOT/lib/tasks/bleak_house_tasks.rake to be able to run 
+the analyzer: 
+" + taskmsg.join("  ") + "\n"}
   end
             
 rescue LoadError => boom

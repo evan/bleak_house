@@ -6,8 +6,9 @@ require 'base64'
 gem 'gruff', '= 0.2.8'
 require 'gruff'
 
-require "#{File.dirname(__FILE__)}/gruff_hacks"
-require "#{File.dirname(__FILE__)}/support_methods"
+# require, but make rdoc not whine
+load "#{File.dirname(__FILE__)}/gruff_hacks.rb"
+load "#{File.dirname(__FILE__)}/support_methods.rb"
 
 Gruff::Base::LEFT_MARGIN = 200
 Gruff::Base::NEGATIVE_TOP_MARGIN = 30

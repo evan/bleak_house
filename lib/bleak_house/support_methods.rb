@@ -16,7 +16,7 @@ end
 class Dir
   def self.descend path, &block
     path = path.split("/") unless path.is_a? Array
-    top = path.shift
+    top = (path.shift or ".")
     Dir.mkdir(top) unless File.exists? top
     Dir.chdir(top) do
       if path.any?

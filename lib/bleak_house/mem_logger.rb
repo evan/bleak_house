@@ -41,7 +41,7 @@ class BleakHouse::MemLogger
     end        
     
     def mem_usage
-      `ps -x -o 'rss vsz' -p #{Process.pid}`.split(/\s+/)[-2..-1].map{|el| el.to_i}
+      `ps -o rss,vsz -p #{Process.pid}`.split(/\s+/)[-2..-1].map{|el| el.to_i}
     end
     
   end

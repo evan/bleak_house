@@ -30,4 +30,7 @@ class BleakHouse
     File.rename(LOGFILE, "#{LOGFILE}.old") 
     warn "renamed old logfile"
   end
+  
+  WITH_MEM = RUBY_PLATFORM !~ /win32/i # maybe this will work
+  
 end

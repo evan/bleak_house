@@ -14,7 +14,7 @@ class Dispatcher
       BleakHouse::MemLogger.snapshot(BleakHouse.last_request_name || 'unknown')
       if (BleakHouse.dispatch_count % BleakHouse.log_interval).zero?
         BleakHouse.warn "wrote frameset (#{BleakHouse.dispatch_count} dispatches)"
-        BleakHouse::MemLogger.log(BleakHouse::LOGFILE)
+        BleakHouse::MemLogger.log(BleakHouse::LOGFILE, BleakHouse::WITH_MEM)
       end
       reset_after_dispatch_without_bleak_house
     end

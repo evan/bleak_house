@@ -16,6 +16,8 @@ Gruff::Base::MAX_LEGENDS = 28
 
 class BleakHouse
   class Analyze    
+  
+    MEM_KEY = "memory usage"
     
     DIR = "#{RAILS_ROOT}/log/bleak_house/"
     
@@ -33,19 +35,8 @@ class BleakHouse
       g.title_font_size = 24
       g.marker_font_size = 14
             
-      @data.map do |key, values|
-        name = if key.to_s == ""
-          '[Unknown]' 
-        else
-#        elsif key =~ Regexp.new(@specials.keys.join('|'))
-#          name = "#{key} (#{values.to_i.max / (2**10)} MB)"
-#          @specials.each do |regex, scale|
-#            values.map! {|x| x * scale} if key =~ regex
-#          end              
-#        else
-          "#{key.gsub(/.*::/, '')} (#{values.to_i.max})"
-        end
-        [name, values]
+      @data.map do |key, values|        
+        ["#{(key.to_s.empty? ? '[Unknown]' : key).gsub(/.*::/, '')} (#{key == MEM_KEY ? "relative" : values.to_i.max})", values] # hax
       end.sort_by do |key, values|
         0 - key[/.*?([\d]+)\)$/, 1].to_i
       end.each do |key, values|
@@ -90,45 +81,39 @@ class BleakHouse
 
       Dir.chdir(DIR) do        
 
-        puts "Parsing data"
+        puts "parsing data"
         data = File.open(filename).readlines.map do |line|
           Marshal.load Base64.decode64(line)
         end
         
-#        data_maximum = data.flatten.inject(0) do |max, el|
-#          if el.is_a? Hash
-#            current_max = el.merge({:"real memory" => 0, :"virtual memory" => 0}).values.to_i.max
-#            current_max if max < current_max
-#          end or max
-#        end
-#        mem_maximum = data.flatten.inject(0) do |max, el| # only real memory (RSS) for now
-#          (el["real memory"] if el.is_a?(Hash) and max < el["real memory"]) or max
-#        end
-#        mem_scale = data_maximum / mem_maximum.to_f
-#        scales = {/memory$/ => mem_scale}
-        
-        puts "By controller"
+        puts "entire app"
         controller_data, increments = aggregate(data, //, /^(.*?)($|\/|::::)/)
+        if controller_data.has_key? MEM_KEY
+          controller_data_without_memory = controller_data.dup
+          controller_data_without_memory.delete(MEM_KEY)
+          scale_factor = controller_data_without_memory.values.flatten.to_i.max / controller_data[MEM_KEY].max.to_f * 0.8
+          controller_data[MEM_KEY] = controller_data[MEM_KEY].map{|x| (x * scale_factor).to_i }
+        end
         Analyze.new(controller_data, increments, "objects by controller").draw
                 
         # in each controller, by action
-        puts "By action"
         controller_data.keys.each do |controller|
-          puts "  ...in #{controller} controller"
+          @mem = (controller == MEM_KEY)
+          puts(@mem ? "  #{controller}" : "  action for #{controller} controller")
           Dir.descend(controller) do             
             action_data, increments = aggregate(data, /^#{controller}($|\/|::::)/, /\/(.*?)($|\/|::::)/)
-            Analyze.new(action_data, increments, "objects by action in /#{controller}").draw
+            Analyze.new(action_data, increments, @mem ?  "#{controller} in kilobytes" : "objects by action in /#{controller}_controller").draw          
           
-          # in each action, by object class
-          action_data.keys.each do |action|
-            action = "unknown" if action.to_s == ""
-            puts "    ...in #{action} action"
-            Dir.descend(action) do
-              class_data, increments = aggregate(data, /^#{controller}#{"\/#{action}" unless action == "unknown"}($|\/|::::)/, 
-                /::::(.*)/)
-              Analyze.new(class_data, increments, "objects by class in /#{controller}/#{action}").draw
-            end
-          end
+            # in each action, by object class
+            action_data.keys.each do |action|
+              action = "unknown" if action.to_s == ""
+              puts "    class for #{action} action"
+              Dir.descend(action) do
+                class_data, increments = aggregate(data, /^#{controller}#{"\/#{action}" unless action == "unknown"}($|\/|::::)/, 
+                  /::::(.*)/)
+                Analyze.new(class_data, increments, "objects by class in /#{controller}/#{action}").draw
+              end
+            end unless @mem
           
           end          
         end

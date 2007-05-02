@@ -8,8 +8,8 @@ class BleakHouse::MemLogger
     CURRENT = {}
     TAGS = Hash.new(0)
     TIMEFORMAT = '%Y-%m-%d %H:%M:%S'
-    VSZ = "virtual memory"
-    RSS = "real memory"
+    VSZ = "memory usage/virtual"
+    RSS = "memory usage/real"
 
     def log(path, with_mem = false)
       File.open(path, 'a+') do |log|

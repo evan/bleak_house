@@ -53,4 +53,10 @@ class Gruff::Base
     @graph_top -= NEGATIVE_TOP_MARGIN    
   end
   
+  alias :clip_value_if_greater_than_without_size_hacks :clip_value_if_greater_than
+  def clip_value_if_greater_than(arg1, arg2)
+     arg2 = arg2 / 2 if arg1 == @columns / (@norm_data.first[1].size * 2.5)
+     clip_value_if_greater_than_without_size_hacks(arg1, arg2)
+  end
+  
 end

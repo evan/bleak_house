@@ -1,7 +1,7 @@
 
 BleakHouse Changelog
 
-3.2. log memory usage on *nix
+4. log memory usage on *nix
 3.1. fix nil directory traversal error on windows
 3. gem version
 2. dumped rublique once I understood what it did; replaced with a lightweight non-delta marshalling version

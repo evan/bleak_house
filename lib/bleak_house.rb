@@ -8,6 +8,6 @@ if ENV['BLEAK_HOUSE']
   require 'bleak_house/dispatcher'
   require 'bleak_house/action_controller'
 
-  BleakHouse.warn "enabled (log/#{RAILS_ENV}_bleak_house.log) (#{BleakHouse.log_interval} requests per frame)"
+  BleakHouse.warn "enabled (log/bleak_house_#{RAILS_ENV}.dump) (#{BleakHouse.log_interval} requests per frame)"
     
 end

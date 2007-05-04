@@ -3,7 +3,7 @@ require 'base64'
 
 class BleakHouse::MemLogger
   class << self
-
+  
     SEEN = {}
     CURRENT = {}
     TAGS = Hash.new(0)

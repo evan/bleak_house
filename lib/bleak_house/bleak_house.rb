@@ -31,6 +31,7 @@ class BleakHouse
     warn "renamed old logfile"
   end
   
+  WITH_OBJS = true
   WITH_MEM = RUBY_PLATFORM !~ /win32/i # maybe this will work
   
 end

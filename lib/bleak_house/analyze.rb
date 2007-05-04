@@ -91,7 +91,7 @@ class BleakHouse
         if controller_data.has_key? MEM_KEY
           controller_data_without_memory = controller_data.dup
           controller_data_without_memory.delete(MEM_KEY)
-          scale_factor = controller_data_without_memory.values.flatten.to_i.max / controller_data[MEM_KEY].max.to_f * 0.8
+          scale_factor = controller_data_without_memory.values.flatten.to_i.max / controller_data[MEM_KEY].max.to_f * 0.8 rescue 1
           controller_data[MEM_KEY] = controller_data[MEM_KEY].map{|x| (x * scale_factor).to_i }
         end
         Analyze.new(controller_data, increments, "objects by controller").draw

@@ -20,7 +20,7 @@ Browse around manually, thrash your entire app with a script,
 target troublesome controllers/actions, etc.
 
 Then, to analyze:
-  RAILS_ENV=production SMOOTHNESS=1 rake bleak_house:analyze
+  RAILS_ENV=production SMOOTHNESS=2 rake bleak_house:analyze
 
 And then look in log/bleak_house/.
 

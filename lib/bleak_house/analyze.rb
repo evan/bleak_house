@@ -85,7 +85,6 @@ class BleakHouse
         puts "parsing data"
         data = YAML.load_file(filename)
         data = data[0..(-1 - data.size % SMOOTHNESS)]
-        puts "#{data.size / SMOOTHNESS} frames"
         data = data.in_groups_of(SMOOTHNESS).map do |frames|
           timestamp = frames.map(&:time).sum / SMOOTHNESS
           values = frames.map(&:data).inject(Hash.new(0)) do |total, this_frame|
@@ -96,6 +95,7 @@ class BleakHouse
           end
           [Time.at(timestamp).strftime("%H:%M:%S"), values]
         end                     
+        puts "#{data.size} frames after smoothing"
 
         puts "entire app"
         controller_data, increments = aggregate(data, //, /^(.*?)($|\/|::::)/)

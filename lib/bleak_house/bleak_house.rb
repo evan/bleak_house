@@ -26,7 +26,7 @@ class BleakHouse
     warn "renamed old logfile"
   end
   
-  WITH_SPECIALS = false;
+  WITH_SPECIALS = false
 
   MEMLOGGER = if `which ruby-bleak-house` !~ /no ruby_bleak_house/ # total hack
     require 'bleak_house/c'

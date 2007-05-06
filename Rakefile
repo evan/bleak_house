@@ -55,10 +55,10 @@ Rake::Task.redefine_task("test") do
 #   system "ruby -Ibin:lib:test test/unit/polymorph_test.rb #{ENV['METHOD'] ? "--name=#{ENV['METHOD']}" : ""}"
 end
 
-desc 'Build the patched Ruby binary.'
+desc 'Build a patched binary.'
 namespace :ruby do
   task :build do    
-    if RUBY_PLATFORM =~ /win32/
+    if RUBY_PLATFORM =~ /darwin/
       puts "ERROR: windows not supported."
       exit
     end
@@ -96,7 +96,7 @@ namespace :ruby do
     end    
   end
 
-  desc "test patched Ruby binary"
+  desc "Test the patched binary"
   task :test do
     if `#{DIR}/test/script/test_mem_inspect.rb 2>&1` == "ok\n"
       puts "pass"

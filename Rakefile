@@ -2,6 +2,8 @@ require 'rubygems'
 require 'rake'
 require 'lib/bleak_house/rake_task_redefine_task'
 
+DIR = File.dirname(__FILE__)
+
 begin
   require 'rake/clean'
   gem 'echoe', '>= 1.2'
@@ -12,7 +14,7 @@ begin
   CLEAN.include ['**/.*.sw?', '*.gem', '.config']  
   VERS = `cat CHANGELOG`[/^([\d\.]+)\. /, 1]
   
-  taskmsg = File.open(File.dirname(__FILE__) + "/tasks/bleak_house_tasks.rake").readlines
+  taskmsg = File.open(DIR + "/tasks/bleak_house_tasks.rake").readlines
   taskmsg = taskmsg[0..3] + [taskmsg[7][2..-1]] + taskmsg[9..-1]
   
   echoe = Echoe.new("bleak_house", VERS) do |p|
@@ -56,12 +58,16 @@ end
 desc 'Build the patched Ruby binary.'
 namespace :ruby do
   task :build do    
-    require 'open-uri'
+    if RUBY_PLATFORM =~ /win32/
+      puts "ERROR: windows not supported."
+      exit
+    end
     require 'fileutils'
     puts "building patched Ruby binary"
     tmp = "/tmp/"
     Dir.chdir(tmp) do
       build_dir = "bleak_house"
+      binary_dir = File.dirname(`which ruby`)
       FileUtils.rm_rf(build_dir) rescue nil
       Dir.mkdir(build_dir)
       begin
@@ -73,24 +79,30 @@ namespace :ruby do
           system("tar xjf #{bz2} &> tar.log")
           File.delete bz2
           Dir.chdir("ruby-1.8.6") do
-            puts "  patching" or system("patch -p0 < \'#{File.dirname(__FILE__)}/patches/gc.c.patch\' &> ../patch.log")
-            puts "  configuring" or system("./configure --prefix=#{tmp}#{build_dir}/usr &> ../configure.log")
+            puts "  patching" or system("patch -p0 < \'#{DIR}/patches/gc.c.patch\' &> ../patch.log")
+            puts "  configuring" or system("./configure --prefix=#{binary_dir[0..-5]} &> ../configure.log") # --with-static-linked-ext
             puts "  making" or system("make &> ../make.log")
   
-            raise "No home directory set in ENV['HOME']" unless home = ENV['HOME']
-            binary_dir = "#{home}/bin"
-            puts "  installing to #{binary_dir}"
             binary = "#{binary_dir}/ruby_bleak_house"
+            puts "  installing as #{binary}"
             FileUtils.cp("./ruby", binary)
             FileUtils.chmod(0755, binary)
-  
-            puts "  installed as #{binary}"
+            puts "  done"
           end
         end
       rescue Object => e
         puts "ERROR: please see the last modified log file in #{tmp}#{build_dir}, perhaps\nit will contain a clue."
       end    
     end    
+  end
+
+  desc "test patched Ruby binary"
+  task :test do
+    if `#{DIR}/test/script/test_mem_inspect.rb 2>&1` == "ok\n"
+      puts "pass"
+    else
+      puts "fail"
+    end
   end
 end
 

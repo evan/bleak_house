@@ -28,14 +28,15 @@ class BleakHouse
   
   WITH_SPECIALS = false
 
-  MEMLOGGER = if `which ruby-bleak-house` !~ /no ruby_bleak_house/ # total hack
+  MEMLOGGER = if ENV['MEMLOGGER'] !~ /ruby/i and (ENV['MEMLOGGER'] =~ /c/i or 
+    `which ruby-bleak-house` !~ /no ruby_bleak_house/)    
     require 'bleak_house/c'
     warn "using C instrumentation"
     CLogger.new
   else
     require 'bleak_house/ruby'
     warn "using pure Ruby instrumentation"
-    warn "build the patched binary for large speed and accuracy improvements"
+    warn "(build the patched binary for speed and accuracy improvements)"
     RubyLogger.new
   end
 

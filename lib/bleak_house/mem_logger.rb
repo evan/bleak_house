@@ -10,13 +10,15 @@ class BleakHouse::MemLogger
     TIMEFORMAT = '%Y-%m-%d %H:%M:%S'
     SWAP = "memory usage/swap"
     RSS = "memory usage/real"
+    NEWLINE = "\n"
+    EMPTY_STRING = ""
 
     def log(path, with_mem = false)
       File.open(path, 'a+') do |log|
         log.sync = true
         TAGS[SWAP], TAGS[RSS] = mem_usage if with_mem
         TAGS[SWAP] -= TAGS[RSS]
-        log.puts Base64.encode64(Marshal.dump([Time.now.strftime(TIMEFORMAT), TAGS])).gsub("\n", '')
+        log.puts Base64.encode64(Marshal.dump([Time.now.strftime(TIMEFORMAT), TAGS])).gsub(NEWLINE, EMPTY_STRING)
       end
       GC.start
     end

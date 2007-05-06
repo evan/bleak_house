@@ -1,11 +1,6 @@
 
 class BleakHouse  
   cattr_accessor :last_request_name
-  cattr_accessor :dispatch_count
-  cattr_accessor :log_interval
-
-  self.dispatch_count = 0
-  self.log_interval = (ENV['INTERVAL'] and ENV['INTERVAL'].to_i or 10)
 
   def self.set_request_name request, other = nil
     self.last_request_name = "#{request.parameters['controller']}/#{request.parameters['action']}/#{request.request_method}#{other}"
@@ -31,7 +26,17 @@ class BleakHouse
     warn "renamed old logfile"
   end
   
-  WITH_OBJS = true
-  WITH_MEM = RUBY_PLATFORM !~ /win32/i # maybe this will work
-  
+  WITH_SPECIALS = false;
+
+  MEMLOGGER = if `which ruby-bleak-house` !~ /no ruby_bleak_house/ # total hack
+    require 'bleak_house/c'
+    warn "using C instrumentation"
+    CLogger.new
+  else
+    require 'bleak_house/ruby'
+    warn "using pure Ruby instrumentation"
+    warn "build the patched binary for large speed and accuracy improvements"
+    RubyLogger.new
+  end
+
 end

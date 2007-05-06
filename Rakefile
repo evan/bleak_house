@@ -45,14 +45,13 @@ rescue LoadError => boom
   puts "You are missing a dependency required for meta-operations on this gem."
   puts "#{boom.to_s.capitalize}."
   
-  desc 'Run the default tasks'
+  desc 'Run tests.'
   task :default => :test
 end
 
-desc 'Do nothing.'
+desc 'Run tests.'
 Rake::Task.redefine_task("test") do
-   puts "There are no tests. You could totally write some, though."
-#   system "ruby -Ibin:lib:test test/unit/polymorph_test.rb #{ENV['METHOD'] ? "--name=#{ENV['METHOD']}" : ""}"
+  system "ruby-bleak-house -Ibin:lib:test test/unit/test_bleak_house.rb #{ENV['METHOD'] ? "--name=#{ENV['METHOD']}" : ""}"
 end
 
 desc 'Build a patched binary.'
@@ -83,7 +82,7 @@ namespace :ruby do
             puts "  configuring" or system("./configure --prefix=#{binary_dir[0..-5]} &> ../configure.log") # --with-static-linked-ext
             puts "  making" or system("make &> ../make.log")
   
-            binary = "#{binary_dir}/ruby_bleak_house"
+            binary = "#{binary_dir}/ruby-bleak-house"
             puts "  installing as #{binary}"
             FileUtils.cp("./ruby", binary)
             FileUtils.chmod(0755, binary)
@@ -94,15 +93,6 @@ namespace :ruby do
         puts "ERROR: please see the last modified log file in #{tmp}#{build_dir}, perhaps\nit will contain a clue."
       end    
     end    
-  end
-
-  desc "Test the patched binary"
-  task :test do
-    if `#{DIR}/test/script/test_mem_inspect.rb 2>&1` == "ok\n"
-      puts "pass"
-    else
-      puts "fail"
-    end
   end
 end
 

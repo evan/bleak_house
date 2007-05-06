@@ -1,7 +1,8 @@
 
 require 'rubygems'
 require 'fileutils'
-require 'base64'
+require 'yaml'
+require 'active_support'
 
 gem 'gruff', '= 0.2.8'
 require 'gruff'
@@ -17,8 +18,8 @@ Gruff::Base::MAX_LEGENDS = 28
 class BleakHouse
   class Analyze    
   
+    SMOOTHNESS = ((i = ENV['SMOOTHNESS'].to_i) < 2 ? 2 : i)/2 * 2
     MEM_KEY = "memory usage"
-    
     DIR = "#{RAILS_ROOT}/log/bleak_house/"
     
     def initialize(data, increments, name)
@@ -46,7 +47,7 @@ class BleakHouse
       labels = {}
       mod = (@increments.size / 4.0).ceil
       @increments.each_with_index do |increment, index|
-        labels[index] = increment.split(" ").last if (index % mod).zero?
+        labels[index] = increment if (index % mod).zero?
       end
       g.labels = labels
       
@@ -67,7 +68,7 @@ class BleakHouse
           aggregate_data[key.to_s[namer, 1]] ||= []
           aggregate_data[key.to_s[namer, 1]][index] += frameset.data[key].to_i
         end
-      end
+      end                 
       [aggregate_data, increments]
     end
     
@@ -82,10 +83,20 @@ class BleakHouse
       Dir.chdir(DIR) do        
 
         puts "parsing data"
-        data = File.open(filename).readlines.map do |line|
-          Marshal.load Base64.decode64(line)
-        end
-        
+        data = YAML.load_file(filename)
+        data = data[0..(-1 - data.size % SMOOTHNESS)]
+        puts "#{data.size / SMOOTHNESS} frames"
+        data = data.in_groups_of(SMOOTHNESS).map do |frames|
+          timestamp = frames.map(&:time).sum / SMOOTHNESS
+          values = frames.map(&:data).inject(Hash.new(0)) do |total, this_frame|
+            this_frame.each do |key, value|
+              total[key] += value
+            end
+            total
+          end
+          [Time.at(timestamp).strftime("%H:%M:%S"), values]
+        end                     
+
         puts "entire app"
         controller_data, increments = aggregate(data, //, /^(.*?)($|\/|::::)/)
         if controller_data.has_key? MEM_KEY

@@ -1,20 +1,41 @@
------------------------------------------------------------------
 
 BleakHouse
-You need the 'gruff' gem, and 'rmagick', and all that.
 
-To run:
-  RAILS_ENV=production BLEAK_HOUSE=true INTERVAL=5 ./script/server 
-Browse around in your app. Cause requests. Do stuff. Then:
-  RAILS_ENV=production rake bleak_house:analyze
+REQUIREMENTS:
+
+A *nix operating system. Windows is not supported.
+
+Gems: 'gruff', 'rmagick', 'active_support', 'RubyInline'
+
+It is highly recommended that you compile the bleak_house patched 
+Ruby build. In the plugin directory: 
+  rake ruby:build
+
+USAGE:
+
+To profile your application:
+  RAILS_ENV=production BLEAK_HOUSE=true ruby-bleak-house ./script/server 
+  
+Browse around manually, thrash your entire app with a script, 
+target troublesome controllers/actions, etc.
+
+Then, to analyze:
+  RAILS_ENV=production SMOOTHNESS=1 rake bleak_house:analyze
+
 And then look in log/bleak_house/.
 
-Copyright (c) 2007 Cloudburst, LLC. See included LICENSE file. Portions
-copyright Tony Arcieri and Scott Barron and used under license.
-  
-I was such a shy little thing that I seldom dared to open my lips, and never 
-dared to open my heart, to anybody else.
-- Dickens, Bleak House
+TROUBLESHOOTING
 
------------------------------------------------------------------
+If you see the error "Symbol not found: _rb_gc_heaps_used",
+it means you installed the patched binary, but tried to run the 
+server with the regular binary.
+
+COPYRIGHT AND LICENSING
+
+Copyright (c) 2007 Cloudburst, LLC. See the included LICENSE_AFL 
+file.
+
+Portions of lib/bleak_house/c.rb copyright (c) 2006 Eric Hodel and 
+used under license (see included the lib/bleak_house/LICENSE_BSD 
+file).
 

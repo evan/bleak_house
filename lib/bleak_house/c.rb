@@ -5,8 +5,8 @@ require 'inline'
 class BleakHouse
   class CLogger < MemLogger
 
-    MAX_UNIQ_TAGS = 1024
-    MAX_TAG_LENGTH = 384
+    MAX_UNIQ_TAGS = 1536 # per frame
+    MAX_TAG_LENGTH = 192 # tag plus fully namespaced classname
 
     inline do |builder|
       builder.include '"node.h"' # struct RNode

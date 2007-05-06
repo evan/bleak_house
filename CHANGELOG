@@ -1,7 +1,7 @@
 
 BleakHouse Changelog
 
-5. totally awesome C instrumentation.
+5. totally awesome C instrumentation
 4. log memory usage on *nix
 3.1. fix nil directory traversal error on windows
 3. gem version

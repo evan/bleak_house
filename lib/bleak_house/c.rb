@@ -94,22 +94,6 @@ class BleakHouse
                   "T_SCOPE",
                   "T_NODE"]
 
-      ##
-      # Walks the heap slots yielding each item's address, size and value.
-      #
-      # The value may be:
-      # :__free:: Unassigned heap slot
-      # Object:: Ruby object
-      # :__node:: Ruby AST node
-      # :__iclass:: module instance (created via include)
-      # :__scope:: ruby interpreter scope
-      # :__varmap:: variable map (see eval.c, parse.y)
-      # :__unknown:: unknown item
-      #
-      # The size of objects may not be correct.  Please fix if you find an
-      # error.
-
-
       # writes a frame to a file
       builder.c <<-EOC
         static void
@@ -122,8 +106,11 @@ class BleakHouse
 
           int specials = RTEST(_specials);
 
-          FILE *obj_log;
-          int is_new = (fopen(StringValueCStr(path), "r") == NULL);
+          FILE *obj_log = fopen(StringValueCStr(path), "r");
+          int is_new;
+          if (!(is_new = (obj_log == NULL)))
+            fclose(obj_log);
+
           if ((obj_log = fopen(StringValueCStr(path), "a+")) == NULL)
             rb_raise(rb_eRuntimeError, "couldn't open snapshot file");
 

@@ -58,7 +58,7 @@ end
 desc 'Build a patched binary.'
 namespace :ruby do
   task :build do    
-    if RUBY_PLATFORM =~ /darwin/
+    if RUBY_PLATFORM =~ /win32|windows/
       puts "ERROR: windows not supported."
       exit
     end

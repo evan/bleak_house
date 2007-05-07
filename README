@@ -15,7 +15,7 @@ USAGE:
 
 To profile your application:
   RAILS_ENV=production BLEAK_HOUSE=true ruby-bleak-house ./script/server 
-  
+
 Browse around manually, thrash your entire app with a script, 
 target troublesome controllers/actions, etc.
 
@@ -29,6 +29,11 @@ TROUBLESHOOTING
 If you see the error "Symbol not found: _rb_gc_heaps_used",
 it means you installed the patched binary, but tried to run the 
 server with the regular binary.
+
+You may get library require errors if you install ruby-bleak-house (1.8.6)
+alongside a different verson of Ruby. You could try to patch your local
+version of Ruby instead, or you could just upgrade to 1.8.6, which has
+a good trackrecord or stability anyway.
 
 COPYRIGHT AND LICENSING
 

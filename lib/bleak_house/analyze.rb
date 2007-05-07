@@ -89,9 +89,9 @@ class BleakHouse
           timestamp = frames.map(&:time).sum / SMOOTHNESS
           values = frames.map(&:data).inject(Hash.new(0)) do |total, this_frame|
             this_frame.each do |key, value|
-              total[key] += value
+              # hackz are because we want to average the memory usage, but conflate the core/action frames
+              total[key] += (value / SMOOTHNESS.to_f * (key =~ /^#{MEM_KEY}/ ? 1.0 : 2.0))
             end
-            total
           end
           [Time.at(timestamp).strftime("%H:%M:%S"), values]
         end                     
@@ -110,6 +110,7 @@ class BleakHouse
         # in each controller, by action
         controller_data.keys.each do |controller|
           @mem = (controller == MEM_KEY)
+          next unless @mem
           puts(@mem ? "  #{controller}" : "  action for #{controller} controller")
           Dir.descend(controller) do             
             action_data, increments = aggregate(data, /^#{controller}($|\/|::::)/, /\/(.*?)($|\/|::::)/)

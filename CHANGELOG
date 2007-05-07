@@ -1,6 +1,7 @@
 
 BleakHouse Changelog
 
+5.2. change smoothing algorithm to be more intuitive and so mem usage is correct
 5.1. close file properly
 5. totally awesome C instrumentation
 4. log memory usage on *nix

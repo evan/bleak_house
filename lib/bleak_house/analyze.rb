@@ -96,6 +96,7 @@ class BleakHouse
         data = YAML.load_file(filename)                
         
         # subtract core counts from action
+        data = data[0..(-1 - data.size % 2)]
         data = data.in_groups_of(2).map do |frames|
           core, action = frames.first, frames.last
           action.data.each do |key, value|

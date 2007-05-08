@@ -20,13 +20,14 @@ class BleakHouse
     end
   end
 
-  LOGFILE = "#{RAILS_ROOT}/log/bleak_house_#{RAILS_ENV}.dump"
+  LOGFILE = "#{RAILS_ROOT}/log/bleak_house_#{RAILS_ENV}.yaml.log"
   if File.exists?(LOGFILE)
     File.rename(LOGFILE, "#{LOGFILE}.old") 
     warn "renamed old logfile"
   end
   
   WITH_SPECIALS = false
+  GC = true
 
   MEMLOGGER = if ENV['MEMLOGGER'] !~ /ruby/i and (ENV['MEMLOGGER'] =~ /c/i or 
     `which ruby-bleak-house` !~ /no ruby_bleak_house/)    

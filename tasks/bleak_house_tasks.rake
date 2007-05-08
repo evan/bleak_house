@@ -8,7 +8,7 @@ namespace :bleak_house do
     rescue LoadError
       require 'bleak_house/analyze' 
     end        
-    BleakHouse::Analyze.build_all("#{RAILS_ROOT}/log/bleak_house_#{RAILS_ENV}.dump")
+    BleakHouse::Analyze.build_all("#{RAILS_ROOT}/log/bleak_house_#{RAILS_ENV}.yaml.log")
   end  
 end
 

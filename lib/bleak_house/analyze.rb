@@ -18,7 +18,7 @@ Gruff::Base::MAX_LEGENDS = 28
 class BleakHouse
   class Analyze    
   
-    SMOOTHNESS = ((i = ENV['SMOOTHNESS'].to_i) < 2 ? 2 : i)/2 * 2
+    SMOOTHNESS = ENV['SMOOTHNESS'].to_i.zero? ? 1 : ENV['SMOOTHNESS'].to_i
     MEM_KEY = "memory usage"
     DIR = "#{RAILS_ROOT}/log/bleak_house/"
     
@@ -27,6 +27,10 @@ class BleakHouse
       @increments = increments
       @name = name
     end 
+    
+    def d
+      self.class.d
+    end
     
     def draw    
       g = Gruff::Line.new("1024x768")
@@ -49,6 +53,7 @@ class BleakHouse
       @increments.each_with_index do |increment, index|
         labels[index] = increment if (index % mod).zero?
       end
+            
       g.labels = labels
       
       g.minimum_value = 0
@@ -63,12 +68,17 @@ class BleakHouse
       data.each_with_index do |frameset, index|
         increments << frameset.time
         frameset.data.keys.select do |key| 
-          key =~ selector #or key =~ Regexp.new(specials.keys.join('|'))
+          # aggregate common keys based on the selection regexs
+          key =~ selector
         end.each do |key|
           aggregate_data[key.to_s[namer, 1]] ||= []
           aggregate_data[key.to_s[namer, 1]][index] += frameset.data[key].to_i
         end
-      end                 
+      end
+      aggregate_data.each do |key, value|
+        # extend the length of every value set to the end of the run
+        aggregate_data[key][increments.size - 1] ||= nil
+      end
       [aggregate_data, increments]
     end
     
@@ -83,20 +93,31 @@ class BleakHouse
       Dir.chdir(DIR) do        
 
         puts "parsing data"
-        data = YAML.load_file(filename)
+        data = YAML.load_file(filename)                
+        
+        # subtract core counts from action
+        data = data.in_groups_of(2).map do |frames|
+          core, action = frames.first, frames.last
+          action.data.each do |key, value|
+            action.data[key] = value - core.data[key[/::::(.*)/,1]].to_i
+          end          
+          [action.time, core.data.merge(action.data)]
+        end
+                
+        # smooth
         data = data[0..(-1 - data.size % SMOOTHNESS)]
         data = data.in_groups_of(SMOOTHNESS).map do |frames|
           timestamp = frames.map(&:time).sum / SMOOTHNESS
           values = frames.map(&:data).inject(Hash.new(0)) do |total, this_frame|
             this_frame.each do |key, value|
-              # hackz are because we want to average the memory usage, but conflate the core/action frames
-              total[key] += (value / SMOOTHNESS.to_f * (key =~ /^#{MEM_KEY}/ ? 1.0 : 2.0))
+              total[key] += value / SMOOTHNESS.to_f
             end
           end
           [Time.at(timestamp).strftime("%H:%M:%S"), values]
         end                     
         puts "#{data.size} frames after smoothing"
-
+        
+        # generate initial controller graph
         puts "entire app"
         controller_data, increments = aggregate(data, //, /^(.*?)($|\/|::::)/)
         if controller_data.has_key? MEM_KEY
@@ -110,7 +131,6 @@ class BleakHouse
         # in each controller, by action
         controller_data.keys.each do |controller|
           @mem = (controller == MEM_KEY)
-          next unless @mem
           puts(@mem ? "  #{controller}" : "  action for #{controller} controller")
           Dir.descend(controller) do             
             action_data, increments = aggregate(data, /^#{controller}($|\/|::::)/, /\/(.*?)($|\/|::::)/)
@@ -132,5 +152,9 @@ class BleakHouse
       end    
     end 
     
+    def self.d
+      require 'ruby-debug'; Debugger.start; debugger
+    end
+        
   end
 end

@@ -44,4 +44,7 @@ class Symbol
   def =~ regex
     self.to_s =~ regex
   end
+  def [](*args)
+    self.to_s[*args]
+  end
 end

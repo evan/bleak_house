@@ -1,6 +1,7 @@
 
 BleakHouse Changelog
 
+5.3. subtract rails core counts from action counts and convolve
 5.2. change smoothing algorithm to be more intuitive and so mem usage is correct
 5.1. close file properly
 5. totally awesome C instrumentation

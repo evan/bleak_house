@@ -1,7 +1,7 @@
 
 BleakHouse
 
-REQUIREMENTS:
+REQUIREMENTS
 
 A *nix operating system. Windows is not supported.
 
@@ -11,7 +11,7 @@ It is highly recommended that you compile the bleak_house patched
 Ruby build. In the plugin directory: 
   rake ruby:build
 
-USAGE:
+USAGE
 
 To profile your application:
   RAILS_ENV=production BLEAK_HOUSE=true ruby-bleak-house ./script/server 
@@ -20,20 +20,20 @@ Browse around manually, thrash your entire app with a script,
 target troublesome controllers/actions, etc.
 
 Then, to analyze:
-  RAILS_ENV=production SMOOTHNESS=2 rake bleak_house:analyze
+  RAILS_ENV=production SMOOTHNESS=1 rake bleak_house:analyze
 
 And then look in log/bleak_house/.
 
 TROUBLESHOOTING
 
 If you see the error "Symbol not found: _rb_gc_heaps_used",
-it means you installed the patched binary, but tried to run the 
+it means you installed the patched binary, but tried to profile the 
 server with the regular binary.
 
 You may get library require errors if you install ruby-bleak-house (1.8.6)
 alongside a different verson of Ruby. You could try to patch your local
 version of Ruby instead, or you could just upgrade to 1.8.6, which has
-a good trackrecord or stability anyway.
+a good trackrecord of stability anyway.
 
 COPYRIGHT AND LICENSING
 

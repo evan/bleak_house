@@ -3,10 +3,15 @@ require 'rubygems'
 require 'inline'
 
 class BleakHouse
-  class CLogger < MemLogger
+  class CLogger
 
     MAX_UNIQ_TAGS = 1536 # per frame
     MAX_TAG_LENGTH = 192 # tag plus fully namespaced classname
+
+    def mem_usage
+      a = `ps -o vsz,rss -p #{Process.pid}`.split(/\s+/)[-2..-1].map{|el| el.to_i}
+      [a.first - a.last, a.last]
+    end
 
     inline do |builder|
       builder.include '"node.h"' # struct RNode
@@ -97,8 +102,8 @@ class BleakHouse
       # writes a frame to a file
       builder.c <<-EOC
         static void
-        VALUE snapshot(VALUE path, VALUE tag, VALUE _specials) {
-          Check_Type(path, T_STRING);
+        VALUE snapshot(VALUE logfile, VALUE tag, VALUE _specials) {
+          Check_Type(logfile, T_STRING);
           Check_Type(tag, T_STRING);
 
           RVALUE *p, *pend;
@@ -106,12 +111,12 @@ class BleakHouse
 
           int specials = RTEST(_specials);
 
-          FILE *obj_log = fopen(StringValueCStr(path), "r");
+          FILE *obj_log = fopen(StringValueCStr(logfile), "r");
           int is_new;
           if (!(is_new = (obj_log == NULL)))
             fclose(obj_log);
 
-          if ((obj_log = fopen(StringValueCStr(path), "a+")) == NULL)
+          if ((obj_log = fopen(StringValueCStr(logfile), "a+")) == NULL)
             rb_raise(rb_eRuntimeError, "couldn't open snapshot file");
 
           if (is_new) 
@@ -126,6 +131,9 @@ class BleakHouse
           char current_tag[2048];
           int counts[#{MAX_UNIQ_TAGS}];
           int current_pos = 0;
+          
+          int filled_slots = 0;
+          int free_slots = 0;
 
           int i, j;
           for (i = 0; i < rb_gc_heaps_used(); i++) {
@@ -133,6 +141,7 @@ class BleakHouse
             pend = p + heaps[i].limit;
             for (; p < pend; p++) {
               if (p->as.basic.flags) { /* always 0 for freed objects */
+                filled_slots ++;
                 sprintf(current_tag, "");
                 switch (TYPE(p)) {
                   #{RAW_TYPES.map do |type|
@@ -167,10 +176,14 @@ class BleakHouse
                     current_pos ++;
                   }
                 }
+              } else {
+                free_slots ++;
               }
             }
           }
-          
+/*          fprintf(obj_log, \"    :\\"heap usage/ruby heaps\\": %i\\n", rb_gc_heaps_used()); */
+          fprintf(obj_log, \"    :\\"heap usage/filled slots\\": %i\\n", filled_slots);
+          fprintf(obj_log, \"    :\\"heap usage/free slots\\": %i\\n", free_slots);
           for (j = 0; j < current_pos; j++) {
             fprintf(obj_log, "    :\\"%s\\": %i\\n", tags[j], counts[j]);
           }

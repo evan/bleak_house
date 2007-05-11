@@ -20,6 +20,7 @@ class BleakHouse
   
     SMOOTHNESS = ENV['SMOOTHNESS'].to_i.zero? ? 1 : ENV['SMOOTHNESS'].to_i
     MEM_KEY = "memory usage"
+    HEAP_KEY = "heap usage"
     DIR = "#{RAILS_ROOT}/log/bleak_house/"
     
     def initialize(data, increments, name)
@@ -41,7 +42,12 @@ class BleakHouse
       g.marker_font_size = 14
             
       @data.map do |key, values|        
-        ["#{(key.to_s.empty? ? '[Unknown]' : key).gsub(/.*::/, '')} (#{key == MEM_KEY ? "relative" : values.to_i.max})", values] # hax
+        ["#{(key.to_s.empty? ? '[Unknown]' : key).gsub(/.*::/, '')} (#{ if 
+          [MEM_KEY, HEAP_KEY].include?(key) 
+            'relative'
+          else
+            values.to_i.max
+          end })", values] # hax
       end.sort_by do |key, values|
         0 - key[/.*?([\d]+)\)$/, 1].to_i
       end.each do |key, values|
@@ -120,22 +126,30 @@ class BleakHouse
         
         # generate initial controller graph
         puts "entire app"
+        
         controller_data, increments = aggregate(data, //, /^(.*?)($|\/|::::)/)
-        if controller_data.has_key? MEM_KEY
-          controller_data_without_memory = controller_data.dup
-          controller_data_without_memory.delete(MEM_KEY)
-          scale_factor = controller_data_without_memory.values.flatten.to_i.max / controller_data[MEM_KEY].max.to_f * 0.8 rescue 1
-          controller_data[MEM_KEY] = controller_data[MEM_KEY].map{|x| (x * scale_factor).to_i }
+        controller_data_without_specials = controller_data.dup
+        controller_data_without_specials.delete(MEM_KEY)
+        controller_data_without_specials.delete(HEAP_KEY)
+        [HEAP_KEY, MEM_KEY].each do |key|
+#          next unless controller_data[key]
+          scale_factor = controller_data_without_specials.values.flatten.to_i.max / controller_data[key].max.to_f * 0.8 rescue 1
+          controller_data[key] = controller_data[key].map{|x| (x * scale_factor).to_i }
         end
         Analyze.new(controller_data, increments, "objects by controller").draw
-                
+
         # in each controller, by action
         controller_data.keys.each do |controller|
-          @mem = (controller == MEM_KEY)
-          puts(@mem ? "  #{controller}" : "  action for #{controller} controller")
+#          next unless controller == HEAP_KEY
+          @special = [MEM_KEY, HEAP_KEY].include? controller
+          puts(@special ? "  #{controller}" : "  action for #{controller} controller")
           Dir.descend(controller) do             
             action_data, increments = aggregate(data, /^#{controller}($|\/|::::)/, /\/(.*?)($|\/|::::)/)
-            Analyze.new(action_data, increments, @mem ?  "#{controller} in kilobytes" : "objects by action in /#{controller}_controller").draw          
+            Analyze.new(action_data, increments, case controller
+              when MEM_KEY then "#{controller} in kilobytes" 
+              when HEAP_KEY then "#{controller} in slots"
+              else "objects by action in /#{controller}_controller"
+            end).draw          
           
             # in each action, by object class
             action_data.keys.each do |action|
@@ -146,7 +160,7 @@ class BleakHouse
                   /::::(.*)/)
                 Analyze.new(class_data, increments, "objects by class in /#{controller}/#{action}").draw
               end
-            end unless @mem
+            end unless @special
           
           end          
         end

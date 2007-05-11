@@ -1,10 +1,14 @@
 
 if ENV['BLEAK_HOUSE']
 
-  require 'dispatcher' # rails  
+  # rails  
+  require 'dispatcher'
   
+  # logger
   require 'bleak_house/bleak_house'
-  require 'bleak_house/mem_logger'
+  require 'bleak_house/c'
+
+  # overrides
   require 'bleak_house/dispatcher'
   require 'bleak_house/action_controller'
 

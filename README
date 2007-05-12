@@ -35,6 +35,10 @@ alongside a different verson of Ruby. You could try to patch your local
 version of Ruby instead, or you could just upgrade to 1.8.6, which has
 a good trackrecord of stability anyway.
 
+FURTHER READING
+
+Please visit: http://blog.evanweaver.com/pages/code#bleak_house
+
 COPYRIGHT AND LICENSING
 
 Copyright (c) 2007 Cloudburst, LLC. See the included LICENSE_AFL 

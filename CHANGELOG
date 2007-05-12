@@ -1,8 +1,7 @@
 
 BleakHouse Changelog
 
-5.5. log heap usage
-5.4. remove pure-ruby profiler
+6. log heap usage, remove pure-ruby profiler
 5.3. subtract rails core counts from action counts and convolve
 5.2. change smoothing algorithm to be more intuitive and so mem usage is correct
 5.1. close file properly

@@ -5,8 +5,8 @@ if ENV['BLEAK_HOUSE']
   require 'dispatcher'
   
   # logger
-  require 'bleak_house/bleak_house'
   require 'bleak_house/c'
+  require 'bleak_house/bleak_house'
 
   # overrides
   require 'bleak_house/dispatcher'

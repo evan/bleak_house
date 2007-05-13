@@ -181,13 +181,17 @@ class BleakHouse
               }
             }
           }
-/*          fprintf(obj_log, \"    :\\"heap usage/ruby heaps\\": %i\\n", rb_gc_heaps_used()); */
           fprintf(obj_log, \"    :\\"heap usage/filled slots\\": %i\\n", filled_slots);
           fprintf(obj_log, \"    :\\"heap usage/free slots\\": %i\\n", free_slots);
           for (j = 0; j < current_pos; j++) {
             fprintf(obj_log, "    :\\"%s\\": %i\\n", tags[j], counts[j]);
           }
           fclose(obj_log);
+          
+          /* request GC run */          
+          rb_funcall(rb_mGC, rb_intern("start"), 0); 
+          /* to get a custom module: rb_const_get(parentModule, "ModuleName") 
+              parent module can be something like rb_mKernel for the toplevel */
           return Qtrue;
         }
       EOC

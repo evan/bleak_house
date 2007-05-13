@@ -27,8 +27,6 @@ class BleakHouse
   end
   
   WITH_SPECIALS = false
-  GC = true
-
-  MEMLOGGER = CLogger.new
-    
+  
+  MEMLOGGER = CLogger.new    
 end

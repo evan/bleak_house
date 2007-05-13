@@ -19,8 +19,6 @@ class BleakHouse
   class Analyze    
   
     SMOOTHNESS = ENV['SMOOTHNESS'].to_i.zero? ? 1 : ENV['SMOOTHNESS'].to_i
-    DIR = "#{RAILS_ROOT}/log/bleak_house/"
-
     MEM_KEY = "memory usage"
     HEAP_KEY = "heap usage"
     CORE_KEY = "core rails"
@@ -95,11 +93,11 @@ class BleakHouse
         puts "No data file found: #{filename}"
         exit 
       end
-      FileUtils.rm_r(DIR) rescue nil
-      Dir.mkdir(DIR)
-
-      Dir.chdir(DIR) do        
-
+      rootdir = File.dirname(filename) + "/bleak_house/"     
+      FileUtils.rm_r(rootdir) rescue nil
+      Dir.mkdir(rootdir)
+      
+      Dir.chdir(rootdir) do        
         puts "parsing data"
         data = YAML.load_file(filename)                
         
@@ -165,7 +163,7 @@ class BleakHouse
             # in each action, by object class
             action_data.keys.each do |action|
               action = "unknown" if action.to_s == ""
-              Dir.descend(@core ? "." : action) do
+              Dir.descend(action) do #@core ? nil : action) do
                 puts(@core ? "  #{CORE_KEY}" : "    class for #{action} action")
                 class_data, increments = aggregate(data, /^#{controller}#{"\/#{action}" unless action == "unknown"}($|\/|::::)/, 
                   /::::(.*)/)

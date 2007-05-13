@@ -1,7 +1,7 @@
 
 BleakHouse Changelog
 
-6.1. detect if core keys are present or not
+6.1. detect if core keys are present or not; make analyze paths not depend on rails environment
 6. log heap usage, remove pure-ruby profiler
 5.3. subtract rails core counts from action counts and convolve
 5.2. change smoothing algorithm to be more intuitive and so mem usage is correct

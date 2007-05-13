@@ -15,7 +15,7 @@ begin
   VERS = `cat CHANGELOG`[/^([\d\.]+)\. /, 1]
   
   taskmsg = File.open(DIR + "/tasks/bleak_house_tasks.rake").readlines
-  taskmsg = taskmsg[0..3] + [taskmsg[7][2..-1]] + taskmsg[9..-1]
+  taskmsg = taskmsg[0..3] + [taskmsg[9][2..-1]] + taskmsg[12..-1]
   
   echoe = Echoe.new("bleak_house", VERS) do |p|
     p.author = "Evan Weaver" 
@@ -35,9 +35,9 @@ begin
 "
 Thanks for installing Bleak House #{VERS}. 
 
-For each Rails app you want to profile, you will need to add the following 
-rake task in RAILS_ROOT/lib/tasks/bleak_house_tasks.rake to be able to run 
-the analyzer: 
+For each Rails app you want to profile, you will need to add the 
+following rake task in RAILS_ROOT/lib/tasks/bleak_house_tasks.rake 
+to be able to run the analyzer: 
 " + taskmsg.join("  ") + "\n"}
   end
             

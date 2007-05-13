@@ -102,6 +102,7 @@ class BleakHouse
       Dir.mkdir(rootdir)      
       Dir.chdir(rootdir) do        
               
+        tag_levels = ["controller", "action"]
         # autodetect need for rails snapshot conflation
         if data.first.last.keys.first =~ /^#{CORE_KEY}::::/
           puts "  found core rails snapshots"
@@ -116,6 +117,7 @@ class BleakHouse
           end
         else
           puts "  assuming custom snapshotting"
+          tag_levels = ["tag", "subtag"]
         end
                 
         # smooth
@@ -129,7 +131,7 @@ class BleakHouse
           end
           [Time.at(timestamp).strftime("%H:%M:%S"), values]
         end                     
-        puts "#{data.size} frames after smoothing"
+        puts "  #{data.size} frames after smoothing"
         
         # generate initial controller graph
         puts "entire app"
@@ -143,7 +145,7 @@ class BleakHouse
           scale_factor = controller_data_without_specials.values.flatten.to_i.max / controller_data[key].max.to_f * 0.8 rescue 1
           controller_data[key] = controller_data[key].map{|x| (x * scale_factor).to_i }
         end
-        Analyze.new(controller_data, increments, "objects by controller").draw
+        Analyze.new(controller_data, increments, "objects by #{tag_levels[0]}").draw
 
         # in each controller, by action
         controller_data.keys.each do |controller|
@@ -153,11 +155,11 @@ class BleakHouse
           Dir.descend(controller) do             
             action_data, increments = aggregate(data, /^#{controller}($|\/|::::)/, /\/(.*?)($|\/|::::)/)
             unless @core
-              puts(@mem ? "  #{controller}" : "  action for #{controller} controller")
+              puts(@mem ? "  #{controller}" : "  #{tag_levels[1]} for /#{controller}/")
               Analyze.new(action_data, increments, case controller
                 when MEM_KEY then "#{controller} in kilobytes" 
                 when HEAP_KEY then "#{controller} in slots"
-                else "objects by action in /#{controller}_controller"
+                else "objects by #{tag_levels[1]} in /#{controller}/"
               end).draw
             end
            
@@ -165,7 +167,7 @@ class BleakHouse
             action_data.keys.each do |action|
               action = "unknown" if action.to_s == ""
               Dir.descend(action) do #@core ? nil : action) do
-                puts(@core ? "  #{CORE_KEY}" : "    class for #{action} action")
+                puts(@core ? "  #{CORE_KEY}" : "    class for ../#{action}/")
                 class_data, increments = aggregate(data, /^#{controller}#{"\/#{action}" unless action == "unknown"}($|\/|::::)/, 
                   /::::(.*)/)
                 Analyze.new(class_data, increments, "objects by class in #{@core ? CORE_KEY : "/#{controller}/#{action}"}").draw

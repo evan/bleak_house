@@ -19,9 +19,11 @@ class BleakHouse
   class Analyze    
   
     SMOOTHNESS = ENV['SMOOTHNESS'].to_i.zero? ? 1 : ENV['SMOOTHNESS'].to_i
+    DIR = "#{RAILS_ROOT}/log/bleak_house/"
+
     MEM_KEY = "memory usage"
     HEAP_KEY = "heap usage"
-    DIR = "#{RAILS_ROOT}/log/bleak_house/"
+    CORE_KEY = "core rails"
     
     def initialize(data, increments, name)
       @data = data
@@ -101,14 +103,20 @@ class BleakHouse
         puts "parsing data"
         data = YAML.load_file(filename)                
         
-        # subtract core counts from action
-        data = data[0..(-1 - data.size % 2)]
-        data = data.in_groups_of(2).map do |frames|
-          core, action = frames.first, frames.last
-          action.data.each do |key, value|
-            action.data[key] = value - core.data[key[/::::(.*)/,1]].to_i
-          end          
-          [action.time, core.data.merge(action.data)]
+        # autodetect need for rails snapshot conflation
+        if data.first.last.keys.first =~ /^#{CORE_KEY}::::/
+          puts "  found core rails snapshots"
+          # subtract core counts from action
+          data = data[0..(-1 - data.size % 2)]
+          data = data.in_groups_of(2).map do |frames|
+            core, action = frames.first, frames.last
+            action.data.each do |key, value|
+              action.data[key] = value - core.data[key[/::::(.*)/,1]].to_i
+            end          
+            [action.time, core.data.merge(action.data)]
+          end
+        else
+          puts "  assuming custom snapshotting"
         end
                 
         # smooth
@@ -141,26 +149,29 @@ class BleakHouse
         # in each controller, by action
         controller_data.keys.each do |controller|
 #          next unless controller == HEAP_KEY
-          @special = [MEM_KEY, HEAP_KEY].include? controller
-          puts(@special ? "  #{controller}" : "  action for #{controller} controller")
+          @mem = [MEM_KEY, HEAP_KEY].include? controller
+          @core = [CORE_KEY].include? controller
           Dir.descend(controller) do             
             action_data, increments = aggregate(data, /^#{controller}($|\/|::::)/, /\/(.*?)($|\/|::::)/)
-            Analyze.new(action_data, increments, case controller
-              when MEM_KEY then "#{controller} in kilobytes" 
-              when HEAP_KEY then "#{controller} in slots"
-              else "objects by action in /#{controller}_controller"
-            end).draw          
-          
+            unless @core
+              puts(@mem ? "  #{controller}" : "  action for #{controller} controller")
+              Analyze.new(action_data, increments, case controller
+                when MEM_KEY then "#{controller} in kilobytes" 
+                when HEAP_KEY then "#{controller} in slots"
+                else "objects by action in /#{controller}_controller"
+              end).draw
+            end
+           
             # in each action, by object class
             action_data.keys.each do |action|
               action = "unknown" if action.to_s == ""
-              puts "    class for #{action} action"
-              Dir.descend(action) do
+              Dir.descend(@core ? "." : action) do
+                puts(@core ? "  #{CORE_KEY}" : "    class for #{action} action")
                 class_data, increments = aggregate(data, /^#{controller}#{"\/#{action}" unless action == "unknown"}($|\/|::::)/, 
                   /::::(.*)/)
-                Analyze.new(class_data, increments, "objects by class in /#{controller}/#{action}").draw
+                Analyze.new(class_data, increments, "objects by class in #{@core ? CORE_KEY : "/#{controller}/#{action}"}").draw
               end
-            end unless @special
+            end unless @mem
           
           end          
         end

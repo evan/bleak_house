@@ -15,7 +15,7 @@ class Gruff::Base
     @legend_labels.each_with_index do |legend_label, index|      
 
       next if index > MAX_LEGENDS
-      legend_label = "Some not shown" if index == MAX_LEGENDS
+      legend_label = "some not shown" if index == MAX_LEGENDS
 
       # Draw label
       @d.fill = @font_color

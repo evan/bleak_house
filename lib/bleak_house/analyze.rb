@@ -11,6 +11,7 @@ require 'gruff'
 load "#{File.dirname(__FILE__)}/gruff_hacks.rb"
 load "#{File.dirname(__FILE__)}/support_methods.rb"
 
+Gruff::Base.send(:remove_const, "LEFT_MARGIN") # silence a warning
 Gruff::Base::LEFT_MARGIN = 200
 Gruff::Base::NEGATIVE_TOP_MARGIN = 30
 Gruff::Base::MAX_LEGENDS = 28
@@ -92,15 +93,15 @@ class BleakHouse
       unless File.exists? filename
         puts "No data file found: #{filename}"
         exit 
-      end
+      end 
+      puts "parsing data"
+      data = YAML.load_file(filename)                
+ 
       rootdir = File.dirname(filename) + "/bleak_house/"     
       FileUtils.rm_r(rootdir) rescue nil
-      Dir.mkdir(rootdir)
-      
+      Dir.mkdir(rootdir)      
       Dir.chdir(rootdir) do        
-        puts "parsing data"
-        data = YAML.load_file(filename)                
-        
+              
         # autodetect need for rails snapshot conflation
         if data.first.last.keys.first =~ /^#{CORE_KEY}::::/
           puts "  found core rails snapshots"

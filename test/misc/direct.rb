@@ -5,7 +5,9 @@ require 'bleak_house/c'
 $memlogger = BleakHouse::CLogger.new
 File.delete($logfile = "/tmp/log") rescue nil
 
-puts "1"
-$memlogger.snapshot($logfile, "tag", true)
-puts "2"
-$memlogger.snapshot($logfile, "tag", true)
+puts 0
+$memlogger.snapshot($logfile, "file", true)
+puts 1
+$memlogger.snapshot($logfile, "file/one", true)
+puts 2
+$memlogger.snapshot($logfile, "file/two", true)

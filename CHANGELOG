@@ -1,15 +1,23 @@
 
-BleakHouse Changelog
+v7. Detect if core keys are present or not; fixes for analyzing non-Rails apps.
 
-7. detect if core keys are present or not; fixes for analyzing non-rails apps
-6. log heap usage, remove pure-ruby profiler
-5.3. subtract rails core counts from action counts and convolve
-5.2. change smoothing algorithm to be more intuitive and so mem usage is correct
-5.1. close file properly
-5. totally awesome C instrumentation
-4. log memory usage on *nix
-3.1. fix nil directory traversal error on windows
-3. gem version
-2. dumped rublique once I understood what it did; replaced with a lightweight non-delta marshalling version
-1. first version
+v6. Log heap usage; remove pure-Ruby profiler.
+
+v5.3. Subtract Rails core counts from action counts and join paired frames.
+
+v5.2. Change smoothing algorithm to be more intuitive and so mem usage is correct.
+
+v5.1. Close file properly.
+
+v5. C instrumentation with YAML output.
+
+v4. Log memory usage on *nix.
+
+v3.1. Fix nil directory traversal error on Windows.
+
+v3. Gem version
+
+v2. Dumped Rublique; replaced with a lightweight non-delta marshalling version.
+
+v1. First version
 

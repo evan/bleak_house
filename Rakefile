@@ -20,11 +20,10 @@ begin
     p.rdoc_pattern = /^(bin|tasks)|analyze|bleak_house\/bleak_house\.rb|c\.rb|^README|^CHANGELOG|^TODO|^LICENSE$/
     p.dependencies = ['gruff =0.2.8', 'rmagick', 'activesupport', 'RubyInline']
     p.install_message = "
-Thanks for installing Bleak House. 
+Thanks for installing BleakHouse. 
 
 For each Rails app you want to profile, you will need to add the 
-following rake task in RAILS_ROOT/lib/tasks/bleak_house_tasks.rake 
-to be able to run the analyzer: 
+following rake task in RAILS_ROOT/lib/tasks/bleak_house_tasks.rake:
 " + taskmsg.join("  ") + "\n"
   end
             

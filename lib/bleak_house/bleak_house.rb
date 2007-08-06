@@ -22,12 +22,12 @@ class BleakHouse
   end
 
   def self.debug s #:nodoc:
-    s = "#{name.underscore}: #{s}"
+    s = "** #{name.underscore}: #{s}"
     RAILS_DEFAULT_LOGGER.debug s if RAILS_DEFAULT_LOGGER
   end
     
   def self.warn s #:nodoc:
-    s = "#{name.underscore}: #{s}"
+    s = "** #{name.underscore}: #{s}"
     if RAILS_DEFAULT_LOGGER
       RAILS_DEFAULT_LOGGER.warn s
     else

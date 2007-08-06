@@ -10,7 +10,7 @@ Copyright 2007 Cloudburst, LLC. See the included LICENSE file. Portions of <tt>l
 == Features
 
 * leak-proof C instrumentation
-* real and virtual memory usage logging
+* logs object counts, real and virtual memory usage, and filled/free heap slots
 * easy Rails integration
 * automatic generation of nested object charts
 

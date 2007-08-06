@@ -1,7 +1,7 @@
 
 BleakHouse
 
-A library and Rails plugin for finding memory leaks. BleakHouse instruments the Ruby heap at a low level and produces charts of object counts and memory usage.
+A library and Rails plugin for finding memory leaks. 
 
 == License
 

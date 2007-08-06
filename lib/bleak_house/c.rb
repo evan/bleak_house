@@ -5,12 +5,11 @@ require 'inline'
 class BleakHouse
 
 =begin rdoc
-This class performs the actual work of BleakHouse. To use it directly, you need to make calls to BleakHouse::CLogger#snapshot. 
+This class performs the actual object logging of BleakHouse. To use it directly, you need to make calls to BleakHouse::CLogger#snapshot. 
 
 == Example
 
 At the start of your app, put:
-
   require 'rubygems'
   require 'bleak_house/c'
   $memlogger = BleakHouse::CLogger.new
@@ -19,14 +18,12 @@ At the start of your app, put:
 (This assumes you are using the gem version.)
 
 Now, at the points of interest, put:
-
   $memlogger.snapshot($logfile, "tag/subtag", false)
 
-Exercise your program. Once you are done, analyze your data:
-
+Run your app. Once you are done, analyze your data:
   ruby -r rubygems -e 'require "bleak_house/analyze"; BleakHouse::Analyze.build_all("/path/to/logfile")'
 
-You will get a <tt>bleak_house/</tt> folder in the same folder as your log file.
+You will get a <tt>bleak_house/</tt> folder in the same folder as your logfile.
   
 =end
   

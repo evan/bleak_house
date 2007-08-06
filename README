@@ -5,7 +5,7 @@ A library and Rails plugin for finding memory leaks.
 
 == License
 
-Copyright 2007 Cloudburst, LLC. See the included LICENSE file. Portions of <tt>lib/bleak_house/c.rb copyright</tt> copyright 2006 Eric Hodel and used under license. See included the LICENSE_BSD file.
+Copyright 2007 Cloudburst, LLC. See the included LICENSE file. Portions copyright 2006 Eric Hodel and used with permission. See included the LICENSE_BSD file.
 
 == Features
 
@@ -23,8 +23,7 @@ Copyright 2007 Cloudburst, LLC. See the included LICENSE file. Portions of <tt>l
 
 == Installation
 
-First, install the plugin into your Rails app:
-
+First, install the plugin in your Rails app:
   ./script/plugin install svn://rubyforge.org/var/svn/fauna/bleak_house/trunk
 
 You need to compile the BleakHouse patched Ruby build. In the plugin directory, run:
@@ -44,13 +43,13 @@ Browse around manually, thrash your entire app with a script, target troublesome
 Then, to analyze:
   RAILS_ENV=production rake bleak_house:analyze
 
-And then look in log/bleak_house/.
+And then look in <tt>log/bleak_house/</tt>.
 
 = Extras
 
 == Options
 
-You also can set the <tt>SMOOTHNESS</tt> environment variable if you want. The <tt>SMOOTHNESS</tt> setting just averages frames together. This is not a rolling average: 10 frames become 5 at <tt>SMOOTHNESS=2</tt>. 
+You also can set the SMOOTHNESS environment variable if you want. The SMOOTHNESS setting just averages frames together. This is not a rolling average: 10 frames become 5 at <tt>SMOOTHNESS=2</tt>. 
 
 == Using BleakHouse outside of Rails
 
@@ -58,9 +57,9 @@ If you want finer snapshots than every action, or want to use the plugin outside
 
 == Troubleshooting
 
-If you see the error "Symbol not found: _rb_gc_heaps_used", it means you installed the patched binary, but tried to profile the server with the regular binary.
+If you see the error <tt>Symbol not found: _rb_gc_heaps_used</tt>, it means you installed the patched binary, but tried to profile the server with the regular binary.
 
-You may get library require errors if you install ruby-bleak-house (1.8.6) alongside a different verson of Ruby. You could try to patch your local version of Ruby instead, or you could just upgrade to 1.8.6, which has a good trackrecord of stability anyway.
+You may get library require errors if you install <tt>ruby-bleak-house</tt> 1.8.6 alongside a different verson of Ruby. You could try to patch your local version of Ruby instead, or you could just upgrade to 1.8.6, which has a good trackrecord of stability.
 
 == Further resources
 

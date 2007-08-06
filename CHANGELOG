@@ -1,4 +1,6 @@
 
+v7.1. RDoc documentation; use new Echoe setup; fix for namespaced controllers.
+
 v7. Detect if core keys are present or not; fixes for analyzing non-Rails apps.
 
 v6. Log heap usage; remove pure-Ruby profiler.

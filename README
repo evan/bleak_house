@@ -1,9 +1,11 @@
 
 BleakHouse
 
+A library and Rails plugin for finding memory leaks. BleakHouse instruments the Ruby heap at a low level, and produces charts of object counts and memory usage.
+
 REQUIREMENTS
 
-A *nix operating system. Windows is not supported.
+A unix-like operating system.
 
 Gems: 'gruff', 'rmagick', 'active_support', 'RubyInline'
 

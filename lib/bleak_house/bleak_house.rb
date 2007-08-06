@@ -1,20 +1,34 @@
 
 class BleakHouse  
   cattr_accessor :last_request_name
+  
+  # Avoid making four more strings on each request.
+  CONTROLLER_KEY = 'controller'
+  ACTION_KEY = 'action'
+  GSUB_SEARCH = '/'
+  GSUB_REPLACEMENT = '__'
 
   def self.set_request_name request, other = nil
-    self.last_request_name = "#{request.parameters['controller']}/#{request.parameters['action']}/#{request.request_method}#{other}"
+    self.last_request_name = "#{
+      request.parameters[CONTROLLER_KEY].gsub(GSUB_SEARCH, GSUB_REPLACEMENT) # mangle namespaced controller names
+    }/#{
+      request.parameters[ACTION_KEY]
+    }/#{
+      request.request_method
+    }#{
+      other
+    }"
   end
 
   def self.debug s
     s = "#{name.underscore}: #{s}"
-    ::ActiveRecord::Base.logger.debug s if ::ActiveRecord::Base.logger
+    RAILS_DEFAULT_LOGGER.debug s if RAILS_DEFAULT_LOGGER
   end
     
   def self.warn s
     s = "#{name.underscore}: #{s}"
-    if ::ActiveRecord::Base.logger
-      ::ActiveRecord::Base.logger.warn s
+    if RAILS_DEFAULT_LOGGER
+      RAILS_DEFAULT_LOGGER.warn s
     else
       $stderr.puts s
     end

@@ -1,4 +1,5 @@
 
+# Override ActionController::Base.process and process_with_exception to make sure the request tag for the snapshot gets set as a side-effect of request processing.
 class ActionController::Base
   class << self
     def process_with_bleak_house(request, *args) 

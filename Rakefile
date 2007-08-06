@@ -16,7 +16,8 @@ begin
     p.project = "fauna"
     p.summary = "A Rails plugin for finding memory leaks."
     p.url = "http://blog.evanweaver.com/pages/code#bleak_house"
-    p.dependencies = ['gruff', 'rmagick', 'active_support', 'RubyInline']
+    p.rdoc_pattern = /^(bin|tasks)|analyze|bleak_house\/bleak_house\.rb|c\.rb|^README|^CHANGELOG|^TODO|^LICENSE$/
+    p.dependencies = ['gruff =0.2.8', 'rmagick', 'active_support', 'RubyInline']
     p.install_message = "
 Thanks for installing Bleak House. 
 

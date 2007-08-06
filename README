@@ -1,15 +1,25 @@
 
 BleakHouse
 
-A library and Rails plugin for finding memory leaks. BleakHouse instruments the Ruby heap at a low level, and produces charts of object counts and memory usage.
+A library and Rails plugin for finding memory leaks. BleakHouse instruments the Ruby heap at a low level and produces charts of object counts and memory usage.
 
 == License
 
-Copyright 2007 Cloudburst, LLC. See the included LICENSE file. Portions of <tt>lib/bleak_house/c.rb copyright</tt> copyright 2006 Eric Hodel and used under license. See included the BSD_LICENSE file.
+Copyright 2007 Cloudburst, LLC. See the included LICENSE file. Portions of <tt>lib/bleak_house/c.rb copyright</tt> copyright 2006 Eric Hodel and used under license. See included the LICENSE_BSD file.
+
+== Features
+
+* leak-proof C instrumentation
+* real and virtual memory usage logging
+* easy Rails integration
+* automatic generation of nested object charts
 
 == Requirements
 
-A unix-like operating system.
+* A unix-like operating system.
+* Ruby 1.8.6
+
+= Usage
 
 == Installation
 
@@ -22,62 +32,35 @@ You need to compile the BleakHouse patched Ruby build. In the plugin directory, 
   
 This gives you a Ruby binary named <tt>ruby-bleak-house</tt> alongside your regular binary.
  
-(Note, BleakHouse is also available as a gem:
-  sudo gem install bleak_house
- 
-If you use the gem, <tt>require 'bleak_house'</tt> in <tt>config/environment.rb</tt>. You will also have to manually install the <tt>bleak_house:analyze</tt> Rake task.)
+(BleakHouse is also available as a gem: <tt>sudo gem install bleak_house</tt>. If you use the gem, <tt>require 'bleak_house'</tt> in <tt>config/environment.rb</tt>. You will also have to manually install the <tt>bleak_house:analyze</tt> Rake task.)
 
-== Usage
+== Profiling a Rails app
 
-To profile your application:
+To profile your application (ideally, in production mode, on an actual application server):
   RAILS_ENV=production BLEAK_HOUSE=true ruby-bleak-house ./script/server 
 
 Browse around manually, thrash your entire app with a script, target troublesome controllers/actions, etc.
 
 Then, to analyze:
-  RAILS_ENV=production SMOOTHNESS=1 rake bleak_house:analyze
+  RAILS_ENV=production rake bleak_house:analyze
 
 And then look in log/bleak_house/.
 
-== Advanced usage
+= Extras
 
-You can set the <tt>SMOOTHNESS</tt> environment variable if you want. The <tt>SMOOTHNESS</tt> setting just averages frames together. This is not a rolling average: 10 frames become 5 at <tt>SMOOTHNESS=2</tt>. 
+== Options
 
-Also, the unfiltered object logs will be at <tt>log/bleak_house_production.yaml.log</tt>, if you need them.
+You also can set the <tt>SMOOTHNESS</tt> environment variable if you want. The <tt>SMOOTHNESS</tt> setting just averages frames together. This is not a rolling average: 10 frames become 5 at <tt>SMOOTHNESS=2</tt>. 
+
+== Using BleakHouse outside of Rails
+
+If you want finer snapshots than every action, or want to use the plugin outside of Rails, see the BleakHouse::CLogger class.
 
 == Troubleshooting
 
-If you see the error "Symbol not found: _rb_gc_heaps_used",
-it means you installed the patched binary, but tried to profile the 
-server with the regular binary.
+If you see the error "Symbol not found: _rb_gc_heaps_used", it means you installed the patched binary, but tried to profile the server with the regular binary.
 
-You may get library require errors if you install ruby-bleak-house (1.8.6)
-alongside a different verson of Ruby. You could try to patch your local
-version of Ruby instead, or you could just upgrade to 1.8.6, which has
-a good trackrecord of stability anyway.
-
-== Using BleakHouse without Rails
-
-If you want finer snapshots than every action, or want to use the plugin outside of Rails, you can make manual calls to <tt>BleakHouse::CLogger#snapshot</tt>. At the start of your app, put:
-
-  require 'rubygems'
-  require 'bleak_house/c'
-  $memlogger = BleakHouse::CLogger.new
-  File.delete($logfile = "/path/to/logfile") rescue nil
-
-This assumes you are using the gem version.
-
-Now, at the points of interest, put:
-
-  $memlogger.snapshot($logfile, "tag/subtag", false)
-
-(If you pass true as the third parameter, BleakHouse will also log Ruby internal structs such as AST nodes and var scopes, instead of just Objects.)
-
-Exercise your program. Once you are done, analyze your data:
-
-  ruby -r rubygems -e 'require "bleak_house/analyze"; BleakHouse::Analyze.build_all("/path/to/logfile")'
-
-You will get a <tt>bleak_house/</tt> folder in the same folder as your log file.
+You may get library require errors if you install ruby-bleak-house (1.8.6) alongside a different verson of Ruby. You could try to patch your local version of Ruby instead, or you could just upgrade to 1.8.6, which has a good trackrecord of stability anyway.
 
 == Further resources
 

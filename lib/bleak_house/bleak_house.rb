@@ -8,6 +8,7 @@ class BleakHouse
   GSUB_SEARCH = '/'
   GSUB_REPLACEMENT = '__'
 
+  # Sets the request name on the BleakHouse object to match this Rails request. Called from <tt>ActionController::Base.process</tt>. Assign to <tt>last_request_name</tt> yourself if you are not using BleakHouse within Rails.
   def self.set_request_name request, other = nil
     self.last_request_name = "#{
       request.parameters[CONTROLLER_KEY].gsub(GSUB_SEARCH, GSUB_REPLACEMENT) # mangle namespaced controller names
@@ -20,12 +21,12 @@ class BleakHouse
     }"
   end
 
-  def self.debug s
+  def self.debug s #:nodoc:
     s = "#{name.underscore}: #{s}"
     RAILS_DEFAULT_LOGGER.debug s if RAILS_DEFAULT_LOGGER
   end
     
-  def self.warn s
+  def self.warn s #:nodoc:
     s = "#{name.underscore}: #{s}"
     if RAILS_DEFAULT_LOGGER
       RAILS_DEFAULT_LOGGER.warn s

@@ -17,6 +17,7 @@ Gruff::Base::NEGATIVE_TOP_MARGIN = 30
 Gruff::Base::MAX_LEGENDS = 28
 
 class BleakHouse
+  # Draws the BleakHouse graphs.
   class Analyze    
   
     SMOOTHNESS = ENV['SMOOTHNESS'].to_i.zero? ? 1 : ENV['SMOOTHNESS'].to_i
@@ -24,24 +25,28 @@ class BleakHouse
     HEAP_KEY = "heap usage"
     CORE_KEY = "core rails"
     
+    # Sets up a single graph.
     def initialize(data, increments, name)
       @data = data
       @increments = increments
       @name = name
     end 
     
-    def d
+    def d #:nodoc:
       self.class.d
     end
     
-    def draw    
+    # Draw <tt>self</tt>. Use some special attributes added to Gruff.  Requires the overrides in <tt>gruff_hacks.rb</tt>.
+    def draw #:nodoc:
       g = Gruff::Line.new("1024x768")
       g.title = @name
       g.x_axis_label = "time"
       g.legend_font_size = g.legend_box_size = 14
       g.title_font_size = 24
       g.marker_font_size = 14
-            
+       
+      # mangle some key names.
+      # XXX unreadable
       @data.map do |key, values|        
         ["#{(key.to_s.empty? ? '[Unknown]' : key).gsub(/.*::/, '')} (#{ if 
           [MEM_KEY, HEAP_KEY].include?(key) 
@@ -69,7 +74,8 @@ class BleakHouse
       g.write(@name.to_filename + ".png")
     end
     
-    def self.aggregate(data, selector, namer)
+    # Takes subkeys that match the <tt>selector</tt> regex and adds each subkey's count to the key named by the first group match in the <tt>namer</tt> regex for that subkey.
+    def self.aggregate(data, selector = //, namer = //) #:nodoc:
       aggregate_data = {}
       increments = []
       data.each_with_index do |frameset, index|
@@ -88,24 +94,26 @@ class BleakHouse
       end
       [aggregate_data, increments]
     end
-    
-    def self.build_all(filename)
-      unless File.exists? filename
-        puts "No data file found: #{filename}"
+        
+    # Generates a chart for each tag (by subtag) and subtag (by object type). Output is written to <tt>bleak_house/</tt> in the same folder as the passed <tt>logfile</tt> attribute.
+    def self.build_all(logfile)
+      unless File.exists? logfile
+        puts "No data file found: #{logfile}"
         exit 
       end 
       puts "parsing data"
-      data = YAML.load_file(filename)                
+      data = YAML.load_file(logfile)                
  
-      rootdir = File.dirname(filename) + "/bleak_house/"     
+      rootdir = File.dirname(logfile) + "/bleak_house/"     
       FileUtils.rm_r(rootdir) rescue nil
       Dir.mkdir(rootdir)      
       Dir.chdir(rootdir) do        
-              
-        labels = ["controller", "action"]
-        # autodetect need for rails snapshot conflation
+        
+        labels = []
+        
+        # autodetect need for Rails snapshot conflation
         if data.first.last.keys.first =~ /^#{CORE_KEY}::::/
-          # subtract core counts from action
+          # Rails snapshots double-count objects that start in the core and persist through the action (which is most core objects), so we need to the subtract core counts from action counts
           data = data[0..(-1 - data.size % 2)]
           data = data.in_groups_of(2).map do |frames|
             core, action = frames.first, frames.last
@@ -115,12 +123,13 @@ class BleakHouse
             [action.time, core.data.merge(action.data)]
           end
           puts "  conflated core rails snapshots with their actions"
+          labels = ["controller", "action"]
         else
           puts "  assuming custom snapshotting"
           labels = ["tag", "subtag"]
         end
                 
-        # smooth
+        # smooth frames (just an average)
         data = data[0..(-1 - data.size % SMOOTHNESS)]
         data = data.in_groups_of(SMOOTHNESS).map do |frames|
           timestamp = frames.map(&:time).sum / SMOOTHNESS
@@ -179,7 +188,7 @@ class BleakHouse
       end    
     end 
     
-    def self.d
+    def self.d #:nodoc:
       require 'ruby-debug'; Debugger.start; debugger
     end
         

@@ -5,7 +5,7 @@ A library and Rails plugin for finding memory leaks.
 
 == License
 
-Copyright 2007 Cloudburst, LLC. See the included LICENSE file. Portions copyright 2006 Eric Hodel and used with permission. See included the LICENSE_BSD file.
+Copyright 2007 Cloudburst, LLC. See the included LICENSE file. Portions copyright 2006 Eric Hodel and used with permission. See the included LICENSE_BSD file.
 
 == Features
 

@@ -1,25 +1,27 @@
 
-v7.1. RDoc documentation; use new Echoe setup; fix for namespaced controllers.
+v2.7. Version renumbering; apologies if this messes anyone up.
 
-v7. Detect if core keys are present or not; fixes for analyzing non-Rails apps.
+v2.6. RDoc documentation; use new Echoe setup; fix for namespaced controllers.
 
-v6. Log heap usage; remove pure-Ruby profiler.
+v2.5. Detect if core keys are present or not; fixes for analyzing non-Rails apps.
 
-v5.3. Subtract Rails core counts from action counts and join paired frames.
+v2.4. Log heap usage; remove pure-Ruby profiler.
 
-v5.2. Change smoothing algorithm to be more intuitive and so mem usage is correct.
+v2.3. Subtract Rails core counts from action counts and join paired frames.
 
-v5.1. Close file properly.
+v2.2. Change smoothing algorithm to be more intuitive and so mem usage is correct.
 
-v5. C instrumentation with YAML output.
+v2.1. Close file properly.
 
-v4. Log memory usage on *nix.
+v2. C instrumentation with YAML output.
 
-v3.1. Fix nil directory traversal error on Windows.
+v1.3. Log memory usage on *nix.
 
-v3. Gem version
+v1.2. Fix nil directory traversal error on Windows.
 
-v2. Dumped Rublique; replaced with a lightweight non-delta marshalling version.
+v1.1. Gem version
 
-v1. First version
+v1. Dumped Rublique; replaced with a lightweight non-delta marshalling version.
+
+v0. First version
 

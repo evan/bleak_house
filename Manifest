@@ -13,9 +13,7 @@ lib/bleak_house/analyze.rb
 lib/bleak_house/action_controller.rb
 install.rb
 init.rb
-Rakefile
 README
-Manifest
 LICENSE_BSD
 LICENSE
 CHANGELOG

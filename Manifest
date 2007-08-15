@@ -1,7 +1,12 @@
+TODO
 test/unit/test_bleak_house.rb
 test/misc/direct.rb
 tasks/bleak_house_tasks.rake
+README
 patches/gc.c.patch
+Manifest
+LICENSE_BSD
+LICENSE
 lib/bleak_house.rb
 lib/bleak_house/support_methods.rb
 lib/bleak_house/rake_task_redefine_task.rb
@@ -13,7 +18,4 @@ lib/bleak_house/analyze.rb
 lib/bleak_house/action_controller.rb
 install.rb
 init.rb
-README
-LICENSE_BSD
-LICENSE
 CHANGELOG

@@ -63,6 +63,8 @@ You may get library require errors if you install <tt>ruby-bleak-house</tt> 1.8.
 
 == Further resources
 
-* http://blog.evanweaver.com/pages/code#bleak_house
 * http://rubyforge.org/forum/forum.php?forum_id=13983
+* http://blog.evanweaver.com/articles/2007/05/12/let-me-hit-you-with-some-knowledge
+* http://blog.evanweaver.com/articles/2007/05/06/leak-proof-direct-heap-instrumentation-for-bleak_house
+* http://blog.evanweaver.com/articles/2007/04/28/bleak_house
 

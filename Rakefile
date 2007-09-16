@@ -19,6 +19,10 @@ begin
     p.docs_host = 'blog.evanweaver.com:~/www/bax/public/files/doc/'
     p.rdoc_pattern = /^tasks|analyze|bleak_house\/bleak_house\.rb|c\.rb|^README|^CHANGELOG|^TODO|^LICENSE$/
     p.dependencies = ['gruff =0.2.8', 'rmagick', 'activesupport', 'RubyInline']
+    p.require_signed = true
+    p.include_gemspec = false
+    p.include_rakefile = true  
+    
     p.install_message = "
 Thanks for installing BleakHouse. 
 

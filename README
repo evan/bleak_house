@@ -7,6 +7,8 @@ A library and Rails plugin for finding memory leaks.
 
 Copyright 2007 Cloudburst, LLC. See the included LICENSE file. Portions copyright 2006 Eric Hodel and used with permission. See the included LICENSE_BSD file.
 
+The public certificate for this gem is at http://rubyforge.org/frs/download.php/25331/evan_weaver-original-public_cert.pem.
+
 == Features
 
 * leak-proof C instrumentation

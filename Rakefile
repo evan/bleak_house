@@ -58,7 +58,7 @@ namespace :ruby do
         Dir.chdir(build_dir) do
           puts "  downloading Ruby source"
           bz2 = "ruby-1.8.6.tar.bz2"
-          system("wget 'http://rubyforge.org/frs/download.php/20425/ruby-1.8.6.tar.bz2' &> wget.log")
+          system("wget 'http://rubyforge.org/frs/download.php/18434/ruby-1.8.6.tar.bz2' &> wget.log")
           puts "  extracting"
           system("tar xjf #{bz2} &> tar.log")
           File.delete bz2

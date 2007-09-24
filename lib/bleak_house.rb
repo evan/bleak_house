@@ -5,7 +5,7 @@ if ENV['BLEAK_HOUSE']
   require 'dispatcher'
   
   # logger
-  require "bleak_house.#{Config::CONFIG['DLEXT']}"
+  require "bleak_house.#{Config::CONFIG['DLEXT']}" # XXX wrong
   require 'bleak_house/bleak_house'
 
   # overrides

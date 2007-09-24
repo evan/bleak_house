@@ -19,7 +19,7 @@ lib/bleak_house/analyze.rb
 lib/bleak_house/action_controller.rb
 install.rb
 init.rb
+ext/logger.h
+ext/logger.c
 ext/extconf.rb
-ext/bleak_house.h
-ext/bleak_house.c
 CHANGELOG

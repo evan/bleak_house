@@ -32,10 +32,5 @@ You will get a <tt>bleak_house/</tt> folder in the same folder as your logfile.
       [a.first - a.last, a.last]
     end
 
-    # Counts the live objects on the heap and writes a single tagged YAML frame to the logfile. Set <tt>specials = true</tt> if you also want to count AST nodes and var scopes; otherwise, use <tt>false</tt>.
-    def snapshot(logfile, tag, specials)
-      # RDoc stub
-    end
-    
   end  
 end

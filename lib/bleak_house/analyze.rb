@@ -7,9 +7,9 @@ require 'active_support'
 gem 'gruff', '= 0.2.8'
 require 'gruff'
 
-# require, but make rdoc not whine
-load "#{File.dirname(__FILE__)}/gruff_hacks.rb"
-load "#{File.dirname(__FILE__)}/support_methods.rb"
+$LOAD_PATH << File.dirname(__FILE__)
+require 'gruff_hacks'
+require 'support_methods'
 
 Gruff::Base.send(:remove_const, "LEFT_MARGIN") # silence a warning
 Gruff::Base::LEFT_MARGIN = 200

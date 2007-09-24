@@ -1,18 +1,20 @@
 
+#include "c.h"
+
 static VALUE rb_mBleakHouse;
 static VALUE rb_cC;
 
 /* Number of struct heaps_slots used */
-static int heaps_used() {
-  return rb_gc_heaps_used();
+static VALUE heaps_used() {
+  return INT2FIX(rb_gc_heaps_used());
 }
 
 /* Length of the struct heaps_slots allocated */
-static int heaps_length() {
-  return rb_gc_heaps_length();
+static VALUE heaps_length() {
+  return INT2FIX(rb_gc_heaps_length());
 }
 
-static void VALUE snapshot(VALUE logfile, VALUE tag, VALUE _specials) {
+static VALUE snapshot(VALUE self, VALUE logfile, VALUE tag, VALUE _specials) {
   Check_Type(logfile, T_STRING);
   Check_Type(tag, T_STRING);
 
@@ -30,11 +32,11 @@ static void VALUE snapshot(VALUE logfile, VALUE tag, VALUE _specials) {
     rb_raise(rb_eRuntimeError, "couldn't open snapshot file");
 
   if (is_new) 
-    fprintf(obj_log, \"---\\n");
-  fprintf(obj_log, \"- - %i\\n", time(0));
+    fprintf(obj_log, "---\n");
+  fprintf(obj_log, "- - %i\n", time(0));
   VALUE mem = rb_funcall(self, rb_intern("mem_usage"), 0);
-  fprintf(obj_log, \"  - :\\"memory usage/swap\\": %i\\n", NUM2INT(RARRAY_PTR(mem)[0]));
-  fprintf(obj_log, \"    :\\"memory usage/real\\": %i\\n", NUM2INT(RARRAY_PTR(mem)[1]));
+  fprintf(obj_log, "  - :\"memory usage/swap\": %i\n", NUM2INT(RARRAY_PTR(mem)[0]));
+  fprintf(obj_log, "    :\"memory usage/real\": %i\n", NUM2INT(RARRAY_PTR(mem)[1]));
   
   /* haha */
   char tags[MAX_UNIQ_TAGS][MAX_TAG_LENGTH];
@@ -102,10 +104,10 @@ static void VALUE snapshot(VALUE logfile, VALUE tag, VALUE _specials) {
       }
     }
   }
-  fprintf(obj_log, \"    :\\"heap usage/filled slots\\": %i\\n", filled_slots);
-  fprintf(obj_log, \"    :\\"heap usage/free slots\\": %i\\n", free_slots);
+  fprintf(obj_log, "    :\"heap usage/filled slots\": %i\n", filled_slots);
+  fprintf(obj_log, "    :\"heap usage/free slots\": %i\n", free_slots);
   for (j = 0; j < current_pos; j++) {
-    fprintf(obj_log, "    :\\"%s\\": %i\\n", tags[j], counts[j]);
+    fprintf(obj_log, "    :\"%s\": %i\n", tags[j], counts[j]);
   }
   fclose(obj_log);
   
@@ -121,7 +123,7 @@ Init_c()
 {
   rb_mBleakHouse = rb_define_module("BleakHouse");
   rb_cC = rb_define_class_under(rb_mBleakHouse, "C", rb_cObject);
-  rb_define_method(rb_cC, "snapshot", snapshot, 3);
+  rb_define_method(rb_cC, "snapshot", snapshot, 4);
   rb_define_method(rb_cC, "heaps_used", heaps_used, 0);
-  rb_define_method(rb_cC, "rb_gc_heaps_length", rb_gc_heaps_length, 0);
+  rb_define_method(rb_cC, "heaps_length", heaps_length, 0);
 }

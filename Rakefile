@@ -1,5 +1,4 @@
 
-require 'rubygems'
 require 'rake'
 require 'lib/bleak_house/rake_task_redefine_task'
 
@@ -18,7 +17,7 @@ begin
     p.url = "http://blog.evanweaver.com/files/doc/fauna/bleak_house/"
     p.docs_host = 'blog.evanweaver.com:~/www/bax/public/files/doc/'
     p.rdoc_pattern = /^tasks|analyze|bleak_house\/bleak_house\.rb|c\.rb|^README|^CHANGELOG|^TODO|^LICENSE$/
-    p.dependencies = ['gruff =0.2.8', 'rmagick', 'activesupport', 'RubyInline']
+    p.dependencies = ['gruff =0.2.8', 'rmagick', 'activesupport']
     p.require_signed = true
     p.include_gemspec = false
     p.include_rakefile = true  

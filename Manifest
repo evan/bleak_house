@@ -20,6 +20,6 @@ lib/bleak_house/action_controller.rb
 install.rb
 init.rb
 ext/extconf.rb
-ext/c.h
-ext/c.c
+ext/bleak_house.h
+ext/bleak_house.c
 CHANGELOG

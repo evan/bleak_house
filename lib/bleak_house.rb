@@ -1,17 +1,6 @@
 
 if ENV['BLEAK_HOUSE']
-
-  # rails  
-  require 'dispatcher'
-  
-  # logger
-  require "bleak_house.#{Config::CONFIG['DLEXT']}" # XXX wrong
-  require 'bleak_house/bleak_house'
-
-  # overrides
-  require 'bleak_house/dispatcher'
-  require 'bleak_house/action_controller'
-
-  BleakHouse.warn "enabled (log/bleak_house_#{RAILS_ENV}.dump)"
-    
+  require 'bleak_house/logger'
+  require 'bleak_house/rails'
+  BleakHouse.warn "enabled (log/bleak_house_#{RAILS_ENV}.dump)"    
 end

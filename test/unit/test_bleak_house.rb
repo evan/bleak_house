@@ -6,7 +6,7 @@ require 'test/unit'
 require 'yaml'
   
 class BleakHouseTest < Test::Unit::TestCase
-  require "#{DIR}lib/bleak_house/c"
+  require "#{DIR}lib/bleak_house/logger"
 
   SNAPSHOT_FILE = "/tmp/bleak_house"
   SNAPS = {:c => SNAPSHOT_FILE + ".c.yaml",
@@ -17,7 +17,7 @@ class BleakHouseTest < Test::Unit::TestCase
 
   def test_c_snapshot
     File.delete SNAPS[:c] rescue nil
-    ::BleakHouse::CLogger.new.snapshot(SNAPS[:c], "c_test", true)
+    ::BleakHouse::Logger.new.snapshot(SNAPS[:c], "c_test", true)
     assert File.exist?(SNAPS[:c])
     assert_nothing_raised do 
       assert YAML.load_file(SNAPS[:c]).is_a?(Array)
@@ -26,7 +26,7 @@ class BleakHouseTest < Test::Unit::TestCase
   
   def test_c_raises
     assert_raises(RuntimeError) do
-      ::BleakHouse::CLogger.new.snapshot("/", "c_test", true)
+      ::BleakHouse::Logger.new.snapshot("/", "c_test", true)
     end    
   end
   

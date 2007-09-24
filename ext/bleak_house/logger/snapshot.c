@@ -5,12 +5,12 @@ static VALUE rb_mBleakHouse;
 static VALUE rb_cC;
 
 /* Number of struct heaps_slots used */
-static VALUE heaps_used() {
+static VALUE heaps_used(VALUE self) {
   return INT2FIX(rb_gc_heaps_used());
 }
 
 /* Length of the struct heaps_slots allocated */
-static VALUE heaps_length() {
+static VALUE heaps_length(VALUE self) {
   return INT2FIX(rb_gc_heaps_length());
 }
 
@@ -120,11 +120,11 @@ static VALUE snapshot(VALUE self, VALUE logfile, VALUE tag, VALUE _specials) {
 }
 
 void
-Init_logger()
+Init_snapshot()
 {
   rb_mBleakHouse = rb_define_module("BleakHouse");
   rb_cC = rb_define_class_under(rb_mBleakHouse, "Logger", rb_cObject);
-  rb_define_method(rb_cC, "snapshot", snapshot, 4);
+  rb_define_method(rb_cC, "snapshot", snapshot, 3);
   rb_define_method(rb_cC, "heaps_used", heaps_used, 0);
   rb_define_method(rb_cC, "heaps_length", heaps_length, 0);
 }

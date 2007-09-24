@@ -1,5 +1,5 @@
 
-#include "mem_usage.h"
+#include "snapshot.h"
 
 static VALUE rb_mBleakHouse;
 static VALUE rb_cC;

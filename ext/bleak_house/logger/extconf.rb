@@ -1,4 +1,4 @@
 
 require 'mkmf'
-dir_config('mem_usage')
-create_makefile('bleak_house/logger/mem_usage')
+dir_config('snapshot')
+create_makefile('bleak_house/logger/snapshot')

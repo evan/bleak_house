@@ -1,15 +1,15 @@
 
-class BleakHouse
+module BleakHouse
 
 =begin rdoc
-This class performs the actual object logging of BleakHouse. To use it directly, you need to make calls to BleakHouse::CLogger#snapshot. 
+This class performs the actual object logging of BleakHouse. To use it directly, you need to make calls to BleakHouse::Logger#snapshot. 
 
 == Example
 
 At the start of your app, put:
   require 'rubygems'
   require 'bleak_house/c'
-  $memlogger = BleakHouse::CLogger.new
+  $memlogger = BleakHouse::Logger.new
   File.delete($logfile = "/path/to/logfile") rescue nil
 
 (This assumes you are using the gem version.)
@@ -24,7 +24,7 @@ You will get a <tt>bleak_house/</tt> folder in the same folder as your logfile.
   
 =end
   
-  class CLogger
+  class Logger
    
     # Returns an array of the running process's real and virtual memory usage, in kilobytes.
     def mem_usage

@@ -1,5 +1,5 @@
 
-#include "bleak_house.h"
+#include "logger.h"
 
 static VALUE rb_mBleakHouse;
 static VALUE rb_cC;
@@ -120,10 +120,10 @@ static VALUE snapshot(VALUE self, VALUE logfile, VALUE tag, VALUE _specials) {
 }
 
 void
-Init_bleak_house()
+Init_logger()
 {
   rb_mBleakHouse = rb_define_module("BleakHouse");
-  rb_cC = rb_define_class_under(rb_mBleakHouse, "CLogger", rb_cObject);
+  rb_cC = rb_define_class_under(rb_mBleakHouse, "Logger", rb_cObject);
   rb_define_method(rb_cC, "snapshot", snapshot, 4);
   rb_define_method(rb_cC, "heaps_used", heaps_used, 0);
   rb_define_method(rb_cC, "heaps_length", heaps_length, 0);

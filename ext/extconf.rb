@@ -1,4 +1,4 @@
 
 require 'mkmf'
-dir_config('bleak_house')
-create_makefile('bleak_house')
+dir_config('logger')
+create_makefile('logger')

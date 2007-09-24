@@ -3,6 +3,7 @@ test/unit/test_bleak_house.rb
 test/misc/direct.rb
 tasks/bleak_house_tasks.rake
 README
+Rakefile
 patches/gc.c.patch
 Manifest
 LICENSE_BSD
@@ -18,4 +19,7 @@ lib/bleak_house/analyze.rb
 lib/bleak_house/action_controller.rb
 install.rb
 init.rb
+ext/extconf.rb
+ext/c.h
+ext/c.c
 CHANGELOG

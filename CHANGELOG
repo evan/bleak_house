@@ -1,4 +1,6 @@
 
+v3.0. Rewrite. Remove Gruffs and graphs. Become a standard compiled extension. Walk the symbol table. Track object histories. Use custom CSV format instead of YAML.
+
 v2.7. Version renumbering; apologies if this messes anyone up.
 
 v2.6. RDoc documentation; use new Echoe setup; fix for namespaced controllers.

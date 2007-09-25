@@ -1,36 +1,22 @@
 
-require 'rubygems'
-require 'rake'
-require 'lib/bleak_house/rake_task_redefine_task'
-
-DIR = File.dirname(__FILE__)
+require 'lib/bleak_house/support/rake'
 
 begin
   require 'echoe'
   
-  taskmsg = File.open(DIR + "/tasks/bleak_house_tasks.rake").readlines
-  taskmsg = taskmsg[0..3] + [taskmsg[9][2..-1]] + taskmsg[12..-1] # XXX weak
-  
-  echoe = Echoe.new("bleak_house") do |p|
+  Echoe.new("bleak_house") do |p|
     p.author = "Evan Weaver" 
     p.project = "fauna"
     p.summary = "A Rails plugin for finding memory leaks."
     p.url = "http://blog.evanweaver.com/files/doc/fauna/bleak_house/"
     p.docs_host = 'blog.evanweaver.com:~/www/bax/public/files/doc/'
     p.rdoc_pattern = /^tasks|analyze|bleak_house\/bleak_house\.rb|c\.rb|^README|^CHANGELOG|^TODO|^LICENSE$/
-    p.dependencies = ['gruff =0.2.8', 'rmagick', 'activesupport', 'RubyInline']
+    p.dependencies = ['gruff =0.2.8', 'rmagick', 'activesupport', 'rake']
     p.require_signed = true
     p.include_gemspec = false
-    p.include_rakefile = true  
-    
-    p.install_message = "
-Thanks for installing BleakHouse. 
-
-For each Rails app you want to profile, you will need to add the 
-following rake task in RAILS_ROOT/lib/tasks/bleak_house_tasks.rake:
-" + taskmsg.join("  ") + "\n"
+    p.include_rakefile = true      
   end
-            
+         
 rescue LoadError
 end
 
@@ -63,9 +49,13 @@ namespace :ruby do
           system("tar xjf #{bz2} &> tar.log")
           File.delete bz2
           Dir.chdir("ruby-1.8.6") do
-            puts "  patching" or system("patch -p0 < \'#{DIR}/patches/gc.c.patch\' &> ../patch.log")
-            puts "  configuring" or system("./configure --prefix=#{binary_dir[0..-5]} &> ../configure.log") # --with-static-linked-ext
-            puts "  making" or system("make &> ../make.log")
+            puts "  patching"
+            system("patch -p0 < \'#{File.dirname(__FILE__)}/patches/gc.c.patch\' &> ../gc.c.patch.log")
+            system("patch -p0 < \'#{File.dirname(__FILE__)}/patches/parse.y.patch\' &> ../parse.y.patch.log")
+            puts "  configuring"
+            system("./configure --prefix=#{binary_dir[0..-5]} &> ../configure.log") # --with-static-linked-ext
+            puts "  making"
+            system("make &> ../make.log")
   
             binary = "#{binary_dir}/ruby-bleak-house"
             puts "  installing as #{binary}"
@@ -80,10 +70,4 @@ namespace :ruby do
     end    
   end
 end
-
-#def check_configure_size
-#  if (size = File.size("configure")) != 476155
-#    raise "Configure size is wrong (got #{size})"
-#  end
-#end
 

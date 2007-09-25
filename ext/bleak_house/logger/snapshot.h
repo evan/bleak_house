@@ -4,9 +4,6 @@
 #include "st.h"
 #include "re.h"
 
-#define MAX_UNIQ_TAGS 1536
-#define MAX_TAG_LENGTH 192
-
 typedef struct RVALUE {
     union {
         struct {
@@ -37,6 +34,9 @@ struct heaps_slot {
     RVALUE *slot;
     int limit;
 };
+
+static st_table *sym_tbl;
+static st_table *sym_rev_tbl;
 
 struct heaps_slot * rb_gc_heap_slots();
 int rb_gc_heaps_used();

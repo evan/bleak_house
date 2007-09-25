@@ -3,6 +3,8 @@
 #include "node.h"
 #include "st.h"
 #include "re.h"
+#include "util.h"
+#include "intern.h"
 
 typedef struct RVALUE {
     union {
@@ -35,9 +37,7 @@ struct heaps_slot {
     int limit;
 };
 
-static st_table *sym_tbl;
-static st_table *sym_rev_tbl;
-
+struct st_table * rb_parse_sym_tbl();
 struct heaps_slot * rb_gc_heap_slots();
 int rb_gc_heaps_used();
 int rb_gc_heaps_length();

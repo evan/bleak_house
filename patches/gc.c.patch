@@ -1,30 +1,27 @@
-Index: gc.c
-===================================================================
-RCS file: /src/ruby/gc.c,v
-retrieving revision 1.168.2.45
-diff -p -u -r1.168.2.45 gc.c
---- gc.c        25 Aug 2006 08:12:46 -0000      1.168.2.45
-+++ gc.c        31 Aug 2006 18:47:55 -0000
-@@ -323,6 +323,22 @@ static struct heaps_slot {
- static int heaps_length = 0;
- static int heaps_used   = 0;
- 
-+struct heaps_slot *
-+rb_gc_heap_slots()
-+{
-+    return heaps;
-+}
-+
-+int
-+rb_gc_heaps_used() {
-+    return heaps_used;
-+}
-+
-+int
-+rb_gc_heaps_length() {
-+    return heaps_length;
-+}
-+
- #define HEAP_MIN_SLOTS 10000
- static int heap_slots = HEAP_MIN_SLOTS;
- 
+*** gc.old	2007-09-25 00:27:27.000000000 -0400
+--- gc.c	2007-09-25 00:27:28.000000000 -0400
+***************
+*** 309,314 ****
+--- 309,330 ----
+  static int heaps_length = 0;
+  static int heaps_used   = 0;
+  
++ struct heaps_slot *
++ rb_gc_heap_slots()
++ {
++     return heaps;
++ }
++ 
++ int
++ rb_gc_heaps_used() {
++     return heaps_used;
++ }
++ 
++ int
++ rb_gc_heaps_length() {
++     return heaps_length;
++ }
++ 
+  #define HEAP_MIN_SLOTS 10000
+  static int heap_slots = HEAP_MIN_SLOTS;
+  

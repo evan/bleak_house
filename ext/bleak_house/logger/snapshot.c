@@ -85,7 +85,7 @@ static VALUE snapshot(VALUE self, VALUE logfile, VALUE tag, VALUE _specials) {
     }
   }
   
-  printf("%i", sym_tbl->num_entries);
+  printf("%ld", rb_parse_sym_tbl()->num_entries);
     
   fprintf(obj_log, "    \"heap usage/filled slots\": %i\n", filled_slots);
   fprintf(obj_log, "    \"heap usage/free slots\": %i\n", free_slots);

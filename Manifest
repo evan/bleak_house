@@ -4,10 +4,12 @@ test/misc/direct.rb
 tasks/bleak_house_tasks.rake
 README
 Rakefile
+patches/parse.y.patch
 patches/gc.c.patch
 Manifest
 LICENSE_BSD
 LICENSE
+lib/bleak_houselogger
 lib/bleak_house.rb
 lib/bleak_house/support/rake.rb
 lib/bleak_house/support/core_extensions.rb
@@ -16,6 +18,7 @@ lib/bleak_house/rails/dispatcher.rb
 lib/bleak_house/rails/bleak_house.rb
 lib/bleak_house/rails/action_controller.rb
 lib/bleak_house/logger.rb
+lib/bleak_house/logger/snapshot.bundle
 lib/bleak_house/logger/mem_usage.rb
 lib/bleak_house/analyzer.rb
 lib/bleak_house/analyzer/gruff.rb

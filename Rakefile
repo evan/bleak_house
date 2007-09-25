@@ -49,9 +49,13 @@ namespace :ruby do
           system("tar xjf #{bz2} &> tar.log")
           File.delete bz2
           Dir.chdir("ruby-1.8.6") do
-            puts "  patching" or system("patch -p0 < \'#{File.dirname(__FILE__)}/patches/gc.c.patch\' &> ../patch.log")
-            puts "  configuring" or system("./configure --prefix=#{binary_dir[0..-5]} &> ../configure.log") # --with-static-linked-ext
-            puts "  making" or system("make &> ../make.log")
+            puts "  patching"
+            system("patch -p0 < \'#{File.dirname(__FILE__)}/patches/gc.c.patch\' &> ../gc.c.patch.log")
+            system("patch -p0 < \'#{File.dirname(__FILE__)}/patches/parse.y.patch\' &> ../parse.y.patch.log")
+            puts "  configuring"
+            system("./configure --prefix=#{binary_dir[0..-5]} &> ../configure.log") # --with-static-linked-ext
+            puts "  making"
+            system("make &> ../make.log")
   
             binary = "#{binary_dir}/ruby-bleak-house"
             puts "  installing as #{binary}"

@@ -23,9 +23,6 @@ class BleakHouseTest < Test::Unit::TestCase
     ::BleakHouse::Logger.new.snapshot(SNAPS[:c], "c_test", false)
     assert_equal symbol_count, Symbol.all_symbols.size
     assert File.exist?(SNAPS[:c])
-    assert_nothing_raised do 
-      assert YAML.load_file(SNAPS[:c]).is_a?(Hash)
-    end
   end
   
   def test_c_raises

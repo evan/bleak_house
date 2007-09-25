@@ -26,6 +26,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
   struct st_table * sym_tbl = rb_parse_sym_tbl();
 
   int specials = RTEST(_specials);
+  int hashed;
 
   /* see if the logfile exists already */
   FILE *logfile = fopen(StringValueCStr(_logfile), "r");
@@ -37,22 +38,20 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
   if ((logfile = fopen(StringValueCStr(_logfile), "a+")) == NULL)
     rb_raise(rb_eRuntimeError, "couldn't open snapshot file");
 
-  /* write the yaml header */
-  if (is_new) 
-    fprintf(logfile, "---\n");
-  fprintf(logfile, "%i:\n", time(0));
+  /* write the time */
+  fprintf(logfile, "%i\n", time(0));
   
   /* get and write the memory usage */
   VALUE mem = rb_funcall(self, rb_intern("mem_usage"), 0);
-  fprintf(logfile, "  \"memory usage/swap\": %i\n", NUM2INT(RARRAY_PTR(mem)[0]));
-  fprintf(logfile, "  \"memory usage/real\": %i\n", NUM2INT(RARRAY_PTR(mem)[1]));
+  fprintf(logfile, "memory usage/swap,%i\n", NUM2INT(RARRAY_PTR(mem)[0]));
+  fprintf(logfile, "memory usage/real,%i\n", NUM2INT(RARRAY_PTR(mem)[1]));
   
   int current_pos = 0;  
   int filled_slots = 0;
   int free_slots = 0;
 
   /* write the tag header */
-  fprintf(logfile, "  \"%s\":\n", StringValueCStr(tag));
+  fprintf(logfile, "%s\n", StringValueCStr(tag));
 
   int i, j;
   
@@ -65,29 +64,37 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
         filled_slots ++;
         switch (TYPE(obj)) {
           case T_NONE:
-              if (specials) fprintf(logfile , "     %lu: _none\n", FIX2ULONG(rb_obj_id((VALUE)obj)));
+              if (specials) hashed = lookup_builtin("_none");
               break;
           case T_BLKTAG:
-              if (specials) fprintf(logfile , "     %lu: _blktag\n", FIX2ULONG(rb_obj_id((VALUE)obj)));
+              if (specials) hashed = lookup_builtin("_blktag");
               break;
           case T_UNDEF:
-              if (specials) fprintf(logfile , "     %lu: _undef\n", FIX2ULONG(rb_obj_id((VALUE)obj)));
+              if (specials) hashed = lookup_builtin("_undef");
               break;
           case T_VARMAP:
-              if (specials) fprintf(logfile , "     %lu: _varmap\n", FIX2ULONG(rb_obj_id((VALUE)obj)));
+              if (specials) hashed = lookup_builtin("_varmap");
               break;
           case T_SCOPE:
-              if (specials) fprintf(logfile , "     %lu: _scope\n", FIX2ULONG(rb_obj_id((VALUE)obj)));
+              if (specials) hashed = lookup_builtin("_scope");
               break;
           case T_NODE:
-              if (specials) fprintf(logfile , "     %lu: _node\n", FIX2ULONG(rb_obj_id((VALUE)obj)));
+              if (specials) hashed = lookup_builtin("_node");
               break;
           default:
             if (!obj->as.basic.klass) {
-              fprintf(logfile , "     %lu: _unknown\n", FIX2ULONG(rb_obj_id((VALUE)obj)));
+              hashed = lookup_builtin("_unknown");
             } else {
-              fprintf(logfile , "     %lu: %s\n", FIX2ULONG(rb_obj_id((VALUE)obj)), rb_obj_classname((VALUE)obj));
+              hashed = lookup_builtin(rb_obj_classname((VALUE)obj));
             }
+        }
+        /* write to log */
+        if (hashed < 0) {
+          /* regular classname */
+          fprintf(logfile, "%s,%lu\n", rb_obj_classname((VALUE)obj), FIX2ULONG(rb_obj_id((VALUE)obj)));
+        } else {
+          /* builtins key */
+          fprintf(logfile, "%i,%lu\n", hashed, FIX2ULONG(rb_obj_id((VALUE)obj)));          
         }
       } else {
         free_slots ++;
@@ -96,20 +103,30 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
   }
   
   /* walk the symbol table */
+  hashed = lookup_builtin("Symbol");
   for (i = 0; i < sym_tbl->num_bins; i++) {
     for (sym = sym_tbl->bins[i]; sym != 0; sym = sym->next) {
-      fprintf(logfile, "     %lu: Symbol\n", sym->record);
+      fprintf(logfile, "%i,%lu\n", hashed, sym->record);
     }
   }
     
-  fprintf(logfile, "  \"heap usage/filled slots\": %i\n", filled_slots);
-  fprintf(logfile, "  \"heap usage/free slots\": %i\n", free_slots);
+  fprintf(logfile, "heap usage/filled slots,%i\n", filled_slots);
+  fprintf(logfile, "heap usage/free slots,%i\n", free_slots);
   fclose(logfile);
   
   /* request GC run */          
   rb_funcall(rb_mGC, rb_intern("start"), 0); 
   return Qtrue;
 }
+
+int lookup_builtin(char * name) {
+  int i;
+  for (i = 0; i < builtins_size; i++) {
+    if (!strcmp(builtins[i], name)) return i;      
+  }
+  return -1;
+}
+
 
 void
 Init_snapshot()

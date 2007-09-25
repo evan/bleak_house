@@ -5,6 +5,26 @@
 #include "re.h"
 #include "util.h"
 #include "intern.h"
+#include "string.h"
+
+static char * builtins[] = {
+  "String",
+  "Array",
+  "Hash",
+  "Regexp",
+  "Symbol",
+  "Module",
+  "Class",
+  "_node",
+  "_none",
+  "_blktag",
+  "_undef",
+  "_varmap",
+  "_scope",
+  "_unknown"
+};
+
+static int builtins_size = 14;
 
 typedef struct RVALUE {
     union {
@@ -50,3 +70,5 @@ struct st_table * rb_parse_sym_tbl();
 struct heaps_slot * rb_gc_heap_slots();
 int rb_gc_heaps_used();
 int rb_gc_heaps_length();
+
+int lookup_builtin(char *);

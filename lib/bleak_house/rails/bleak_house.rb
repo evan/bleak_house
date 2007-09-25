@@ -45,7 +45,7 @@ module BleakHouse
       end
     end
   
-    LOGFILE = "#{RAILS_ROOT}/log/bleak_house_#{RAILS_ENV}.yaml.log"
+    LOGFILE = "#{RAILS_ROOT}/log/bleak_house_#{RAILS_ENV}.dump"
     if File.exists?(LOGFILE)
       File.rename(LOGFILE, "#{LOGFILE}.old") 
       warn "renamed old logfile"

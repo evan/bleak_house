@@ -36,8 +36,12 @@ Dir.chdir(tmp) do
         binary = "#{binary_dir}/ruby-bleak-house"
         puts "  Installing as #{binary}"
 
-        # Avoid a "Text file busy" error
-        exec("cp ./ruby #{binary}; chmod -755 #{binary}; echoe \"  Done\"")
+        if File.exist? "ruby"        
+          # Avoid a "Text file busy" error
+          exec("rm #{binary}; cp ./ruby #{binary}; chmod -755 #{binary}; echoe \"  Done\"")
+        else
+          raise "Binary did not build"
+        end
       end
       
     end

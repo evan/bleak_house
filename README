@@ -1,65 +1,62 @@
 
 BleakHouse
 
-A library and Rails plugin for finding memory leaks. 
+A library for finding memory leaks. 
 
 == License
 
-Copyright 2007 Cloudburst, LLC. See the included LICENSE file. Portions copyright 2006 Eric Hodel and used with permission. See the included LICENSE_BSD file.
+Copyright 2007 Cloudburst, LLC. See the included LICENSE file. Portions copyright 2006 Eric Hodel and used with permission. See the included LICENSE_BSD file. Portions copyright 2007 TOMITA Masahiro and used with permission. See the included LICENSE_RUBY file.
 
 The public certificate for this gem is at http://rubyforge.org/frs/download.php/25331/evan_weaver-original-public_cert.pem.
 
 == Features
 
 * leak-proof C instrumentation
-* logs object counts, real and virtual memory usage, and filled/free heap slots
+* fast logging
+* complete tracking of object history
+* symbol tracking
 * easy Rails integration
-* automatic generation of nested object charts
 
 == Requirements
 
-* A unix-like operating system.
+* A unix-like operating system
 * Ruby 1.8.6
 
 = Usage
 
 == Installation
 
-First, install the plugin in your Rails app:
-  ./script/plugin install svn://rubyforge.org/var/svn/fauna/bleak_house/trunk
+Install the gem:
+  sudo gem install bleak_house
 
 You need to compile the BleakHouse patched Ruby build. In the plugin directory, run:
   rake ruby:build
   
 This gives you a Ruby binary named <tt>ruby-bleak-house</tt> alongside your regular binary.
- 
-(BleakHouse is also available as a gem: <tt>sudo gem install bleak_house</tt>. If you use the gem, <tt>require 'bleak_house'</tt> in <tt>config/environment.rb</tt>. You will also have to manually install the <tt>bleak_house:analyze</tt> Rake task.)
 
 == Profiling a Rails app
 
-To profile your application (ideally, in production mode, on an actual application server):
+To setup a Rails app for profiling, just <tt>require 'bleak_house'</tt> in <tt>config/environment.rb</tt>.
+
+Then, to engage the logger (ideally, in a live deployment situation), start a server instance as so:
   RAILS_ENV=production BLEAK_HOUSE=true ruby-bleak-house ./script/server 
 
-Browse around manually, thrash your entire app with a script, target troublesome controllers/actions, etc.
+Browse around manually, thrash your entire app with a script, target troublesome controllers/actions, etc. The BleakHouse logger will dump a huge amount of data to <tt>log/bleak_house_production.dump</tt>--keep an eye on your disk space.
 
-Then, to analyze:
-  RAILS_ENV=production rake bleak_house:analyze
-
-And then look in <tt>log/bleak_house/</tt>.
+Then, to analyze the dump:
+  bleak path/to/log/bleak_house_production.dump
+  
+Be patient.
 
 = Extras
 
-== Options
-
-You also can set the SMOOTHNESS environment variable if you want. The SMOOTHNESS setting just averages frames together. This is not a rolling average: 10 frames become 5 at <tt>SMOOTHNESS=2</tt>. 
-
 == Using BleakHouse outside of Rails
 
-If you want finer snapshots than every action, or want to use the plugin outside of Rails, see the BleakHouse::CLogger class.
+Just instantiate a BleakHouse::Logger object, and make calls to <tt>snapshot</tt> at appropriate times.
 
 == Troubleshooting
 
-If you see the error <tt>Symbol not found: _rb_gc_heaps_used</tt>, it means you installed the patched binary, but tried to profile the server with the regular binary.
+If you see the error <tt>Symbol not found: _rb_gc_heaps_used</tt>, it means you installed the patched binary, but tried to profile the server with the regular Ruby binary.
 
 You may get library require errors if you install <tt>ruby-bleak-house</tt> 1.8.6 alongside a different verson of Ruby. You could try to patch your local version of Ruby instead, or you could just upgrade to 1.8.6, which has a good trackrecord of stability.
 

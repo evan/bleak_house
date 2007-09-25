@@ -88,7 +88,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
           fprintf(logfile, "%s,%lu\n", rb_obj_classname((VALUE)obj), FIX2ULONG(rb_obj_id((VALUE)obj)));
         } else {
           /* builtins key */
-          if (specials || hashed < builtins_specials_offset) {
+          if (specials || hashed < BUILTINS_SIZE) {
             fprintf(logfile, "%i,%lu\n", hashed, FIX2ULONG(rb_obj_id((VALUE)obj)));
           }
         }
@@ -117,7 +117,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
 
 int lookup_builtin(char * name) {
   int i;
-  for (i = 0; i < builtins_size; i++) {
+  for (i = 0; i < BUILTINS_SIZE + SPECIALS_SIZE; i++) {
     if (!strcmp(builtins[i], name)) return i;      
   }
   return -1;

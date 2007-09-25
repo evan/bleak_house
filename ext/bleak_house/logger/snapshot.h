@@ -7,27 +7,49 @@
 #include "intern.h"
 #include "string.h"
 
+/* Histogram of most common Rails classes from www.chow.com */
 static char * builtins[] = {
-  "String",
-  "Array",
-  "Hash",
-  "Float",
-  "Bignum",
-  "Regexp",
-  "Symbol",
-  "Module",
-  "Class",
+ "String",
+ "Array",
+ "Hash",
+ "Class",
+ "Regexp",
+ "Proc",
+ "ActionController::Routing::DividerSegment",
+ "Gem::Version",
+ "Gem::Version::Requirement",
+ "Bignum",
+ "Time",
+ "MatchData",
+ "Gem::Specification",
+ "ActionController::Routing::StaticSegment",
+ "Gem::Dependency",
+ "Module",
+ "ActionController::Routing::DynamicSegment",
+ "Range",
+ "ActionController::Routing::Route",
+ "Float",
+ "HashWithIndifferentAccess",
+ "Method",
+ "Enumerable",
+ "Comparable",
+ "Set",
+ "File",
+ "Object",
+ "NameError",
+ "Thread",
+ "Mutex",
   "_node",
   "_none",
   "_blktag",
   "_undef",
   "_varmap",
   "_scope",
-  "_unknown"
+  "_unknown" 
 };
 
-static int builtins_size = 16;
-static int builtins_specials_offset = 9;
+#define BUILTINS_SIZE 30
+#define SPECIALS_SIZE 7
 
 typedef struct RVALUE {
     union {

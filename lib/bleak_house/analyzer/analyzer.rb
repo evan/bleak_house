@@ -62,7 +62,7 @@ module BleakHouse
                 bsize = final['births'].size
                 dsize = final['deaths'].size
                 final['velocity'] = bsize * 100 / dsize / 100.0
-                puts "  Frame #{frames.size - 1} finalized: #{bsize} births, #{dsize} deaths, velocity #{final['velocity']}, population #{final['objects'].size}"
+                puts "  Frame #{frames.size - 1} (#{final['meta']['tag]}) finalized: #{bsize} births, #{dsize} deaths, velocity #{final['velocity']}, population #{final['objects'].size}"
                 final.delete 'objects'
               end
             end

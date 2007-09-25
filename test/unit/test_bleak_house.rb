@@ -24,7 +24,7 @@ class BleakHouseTest < Test::Unit::TestCase
     assert_equal symbol_count, Symbol.all_symbols.size
     assert File.exist?(SNAPS[:c])
     assert_nothing_raised do 
-      assert YAML.load_file(SNAPS[:c]).is_a?(Array)
+      assert YAML.load_file(SNAPS[:c]).is_a?(Hash)
     end
   end
   

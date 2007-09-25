@@ -35,9 +35,9 @@ Dir.chdir(tmp) do
 
         binary = "#{binary_dir}/ruby-bleak-house"
         puts "  Installing as #{binary}"
-        FileUtils.cp("./ruby", binary)
-        FileUtils.chmod(0755, binary)
-        puts "  Done"
+
+        # Avoid a "Text file busy" error
+        exec("cp ./ruby #{binary}; chmod -755 #{binary}; echoe \"  Done\"")
       end
       
     end

@@ -7,11 +7,11 @@ begin
   Echoe.new("bleak_house") do |p|
     p.author = "Evan Weaver" 
     p.project = "fauna"
-    p.summary = "A Rails plugin for finding memory leaks."
+    p.summary = "A library for finding memory leaks."
     p.url = "http://blog.evanweaver.com/files/doc/fauna/bleak_house/"
     p.docs_host = 'blog.evanweaver.com:~/www/bax/public/files/doc/'
     p.rdoc_pattern = /^tasks|analyze|bleak_house\/bleak_house\.rb|c\.rb|^README|^CHANGELOG|^TODO|^LICENSE$/
-    p.dependencies = ['gruff =0.2.8', 'rmagick', 'activesupport', 'rake']
+    p.dependencies = ['rake']
     p.require_signed = true
     p.include_gemspec = false
     p.include_rakefile = true      

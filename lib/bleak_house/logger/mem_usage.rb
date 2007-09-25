@@ -8,19 +8,15 @@ This class performs the actual object logging of BleakHouse. To use it directly,
 
 At the start of your app, put:
   require 'rubygems'
-  require 'bleak_house/c'
+  require 'bleak_house'
   $memlogger = BleakHouse::Logger.new
   File.delete($logfile = "/path/to/logfile") rescue nil
-
-(This assumes you are using the gem version.)
 
 Now, at the points of interest, put:
   $memlogger.snapshot($logfile, "tag/subtag", false)
 
 Run your app. Once you are done, analyze your data:
-  ruby -r rubygems -e 'require "bleak_house/analyze"; BleakHouse::Analyze.build_all("/path/to/logfile")'
-
-You will get a <tt>bleak_house/</tt> folder in the same folder as your logfile.
+  bleak /path/to/logfile
   
 =end
   

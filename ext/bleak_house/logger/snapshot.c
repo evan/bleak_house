@@ -14,7 +14,7 @@ static VALUE heaps_length(VALUE self) {
   return INT2FIX(rb_gc_heaps_length());
 }
 
-/* Counts the live objects on the heap and in the symbol table and writes a single tagged YAML frame to the logfile. Set <tt>_specials = true</tt> if you also want to count AST nodes and var scopes; otherwise, use <tt>false</tt>. */
+/* Count the live objects on the heap and in the symbol table and write a CSV frame to <tt>_logfile</tt>. Set <tt>_specials = true</tt> if you also want to count AST nodes and var scopes; otherwise, use <tt>false</tt>. Note that common classes in the CSV output are hashed to small integers in order to save space.*/
 static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
   Check_Type(_logfile, T_STRING);
   Check_Type(tag, T_STRING);

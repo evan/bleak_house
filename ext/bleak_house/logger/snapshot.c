@@ -64,20 +64,20 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
         filled_slots ++;
         switch (TYPE(obj)) {
           case T_NONE:
-              hashed = lookup_builtin("_none"); break;
+              hashed = BUILTINS_SIZE + 0; break;
           case T_BLKTAG:
-              hashed = lookup_builtin("_blktag"); break;
+              hashed = BUILTINS_SIZE + 1; break;
           case T_UNDEF:
-              hashed = lookup_builtin("_undef"); break;
+              hashed = BUILTINS_SIZE + 2; break;
           case T_VARMAP:
-              hashed = lookup_builtin("_varmap"); break;
+              hashed = BUILTINS_SIZE + 3; break;
           case T_SCOPE:
-              hashed = lookup_builtin("_scope"); break;
+              hashed = BUILTINS_SIZE + 4; break;
           case T_NODE:
-              hashed = lookup_builtin("_node"); break;
+              hashed = BUILTINS_SIZE + 5; break;
           default:
             if (!obj->as.basic.klass) {
-              hashed = lookup_builtin("_unknown");
+              hashed = BUILTINS_SIZE + 6;
             } else {
               hashed = lookup_builtin(rb_obj_classname((VALUE)obj));
             }
@@ -117,7 +117,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
 
 int lookup_builtin(char * name) {
   int i;
-  for (i = 0; i < BUILTINS_SIZE + SPECIALS_SIZE; i++) {
+  for (i = 0; i < BUILTINS_SIZE; i++) {
     if (!strcmp(builtins[i], name)) return i;      
   }
   return -1;

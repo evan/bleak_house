@@ -39,7 +39,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
     rb_raise(rb_eRuntimeError, "couldn't open snapshot file");
 
   /* write the time */
-  fprintf(logfile, "%i\n", time(0));
+  fprintf(logfile, "time,%i\n", time(0));
   
   /* get and write the memory usage */
   VALUE mem = rb_funcall(self, rb_intern("mem_usage"), 0);
@@ -51,7 +51,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
   int free_slots = 0;
 
   /* write the tag header */
-  fprintf(logfile, "%s\n", StringValueCStr(tag));
+  fprintf(logfile, "tag,%s\n", StringValueCStr(tag));
 
   int i, j;
   

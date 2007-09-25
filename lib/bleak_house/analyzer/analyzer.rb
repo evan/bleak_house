@@ -4,26 +4,33 @@ require 'fileutils'
 require 'yaml'
 require 'active_support'
 
-gem 'gruff', '= 0.2.8'
-require 'gruff'
-
 $LOAD_PATH << File.dirname(__FILE__)
-require 'gruff_hacks'
-require 'support_methods'
 
 Gruff::Base.send(:remove_const, "LEFT_MARGIN") # silence a warning
 Gruff::Base::LEFT_MARGIN = 200
 Gruff::Base::NEGATIVE_TOP_MARGIN = 30
 Gruff::Base::MAX_LEGENDS = 28
 
-class BleakHouse
+module BleakHouse
   # Draws the BleakHouse graphs.
   class Analyze    
   
-    SMOOTHNESS = ENV['SMOOTHNESS'].to_i.zero? ? 1 : ENV['SMOOTHNESS'].to_i
-    MEM_KEY = "memory usage"
-    HEAP_KEY = "heap usage"
-    CORE_KEY = "core rails"
+    MAGIC_KEYS = {
+      -1 => 'timestamp',
+      -2 => 'mem usage/swap',
+      -3 => 'mem usage/real',
+      -4 => 'tag',
+      -5 => 'heap/filled',
+      -6 => 'heap/free'
+    }
+    
+    REVERSE_MAGIC_KEYS = MAGIC_KEYS.invert
+    
+    MAX_LIFE = 2 # For Rails
+    
+    CLASS_KEYS = eval('[' + open(
+        File.dirname(__FILE__) + '/../../../ext/bleak_house/logger/snapshot.h'
+      ).read[/\{(.*?)\}/m, 1] + ']')
     
     # Sets up a single graph.
     def initialize(data, increments, name)
@@ -36,7 +43,7 @@ class BleakHouse
       self.class.d
     end
     
-    # Draw <tt>self</tt>. Use some special attributes added to Gruff.  Requires the overrides in <tt>gruff_hacks.rb</tt>.
+    # Draw <tt>self</tt>. Use some special attributes added to Gruff.
     def draw #:nodoc:
       g = Gruff::Line.new("1024x768")
       g.title = @name
@@ -74,26 +81,6 @@ class BleakHouse
       g.write(@name.to_filename + ".png")
     end
     
-    # Takes subkeys that match the <tt>selector</tt> regex and adds each subkey's count to the key named by the first group match in the <tt>namer</tt> regex for that subkey.
-    def self.aggregate(data, selector = //, namer = //) #:nodoc:
-      aggregate_data = {}
-      increments = []
-      data.each_with_index do |frameset, index|
-        increments << frameset.time
-        frameset.data.keys.select do |key| 
-          # aggregate common keys based on the selection regexs
-          key =~ selector
-        end.each do |key|
-          aggregate_data[key.to_s[namer, 1]] ||= []
-          aggregate_data[key.to_s[namer, 1]][index] += frameset.data[key].to_i
-        end
-      end
-      aggregate_data.each do |key, value|
-        # extend the length of every value set to the end of the run
-        aggregate_data[key][increments.size - 1] ||= nil
-      end
-      [aggregate_data, increments]
-    end
         
     # Generates a chart for each tag (by subtag) and subtag (by object type). Output is written to <tt>bleak_house/</tt> in the same folder as the passed <tt>logfile</tt> attribute.
     def self.build_all(logfile)
@@ -101,91 +88,52 @@ class BleakHouse
         puts "No data file found: #{logfile}"
         exit 
       end 
-      puts "parsing data"
-      data = YAML.load_file(logfile)                
- 
+            
+      frames = []
+      frame = nil
+      
+      puts "Parsing"
+      
+      LightCsv.foreach(logfile) do |row|        
+        if row[0] < 0          
+          # Get frame meta-information
+          if MAGIC_KEYS[row[0]] == 'timestamp'
+            # The frame has ended
+            # Remove any object that has died from the last MAX_LIFE frames
+            live_objects = frames[-1]['objects'].keys
+            frames[-2-MAX_LIFE..-2].each do |frame|
+              frame['objects'].slice!(keys)
+            end
+
+            # Set up a new frame
+            frame = {}
+            frames << frame
+            frame['objects'] ||= {}
+            frame['meta'] ||= {}
+          end
+          
+          frame['meta'][MAGIC_KEYS[row[0]]] = row[1]
+        else
+          # Assign live objects
+          frame['objects'][row[1]] = row[0]
+        end
+      end
+      
+      # Find all tags
+      tags = frames.map do |frame|
+        frame['meta']['tag']
+      end
+      
+      # Recursively descend and graph each tagset
+      
+      
       rootdir = File.dirname(logfile) + "/bleak_house/"     
       FileUtils.rm_r(rootdir) rescue nil
       Dir.mkdir(rootdir)      
       Dir.chdir(rootdir) do        
         
-        labels = []
-        
-        # autodetect need for Rails snapshot conflation
-        if data.first.last.keys.first =~ /^#{CORE_KEY}::::/
-          # Rails snapshots double-count objects that start in the core and persist through the action (which is most core objects), so we need to the subtract core counts from action counts
-          data = data[0..(-1 - data.size % 2)]
-          data = data.in_groups_of(2).map do |frames|
-            core, action = frames.first, frames.last
-            action.data.each do |key, value|
-              action.data[key] = value - core.data[key[/::::(.*)/,1]].to_i
-            end          
-            [action.time, core.data.merge(action.data)]
-          end
-          puts "  conflated core rails snapshots with their actions"
-          labels = ["controller", "action"]
-        else
-          puts "  assuming custom snapshotting"
-          labels = ["tag", "subtag"]
-        end
-                
-        # smooth frames (just an average)
-        data = data[0..(-1 - data.size % SMOOTHNESS)]
-        data = data.in_groups_of(SMOOTHNESS).map do |frames|
-          timestamp = frames.map(&:time).sum / SMOOTHNESS
-          values = frames.map(&:data).inject(Hash.new(0)) do |total, this_frame|
-            this_frame.each do |key, value|
-              total[key] += value / SMOOTHNESS.to_f
-            end
-          end
-          [Time.at(timestamp).strftime("%H:%M:%S"), values]
-        end                     
-        puts "  #{data.size} frames after smoothing"
-        
-        # scale memory/heap frames
-        controller_data, increments = aggregate(data, //, /^(.*?)($|\/|::::)/)
-        controller_data_without_specials = controller_data.dup
-        controller_data_without_specials.delete(MEM_KEY)
-        controller_data_without_specials.delete(HEAP_KEY)
-        [HEAP_KEY, MEM_KEY].each do |key|
-          scale_factor = controller_data_without_specials.values.flatten.to_i.max / controller_data[key].max.to_f * 0.8 rescue 1
-          controller_data[key] = controller_data[key].map{|x| (x * scale_factor).to_i }
-        end
-        
-        # generate initial controller graph        
-        puts(title = "objects by #{labels[0]}")
-        Analyze.new(controller_data, increments, title).draw
-
-        # in each controller, by action
-        controller_data.keys.each do |controller|
-#          next unless controller == HEAP_KEY
-          @mem = [MEM_KEY, HEAP_KEY].include? controller
-          @core = [CORE_KEY].include? controller
-          Dir.descend(controller) do             
-            action_data, increments = aggregate(data, /^#{controller}($|\/|::::)/, /\/(.*?)($|\/|::::)/)
-            unless @core
-              puts("  " + (title = case controller
-                when MEM_KEY then "#{controller} in kilobytes" 
-                when HEAP_KEY then "#{controller} in slots"
-                else "objects by #{labels[1]} in /#{controller}/"
-              end))
-              Analyze.new(action_data, increments, title).draw
-            end
-           
-            # in each action, by object class
-            action_data.keys.each do |action|
-              action = "unknown" if action.to_s == ""
-              Dir.descend(@core ? "." : action) do
-                puts((@core ? "  " : "    ") + (title = "objects by class in #{@core ? CORE_KEY : "/#{controller}/#{action}"}"))
-                class_data, increments = aggregate(data, /^#{controller}#{"\/#{action}" unless action == "unknown"}($|\/|::::)/, 
-                  /::::(.*)/)
-                Analyze.new(class_data, increments, title).draw
-              end
-            end unless @mem
-          
-          end          
-        end
-      end    
+      end
+      
     end 
     
     def self.d #:nodoc:

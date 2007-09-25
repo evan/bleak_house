@@ -1,4 +1,6 @@
 
+require 'set'
+
 class Array
   alias :time :first
   alias :data :last
@@ -11,6 +13,16 @@ class Array
     self.map{|s| s.to_i}
   end
     
+end
+
+class Hash
+  # Similar to the ActiveSupport method in Rails
+  def slice!(keys)
+    keys = Set.new(keys)
+    replace(reject do |key,| 
+      !keys.include?(key)
+    end)
+  end  
 end
 
 class Dir

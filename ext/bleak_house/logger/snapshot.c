@@ -39,19 +39,19 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
     rb_raise(rb_eRuntimeError, "couldn't open snapshot file");
 
   /* write the time */
-  fprintf(logfile, "time,%i\n", time(0));
+  fprintf(logfile, "-1,%i\n", time(0));
   
   /* get and write the memory usage */
   VALUE mem = rb_funcall(self, rb_intern("mem_usage"), 0);
-  fprintf(logfile, "memory usage/swap,%i\n", NUM2INT(RARRAY_PTR(mem)[0]));
-  fprintf(logfile, "memory usage/real,%i\n", NUM2INT(RARRAY_PTR(mem)[1]));
+  fprintf(logfile, "-2,%i\n", NUM2INT(RARRAY_PTR(mem)[0]));
+  fprintf(logfile, "-3,%i\n", NUM2INT(RARRAY_PTR(mem)[1]));
   
   int current_pos = 0;  
   int filled_slots = 0;
   int free_slots = 0;
 
   /* write the tag header */
-  fprintf(logfile, "tag,%s\n", StringValueCStr(tag));
+  fprintf(logfile, "-4,%s\n", StringValueCStr(tag));
 
   int i, j;
   
@@ -106,8 +106,8 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
     }
   }
     
-  fprintf(logfile, "heap usage/filled slots,%i\n", filled_slots);
-  fprintf(logfile, "heap usage/free slots,%i\n", free_slots);
+  fprintf(logfile, "-5,%i\n", filled_slots);
+  fprintf(logfile, "-6,%i\n", free_slots);
   fclose(logfile);
   
   /* request GC run */          

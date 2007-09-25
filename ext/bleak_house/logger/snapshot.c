@@ -64,23 +64,17 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
         filled_slots ++;
         switch (TYPE(obj)) {
           case T_NONE:
-              if (specials) hashed = lookup_builtin("_none");
-              break;
+              hashed = lookup_builtin("_none"); break;
           case T_BLKTAG:
-              if (specials) hashed = lookup_builtin("_blktag");
-              break;
+              hashed = lookup_builtin("_blktag"); break;
           case T_UNDEF:
-              if (specials) hashed = lookup_builtin("_undef");
-              break;
+              hashed = lookup_builtin("_undef"); break;
           case T_VARMAP:
-              if (specials) hashed = lookup_builtin("_varmap");
-              break;
+              hashed = lookup_builtin("_varmap"); break;
           case T_SCOPE:
-              if (specials) hashed = lookup_builtin("_scope");
-              break;
+              hashed = lookup_builtin("_scope"); break;
           case T_NODE:
-              if (specials) hashed = lookup_builtin("_node");
-              break;
+              hashed = lookup_builtin("_node"); break;
           default:
             if (!obj->as.basic.klass) {
               hashed = lookup_builtin("_unknown");
@@ -94,7 +88,9 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
           fprintf(logfile, "%s,%lu\n", rb_obj_classname((VALUE)obj), FIX2ULONG(rb_obj_id((VALUE)obj)));
         } else {
           /* builtins key */
-          fprintf(logfile, "%i,%lu\n", hashed, FIX2ULONG(rb_obj_id((VALUE)obj)));          
+          if (specials || hashed < builtins_specials_offset) {
+            fprintf(logfile, "%i,%lu\n", hashed, FIX2ULONG(rb_obj_id((VALUE)obj)));
+          }
         }
       } else {
         free_slots ++;

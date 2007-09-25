@@ -27,6 +27,7 @@ static char * builtins[] = {
 };
 
 static int builtins_size = 16;
+static int builtins_specials_offset = 9;
 
 typedef struct RVALUE {
     union {

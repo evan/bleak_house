@@ -2,7 +2,7 @@
 
 require 'rubygems'
 require 'bleak_house/c'
-$memlogger = BleakHouse::CLogger.new
+$memlogger = BleakHouse::Logger.new
 File.delete($logfile = "/tmp/log") rescue nil
 
 puts 0

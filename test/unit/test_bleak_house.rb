@@ -4,9 +4,11 @@ DIR = File.dirname(__FILE__) + "/../../"
 require 'rubygems'
 require 'test/unit'
 require 'yaml'
+require 'ruby-debug'
+Debugger.start
   
 class BleakHouseTest < Test::Unit::TestCase
-  require "#{DIR}lib/bleak_house/c"
+  require "#{DIR}lib/bleak_house/logger"
 
   SNAPSHOT_FILE = "/tmp/bleak_house"
   SNAPS = {:c => SNAPSHOT_FILE + ".c.yaml",
@@ -17,16 +19,15 @@ class BleakHouseTest < Test::Unit::TestCase
 
   def test_c_snapshot
     File.delete SNAPS[:c] rescue nil
-    ::BleakHouse::CLogger.new.snapshot(SNAPS[:c], "c_test", true)
+    symbol_count = Symbol.all_symbols.size
+    ::BleakHouse::Logger.new.snapshot(SNAPS[:c], "c_test", false)
+    assert_equal symbol_count, Symbol.all_symbols.size
     assert File.exist?(SNAPS[:c])
-    assert_nothing_raised do 
-      assert YAML.load_file(SNAPS[:c]).is_a?(Array)
-    end
   end
   
   def test_c_raises
     assert_raises(RuntimeError) do
-      ::BleakHouse::CLogger.new.snapshot("/", "c_test", true)
+      ::BleakHouse::Logger.new.snapshot("/", "c_test", false)
     end    
   end
   

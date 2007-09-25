@@ -42,7 +42,7 @@ Dir.chdir(tmp) do
       
     end
   rescue Object => e
-    puts "ERROR: please see the last modified log file in #{tmp}#{build_dir}, perhaps\nit will contain a clue."
+    puts "ERROR: please see the last modified log file in #{tmp}#{build_dir}, perhaps\nit will contain a clue.\n#{e.to_s}"
   end
     
 end    

@@ -13,6 +13,7 @@ lib/vendor/lightcsv.rb
 lib/bleak_house.rb
 lib/bleak_house/support/rake.rb
 lib/bleak_house/support/core_extensions.rb
+lib/bleak_house/support/build.rb
 lib/bleak_house/rails.rb
 lib/bleak_house/rails/dispatcher.rb
 lib/bleak_house/rails/bleak_house.rb

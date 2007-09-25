@@ -3,7 +3,9 @@
 unless ARGV[0]
   puts "Please specify a BleakHouse logfile"
   exit
-else    
+elsif ARGV[0] == "--build"
+  require 'bleak_house/support/build'
+else
   $LOAD_PATH << "#{File.dirname(__FILE__)}/../lib/"
   require 'bleak_house/analyzer'
   BleakHouse::Analyzer.run(ARGV[0])

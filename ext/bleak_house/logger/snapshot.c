@@ -14,28 +14,34 @@ static VALUE heaps_length(VALUE self) {
   return INT2FIX(rb_gc_heaps_length());
 }
 
-/* Counts the live objects on the heap and writes a single tagged YAML frame to the logfile. Set <tt>_specials = true</tt> if you also want to count AST nodes and var scopes; otherwise, use <tt>false</tt>. */
+/* Counts the live objects on the heap and in the symbol table and writes a single tagged YAML frame to the logfile. Set <tt>_specials = true</tt> if you also want to count AST nodes and var scopes; otherwise, use <tt>false</tt>. */
 static VALUE snapshot(VALUE self, VALUE logfile, VALUE tag, VALUE _specials) {
   Check_Type(logfile, T_STRING);
   Check_Type(tag, T_STRING);
 
   RVALUE *p, *pend;
+  
   struct heaps_slot * heaps = rb_gc_heap_slots();
-  ID id;
+  struct st_table * sym_tbl = rb_parse_sym_tbl();
 
   int specials = RTEST(_specials);
 
+  /* see if the logfile exists already */
   FILE *obj_log = fopen(StringValueCStr(logfile), "r");
   int is_new;
   if (!(is_new = (obj_log == NULL)))
     fclose(obj_log);
 
+  /* reopen for writing */
   if ((obj_log = fopen(StringValueCStr(logfile), "a+")) == NULL)
     rb_raise(rb_eRuntimeError, "couldn't open snapshot file");
 
+  /* write the yaml header */
   if (is_new) 
     fprintf(obj_log, "---\n");
   fprintf(obj_log, "- - %i\n", time(0));
+  
+  /* get and write the memory usage */
   VALUE mem = rb_funcall(self, rb_intern("mem_usage"), 0);
   fprintf(obj_log, "  - \"memory usage/swap\": %i\n", NUM2INT(RARRAY_PTR(mem)[0]));
   fprintf(obj_log, "    \"memory usage/real\": %i\n", NUM2INT(RARRAY_PTR(mem)[1]));
@@ -44,9 +50,12 @@ static VALUE snapshot(VALUE self, VALUE logfile, VALUE tag, VALUE _specials) {
   int filled_slots = 0;
   int free_slots = 0;
 
+  /* write the tag header */
   fprintf(obj_log, "    \"%s\":\n", StringValueCStr(tag));
 
   int i, j;
+  
+  /* walk the heap */
   for (i = 0; i < rb_gc_heaps_used(); i++) {
     p = heaps[i].slot;
     pend = p + heaps[i].limit;
@@ -85,7 +94,10 @@ static VALUE snapshot(VALUE self, VALUE logfile, VALUE tag, VALUE _specials) {
     }
   }
   
-  printf("%ld", rb_parse_sym_tbl()->num_entries);
+  /* walk the symbol table */
+  for (i = 0; i < sym_tbl->num_entries; i ++) {
+    s = sym_tbl[i]
+  }
     
   fprintf(obj_log, "    \"heap usage/filled slots\": %i\n", filled_slots);
   fprintf(obj_log, "    \"heap usage/free slots\": %i\n", free_slots);

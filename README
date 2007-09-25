@@ -13,8 +13,7 @@ The public certificate for this gem is at http://rubyforge.org/frs/download.php/
 
 * leak-proof C instrumentation
 * fast logging
-* complete tracking of object history
-* symbol tracking
+* complete tracking of object and symbol history
 * easy Rails integration
 
 == Requirements

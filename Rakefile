@@ -10,7 +10,7 @@ begin
     p.summary = "A library for finding memory leaks."
     p.url = "http://blog.evanweaver.com/files/doc/fauna/bleak_house/"
     p.docs_host = 'blog.evanweaver.com:~/www/bax/public/files/doc/'
-    p.rdoc_pattern = /^tasks|analyze|bleak_house\/bleak_house\.rb|c\.rb|^README|^CHANGELOG|^TODO|^LICENSE$/
+    p.rdoc_pattern = /^ext.*\.c|lib.*logger.*rb|analyzer|rails\/bleak_house|^README|^CHANGELOG|^TODO|^LICENSE|^COPYING$/
     p.dependencies = ['rake']
     p.require_signed = true
     p.include_gemspec = false

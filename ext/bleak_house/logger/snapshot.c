@@ -110,9 +110,8 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
   fprintf(logfile, "-5,%i\n", filled_slots);
   fprintf(logfile, "-6,%i\n", free_slots);
   fclose(logfile);
-  
-  /* request GC run */          
-  rb_funcall(rb_mGC, rb_intern("start"), 0); 
+    
+  rb_funcall(rb_mGC, rb_intern("start"), 0); /* request GC run */
   return Qtrue;
 }
 
@@ -124,7 +123,25 @@ int lookup_builtin(char * name) {
   return -1;
 }
 
+/*
 
+This class performs the actual object logging of BleakHouse. To use it directly, you need to make calls to BleakHouse::Logger#snapshot. 
+
+== Example
+
+At the start of your app, put:
+  require 'rubygems'
+  require 'bleak_house'
+  $memlogger = BleakHouse::Logger.new
+  File.delete($logfile = "/path/to/logfile") rescue nil
+
+Now, at the points of interest, put:
+  $memlogger.snapshot($logfile, "tag/subtag", false)
+
+Run your app. Once you are done, analyze your data:
+  bleak /path/to/logfile
+  
+*/
 void
 Init_snapshot()
 {

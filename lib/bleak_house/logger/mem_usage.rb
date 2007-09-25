@@ -1,24 +1,5 @@
 
 module BleakHouse
-
-=begin rdoc
-This class performs the actual object logging of BleakHouse. To use it directly, you need to make calls to BleakHouse::Logger#snapshot. 
-
-== Example
-
-At the start of your app, put:
-  require 'rubygems'
-  require 'bleak_house'
-  $memlogger = BleakHouse::Logger.new
-  File.delete($logfile = "/path/to/logfile") rescue nil
-
-Now, at the points of interest, put:
-  $memlogger.snapshot($logfile, "tag/subtag", false)
-
-Run your app. Once you are done, analyze your data:
-  bleak /path/to/logfile
-  
-=end
   
   class Logger
    

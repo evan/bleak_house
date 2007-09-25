@@ -8,6 +8,8 @@ patches/gc.c.patch
 Manifest
 LICENSE_BSD
 LICENSE
+lib/vendor/lightcsv.rb
+lib/vendor/LICENSE
 lib/bleak_house.rb
 lib/bleak_house/support/rake.rb
 lib/bleak_house/support/core_extensions.rb

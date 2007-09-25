@@ -2,7 +2,7 @@
 require 'rubygems'
 require 'fileutils'
 require 'yaml'
-require 'active_support'
+require 'pp'
 
 $LOAD_PATH << File.dirname(__FILE__)
 
@@ -12,7 +12,7 @@ Gruff::Base::NEGATIVE_TOP_MARGIN = 30
 Gruff::Base::MAX_LEGENDS = 28
 
 module BleakHouse
-  # Draws the BleakHouse graphs.
+
   class Analyzer 
   
     MAGIC_KEYS = {
@@ -32,57 +32,7 @@ module BleakHouse
       open(
         File.dirname(__FILE__) + '/../../../ext/bleak_house/logger/snapshot.h'
       ).read[/\{(.*?)\}/m, 1] + ']')
-    
-    # Sets up a single graph.
-    def initialize(data, increments, name)
-      @data = data
-      @increments = increments
-      @name = name
-    end 
-    
-    def d #:nodoc:
-      self.class.d
-    end
-    
-    # Draw <tt>self</tt>. Use some special attributes added to Gruff.
-    def draw #:nodoc:
-      g = Gruff::Line.new("1024x768")
-      g.title = @name
-      g.x_axis_label = "time"
-      g.legend_font_size = g.legend_box_size = 14
-      g.title_font_size = 24
-      g.marker_font_size = 14
-       
-      # mangle some key names.
-      # XXX unreadable
-      @data.map do |key, values|        
-        ["#{(key.to_s.empty? ? '[Unknown]' : key).gsub(/.*::/, '')} (#{ if 
-          [MEM_KEY, HEAP_KEY].include?(key) 
-            'relative'
-          else
-            values.to_i.max
-          end })", values] # hax
-      end.sort_by do |key, values|
-        0 - key[/.*?([\d]+)\)$/, 1].to_i
-      end.each do |key, values|
-        g.data(key, values.to_i)
-      end
-      
-      labels = {}
-      mod = (@increments.size / 4.0).ceil
-      @increments.each_with_index do |increment, index|
-        labels[index] = increment if (index % mod).zero?
-      end
             
-      g.labels = labels
-      
-      g.minimum_value = 0
-#      g.maximum_value = @maximum
-      
-      g.write(@name.to_filename + ".png")
-    end
-    
-        
     # Generates a chart for each tag (by subtag) and subtag (by object type). Output is written to <tt>bleak_house/</tt> in the same folder as the passed <tt>logfile</tt> attribute.
     def self.build_all(logfile)
       unless File.exists? logfile
@@ -91,11 +41,11 @@ module BleakHouse
       end 
             
       frames = []
-      adults = []
+      last_population = []
       frame = nil
       ix = nil
       
-      puts "Parsing"
+      puts "Examining objects"
       
       LightCsv.foreach(logfile) do |row|        
       
@@ -110,9 +60,9 @@ module BleakHouse
             # The frame has ended; process the last one            
             if frame
               population = frame['objects'].keys
-              births = population - adults
-              deaths = adults - population
-              adults = population
+              births = population - last_population
+              deaths = last_population - population
+              last_population = population
   
               # assign births
               frame['births'] = frame['objects'].slice(births)
@@ -121,7 +71,8 @@ module BleakHouse
                 final['deaths'] = final['objects'].slice(deaths)
                 bsize = final['births'].size
                 dsize = final['deaths'].size
-                puts "  Frame #{frames.size - 1} finalized: #{bsize} births, #{dsize} deaths, velocity #{bsize * 100 / dsize / 100.0}, population #{final['objects'].size}"
+                final['velocity'] = bsize * 100 / dsize / 100.0
+                puts "  Frame #{frames.size - 1} finalized: #{bsize} births, #{dsize} deaths, velocity #{final['velocity']}, population #{final['objects'].size}"
                 final.delete 'objects'
               end
             end
@@ -141,22 +92,54 @@ module BleakHouse
           frame['objects'][row[1]] = row[0]
         end
       end
+            
+      # See what objects are still laying around
+      population = frames.last['objects'].reject do |key, value|
+        frames.first['births'][key] == value
+      end
+
+      # Remove bogus frames
+      frames = frames[1..-2]       
       
-      # Find all tags
-      tags = frames.map do |frame|
-        frame['meta']['tag']
+      total_births = frames.inject(0) do |births, frame|
+        births + frame['births'].size
+      end
+      total_deaths = frames.inject(0) do |deaths, frame|
+        deaths + frame['deaths'].size
       end
       
-      # Recursively descend and graph each tagset
-
-      rootdir = File.dirname(logfile) + "/bleak_house/"     
-      FileUtils.rm_r(rootdir) rescue nil
-      Dir.mkdir(rootdir)      
-      Dir.chdir(rootdir) do
-        
-        
+      puts "#{total_births} total births, #{total_deaths} total deaths."
+      
+      leakers = {}
+      
+      # Find the sources of the leftover objects in the final population
+      population.each do |id, klass|
+        leaker = frames.detect do |frame|
+          frame['births']['id'] == klass
+        end['tag']
+        klass = CLASS_KEYS[klass] if klass.is_a? Fixnum
+        leakers[leaker] ||= Hash.new(0)
+        leakers[leaker][klass] += 1
+      end
+      
+      leakers.map do |tag, value| 
+        [tag, value.sort_by do |klass, count| 
+          -count
+        end]
+      end.sort_by do |tag, value|
+        -Hash[*value.flatten].values.inject(0) {|i, v| i + v}
+      end
+      
+      puts "\nHere are your leaks:\n"
+      leakers.each do |tag, value|
+        puts "  #{tag} leaked:"
+        value.each do |klass, count|
+          puts "    #{count} #{klass}s"
+        end
       end      
-    end 
+      puts "\nBye"
+      
+    end
     
   end
 end

@@ -13,7 +13,7 @@ Gruff::Base::MAX_LEGENDS = 28
 
 module BleakHouse
   # Draws the BleakHouse graphs.
-  class Analyze    
+  class Analyzer 
   
     MAGIC_KEYS = {
       -1 => 'timestamp',
@@ -28,7 +28,8 @@ module BleakHouse
     
     MAX_LIFE = 2 # For Rails
     
-    CLASS_KEYS = eval('[' + open(
+    CLASS_KEYS = eval('[nil, ' + # skip 0
+      open(
         File.dirname(__FILE__) + '/../../../ext/bleak_house/logger/snapshot.h'
       ).read[/\{(.*?)\}/m, 1] + ']')
     
@@ -91,18 +92,31 @@ module BleakHouse
             
       frames = []
       frame = nil
+      ix = nil
       
       puts "Parsing"
       
       LightCsv.foreach(logfile) do |row|        
-        if row[0] < 0          
+      
+        # Stupid is fast
+        row[0] = row[0].to_i if row[0].to_i != 0
+        row[1] = row[1].to_i if row[1].to_i != 0
+        
+        if row[0].to_i < 0          
           # Get frame meta-information
           if MAGIC_KEYS[row[0]] == 'timestamp'
             # The frame has ended
-            # Remove any object that has died from the last MAX_LIFE frames
-            live_objects = frames[-1]['objects'].keys
-            frames[-2-MAX_LIFE..-2].each do |frame|
-              frame['objects'].slice!(keys)
+            
+            if frames[-1-MAX_LIFE]
+              # Remove any object that has died from the frame MAX_LIFE frames ago
+              xobjects = frames[-1-MAX_LIFE]['objects']
+              xsize = xobjects.size
+              objects = frame['objects']
+              xobjects.slice!(objects.keys)
+              puts "  Frame #{frames.size - MAX_LIFE} finalized: #{xsize - xobjects.size} objects died, but #{xobjects.size} remain"
+              
+              # Now reverse, and remove any objects that were already alive from this frame
+              objects.unslice!(xobjects.keys)              
             end
 
             # Set up a new frame
@@ -110,6 +124,8 @@ module BleakHouse
             frames << frame
             frame['objects'] ||= {}
             frame['meta'] ||= {}
+            
+            #puts "  Frame #{frames.size} opened"
           end
           
           frame['meta'][MAGIC_KEYS[row[0]]] = row[1]
@@ -125,20 +141,15 @@ module BleakHouse
       end
       
       # Recursively descend and graph each tagset
-      
-      
+
       rootdir = File.dirname(logfile) + "/bleak_house/"     
       FileUtils.rm_r(rootdir) rescue nil
       Dir.mkdir(rootdir)      
-      Dir.chdir(rootdir) do        
+      Dir.chdir(rootdir) do
         
-      end
-      
+        
+      end      
     end 
     
-    def self.d #:nodoc:
-      require 'ruby-debug'; Debugger.start; debugger
-    end
-        
   end
 end

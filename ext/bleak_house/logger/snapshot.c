@@ -89,7 +89,8 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
         } else {
           /* builtins key */
           if (specials || hashed < BUILTINS_SIZE) {
-            fprintf(logfile, "%i,%lu\n", hashed, FIX2ULONG(rb_obj_id((VALUE)obj)));
+            /* 0 is not used for 'hashed' because Ruby's to_i turns any String into 0 */
+            fprintf(logfile, "%i,%lu\n", hashed + 1, FIX2ULONG(rb_obj_id((VALUE)obj)));
           }
         }
       } else {
@@ -102,7 +103,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
   hashed = lookup_builtin("Symbol");
   for (i = 0; i < sym_tbl->num_bins; i++) {
     for (sym = sym_tbl->bins[i]; sym != 0; sym = sym->next) {
-      fprintf(logfile, "%i,%lu\n", hashed, sym->record);
+      fprintf(logfile, "%i,%lu\n", hashed + 1, sym->record);
     }
   }
     

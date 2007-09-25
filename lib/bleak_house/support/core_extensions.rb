@@ -16,13 +16,21 @@ class Array
 end
 
 class Hash
-  # Similar to the ActiveSupport method in Rails
+
+  # Similar to the ActiveSupport methods in Rails
   def slice!(keys)
     keys = Set.new(keys)
     replace(reject do |key,| 
       !keys.include?(key)
     end)
   end  
+  
+  def unslice!(keys)
+    keys = Set.new(keys)
+    replace(reject do |key,| 
+      keys.include?(key)
+    end)    
+  end
 end
 
 class Dir

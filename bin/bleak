@@ -6,6 +6,10 @@ unless ARGV[0]
 else  
   require 'rubygems'
   gem 'gruff', '= 0.2.8' # fail early if gruff is missing  
-  require 'bleak_house/analyzer'   
+  require 'ruby-debug'
+  Debugger.start    
+  
+  $LOAD_PATH << "#{File.dirname(__FILE__)}/../lib/"
+  require 'bleak_house/analyzer'
   BleakHouse::Analyzer.build_all(ARGV[0])
 end

@@ -91,8 +91,6 @@ module BleakHouse
       # Remove bogus frames
       frames = frames[1..-3]       
       
-      Debugger.start; debugger
-      
       total_births = frames.inject(0) do |births, frame|
         births + frame['births'].size
       end
@@ -100,7 +98,7 @@ module BleakHouse
         deaths + frame['deaths'].size
       end
       
-      puts "#{total_births} total births, #{total_deaths} total deaths.\n\n"
+      puts "#{total_births} total meaningful births, #{total_deaths} total meaningful deaths.\n\n"
       
       leakers = {}
       
@@ -108,29 +106,33 @@ module BleakHouse
       population.each do |id, klass|
         leaker = frames.detect do |frame|
           frame['births'][id] == klass
-        end['tag']
-        klass = CLASS_KEYS[klass] if klass.is_a? Fixnum
-        leakers[leaker] ||= Hash.new(0)
-        leakers[leaker][klass] += 1
+        end
+        if leaker
+          tag = leaker['meta']['tag']
+          klass = CLASS_KEYS[klass] if klass.is_a? Fixnum
+          leakers[tag] ||= Hash.new(0)
+          leakers[tag][klass] += 1
+        end
       end
       
-      leakers.map do |tag, value| 
+      # Sort
+      leakers = leakers.map do |tag, value| 
         [tag, value.sort_by do |klass, count| 
           -count
         end]
       end.sort_by do |tag, value|
-        -Hash[*value.flatten].values.inject(0) {|i, v| i + v}
+        Hash[*value.flatten].values.inject(0) {|i, v| i - v}
       end
       
       puts "Here are your leaks:"
       leakers.each do |tag, value|
         puts "  #{tag} leaked:"
         value.each do |klass, count|
-          puts "    #{count} #{klass} instances"
+          puts "    #{count} #{klass}"
         end
       end      
       puts "\nBye"
-      
+
     end
     
   end

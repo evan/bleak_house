@@ -3,13 +3,7 @@ require 'rubygems'
 require 'fileutils'
 require 'yaml'
 require 'pp'
-
-$LOAD_PATH << File.dirname(__FILE__)
-
-Gruff::Base.send(:remove_const, "LEFT_MARGIN") # silence a warning
-Gruff::Base::LEFT_MARGIN = 200
-Gruff::Base::NEGATIVE_TOP_MARGIN = 30
-Gruff::Base::MAX_LEGENDS = 28
+require 'ruby-debug'
 
 module BleakHouse
 
@@ -22,19 +16,15 @@ module BleakHouse
       -4 => 'tag',
       -5 => 'heap/filled',
       -6 => 'heap/free'
-    }
-    
-    REVERSE_MAGIC_KEYS = MAGIC_KEYS.invert
-    
-    MAX_LIFE = 2 # For Rails
+    }    
     
     CLASS_KEYS = eval('[nil, ' + # skip 0
       open(
         File.dirname(__FILE__) + '/../../../ext/bleak_house/logger/snapshot.h'
       ).read[/\{(.*?)\}/m, 1] + ']')
             
-    # Generates a chart for each tag (by subtag) and subtag (by object type). Output is written to <tt>bleak_house/</tt> in the same folder as the passed <tt>logfile</tt> attribute.
-    def self.build_all(logfile)
+    # Parses and correlates a BleakHouse::Logger output file.
+    def self.run(logfile)
       unless File.exists? logfile
         puts "No data file found: #{logfile}"
         exit 
@@ -99,7 +89,9 @@ module BleakHouse
       end
 
       # Remove bogus frames
-      frames = frames[1..-2]       
+      frames = frames[1..-3]       
+      
+      Debugger.start; debugger
       
       total_births = frames.inject(0) do |births, frame|
         births + frame['births'].size
@@ -108,14 +100,14 @@ module BleakHouse
         deaths + frame['deaths'].size
       end
       
-      puts "#{total_births} total births, #{total_deaths} total deaths."
+      puts "#{total_births} total births, #{total_deaths} total deaths.\n\n"
       
       leakers = {}
       
       # Find the sources of the leftover objects in the final population
       population.each do |id, klass|
         leaker = frames.detect do |frame|
-          frame['births']['id'] == klass
+          frame['births'][id] == klass
         end['tag']
         klass = CLASS_KEYS[klass] if klass.is_a? Fixnum
         leakers[leaker] ||= Hash.new(0)
@@ -130,11 +122,11 @@ module BleakHouse
         -Hash[*value.flatten].values.inject(0) {|i, v| i + v}
       end
       
-      puts "\nHere are your leaks:\n"
+      puts "Here are your leaks:"
       leakers.each do |tag, value|
         puts "  #{tag} leaked:"
         value.each do |klass, count|
-          puts "    #{count} #{klass}s"
+          puts "    #{count} #{klass} instances"
         end
       end      
       puts "\nBye"

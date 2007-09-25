@@ -126,9 +126,13 @@ module BleakHouse
       
       puts "Here are your leaks:"
       leakers.each do |tag, value|
-        puts "  #{tag} leaked:"
+        puts "  #{tag} leaked per request:"
+        requests = frames.select do |frame|
+          frame['meta']['tag'] == tag
+        end.size
         value.each do |klass, count|
-          puts "    #{count} #{klass}"
+          count = count/requests          
+          puts "    #{count} #{klass}" if count > 0
         end
       end      
       puts "\nBye"

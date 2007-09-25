@@ -15,11 +15,12 @@ static VALUE heaps_length(VALUE self) {
 }
 
 /* Counts the live objects on the heap and in the symbol table and writes a single tagged YAML frame to the logfile. Set <tt>_specials = true</tt> if you also want to count AST nodes and var scopes; otherwise, use <tt>false</tt>. */
-static VALUE snapshot(VALUE self, VALUE logfile, VALUE tag, VALUE _specials) {
-  Check_Type(logfile, T_STRING);
+static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
+  Check_Type(_logfile, T_STRING);
   Check_Type(tag, T_STRING);
 
-  RVALUE *p, *pend;
+  RVALUE *obj, *obj_end;
+  st_table_entry *sym, *sym_end;
   
   struct heaps_slot * heaps = rb_gc_heap_slots();
   struct st_table * sym_tbl = rb_parse_sym_tbl();
@@ -27,65 +28,65 @@ static VALUE snapshot(VALUE self, VALUE logfile, VALUE tag, VALUE _specials) {
   int specials = RTEST(_specials);
 
   /* see if the logfile exists already */
-  FILE *obj_log = fopen(StringValueCStr(logfile), "r");
+  FILE *logfile = fopen(StringValueCStr(_logfile), "r");
   int is_new;
-  if (!(is_new = (obj_log == NULL)))
-    fclose(obj_log);
+  if (!(is_new = (logfile == NULL)))
+    fclose(logfile);
 
   /* reopen for writing */
-  if ((obj_log = fopen(StringValueCStr(logfile), "a+")) == NULL)
+  if ((logfile = fopen(StringValueCStr(_logfile), "a+")) == NULL)
     rb_raise(rb_eRuntimeError, "couldn't open snapshot file");
 
   /* write the yaml header */
   if (is_new) 
-    fprintf(obj_log, "---\n");
-  fprintf(obj_log, "- - %i\n", time(0));
+    fprintf(logfile, "---\n");
+  fprintf(logfile, "- - %i\n", time(0));
   
   /* get and write the memory usage */
   VALUE mem = rb_funcall(self, rb_intern("mem_usage"), 0);
-  fprintf(obj_log, "  - \"memory usage/swap\": %i\n", NUM2INT(RARRAY_PTR(mem)[0]));
-  fprintf(obj_log, "    \"memory usage/real\": %i\n", NUM2INT(RARRAY_PTR(mem)[1]));
+  fprintf(logfile, "  - \"memory usage/swap\": %i\n", NUM2INT(RARRAY_PTR(mem)[0]));
+  fprintf(logfile, "    \"memory usage/real\": %i\n", NUM2INT(RARRAY_PTR(mem)[1]));
   
   int current_pos = 0;  
   int filled_slots = 0;
   int free_slots = 0;
 
   /* write the tag header */
-  fprintf(obj_log, "    \"%s\":\n", StringValueCStr(tag));
+  fprintf(logfile, "    \"%s\":\n", StringValueCStr(tag));
 
   int i, j;
   
   /* walk the heap */
   for (i = 0; i < rb_gc_heaps_used(); i++) {
-    p = heaps[i].slot;
-    pend = p + heaps[i].limit;
-    for (; p < pend; p++) {
-      if (p->as.basic.flags) { /* always 0 for freed objects */
+    obj = heaps[i].slot;
+    obj_end = obj + heaps[i].limit;
+    for (; obj < obj_end; obj++) {
+      if (obj->as.basic.flags) { /* always 0 for freed objects */
         filled_slots ++;
-        switch (TYPE(p)) {
+        switch (TYPE(obj)) {
           case T_NONE:
-              if (specials) fprintf(obj_log , "    - %lu: _none\n", FIX2ULONG(rb_obj_id((VALUE)p)));
+              if (specials) fprintf(logfile , "    - %lu: _none\n", FIX2ULONG(rb_obj_id((VALUE)obj)));
               break;
           case T_BLKTAG:
-              if (specials) fprintf(obj_log , "    - %lu: _blktag\n", FIX2ULONG(rb_obj_id((VALUE)p)));
+              if (specials) fprintf(logfile , "    - %lu: _blktag\n", FIX2ULONG(rb_obj_id((VALUE)obj)));
               break;
           case T_UNDEF:
-              if (specials) fprintf(obj_log , "    - %lu: _undef\n", FIX2ULONG(rb_obj_id((VALUE)p)));
+              if (specials) fprintf(logfile , "    - %lu: _undef\n", FIX2ULONG(rb_obj_id((VALUE)obj)));
               break;
           case T_VARMAP:
-              if (specials) fprintf(obj_log , "    - %lu: _varmap\n", FIX2ULONG(rb_obj_id((VALUE)p)));
+              if (specials) fprintf(logfile , "    - %lu: _varmap\n", FIX2ULONG(rb_obj_id((VALUE)obj)));
               break;
           case T_SCOPE:
-              if (specials) fprintf(obj_log , "    - %lu: _scope\n", FIX2ULONG(rb_obj_id((VALUE)p)));
+              if (specials) fprintf(logfile , "    - %lu: _scope\n", FIX2ULONG(rb_obj_id((VALUE)obj)));
               break;
           case T_NODE:
-              if (specials) fprintf(obj_log , "    - %lu: _node\n", FIX2ULONG(rb_obj_id((VALUE)p)));
+              if (specials) fprintf(logfile , "    - %lu: _node\n", FIX2ULONG(rb_obj_id((VALUE)obj)));
               break;
           default:
-            if (!p->as.basic.klass) {
-              fprintf(obj_log , "    - %lu: _unknown", FIX2ULONG(rb_obj_id((VALUE)p)));
+            if (!obj->as.basic.klass) {
+              fprintf(logfile , "    - %lu: _unknown", FIX2ULONG(rb_obj_id((VALUE)obj)));
             } else {
-              fprintf(obj_log , "    - %lu: %s\n", FIX2ULONG(rb_obj_id((VALUE)p)), rb_obj_classname((VALUE)p));
+              fprintf(logfile , "    - %lu: %s\n", FIX2ULONG(rb_obj_id((VALUE)obj)), rb_obj_classname((VALUE)obj));
             }
         }
       } else {
@@ -95,13 +96,15 @@ static VALUE snapshot(VALUE self, VALUE logfile, VALUE tag, VALUE _specials) {
   }
   
   /* walk the symbol table */
-  for (i = 0; i < sym_tbl->num_entries; i ++) {
-    s = sym_tbl[i]
+  for (i = 0; i < sym_tbl->num_bins; i++) {
+    for (sym = sym_tbl->bins[i]; sym != 0; sym = sym->next) {
+      fprintf(logfile, "    - %lu: Symbol\n", sym->record);
+    }
   }
     
-  fprintf(obj_log, "    \"heap usage/filled slots\": %i\n", filled_slots);
-  fprintf(obj_log, "    \"heap usage/free slots\": %i\n", free_slots);
-  fclose(obj_log);
+  fprintf(logfile, "    \"heap usage/filled slots\": %i\n", filled_slots);
+  fprintf(logfile, "    \"heap usage/free slots\": %i\n", free_slots);
+  fclose(logfile);
   
   /* request GC run */          
   rb_funcall(rb_mGC, rb_intern("start"), 0); 

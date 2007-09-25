@@ -37,6 +37,15 @@ struct heaps_slot {
     int limit;
 };
 
+typedef struct st_table_entry st_table_entry;
+
+struct st_table_entry {
+    unsigned int hash;
+    st_data_t key;
+    st_data_t record;
+    st_table_entry *next;
+};
+
 struct st_table * rb_parse_sym_tbl();
 struct heaps_slot * rb_gc_heap_slots();
 int rb_gc_heaps_used();

@@ -7,7 +7,7 @@
 #include "intern.h"
 #include "string.h"
 
-/* Histogram of most common Rails classes from www.chow.com */
+/* Histogram of most common Rails classes */
 static char * builtins[] = {
  "String",
  "Array",

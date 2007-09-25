@@ -5,6 +5,7 @@ README
 Rakefile
 patches/parse.y.patch
 patches/gc.c.patch
+Manifest
 LICENSE_BSD
 LICENSE
 lib/bleak_house.rb
@@ -15,7 +16,6 @@ lib/bleak_house/rails/dispatcher.rb
 lib/bleak_house/rails/bleak_house.rb
 lib/bleak_house/rails/action_controller.rb
 lib/bleak_house/logger.rb
-lib/bleak_house/logger/snapshot.bundle
 lib/bleak_house/logger/mem_usage.rb
 lib/bleak_house/analyzer.rb
 lib/bleak_house/analyzer/gruff.rb
@@ -27,4 +27,3 @@ ext/bleak_house/logger/snapshot.c
 ext/bleak_house/logger/extconf.rb
 CHANGELOG
 bin/bleak
-Manifest

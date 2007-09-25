@@ -11,6 +11,8 @@ static char * builtins[] = {
   "String",
   "Array",
   "Hash",
+  "Float",
+  "Bignum",
   "Regexp",
   "Symbol",
   "Module",
@@ -24,7 +26,7 @@ static char * builtins[] = {
   "_unknown"
 };
 
-static int builtins_size = 14;
+static int builtins_size = 16;
 
 typedef struct RVALUE {
     union {

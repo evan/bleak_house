@@ -91,6 +91,7 @@ module BleakHouse
       end 
             
       frames = []
+      adults = []
       frame = nil
       ix = nil
       
@@ -105,18 +106,24 @@ module BleakHouse
         if row[0].to_i < 0          
           # Get frame meta-information
           if MAGIC_KEYS[row[0]] == 'timestamp'
-            # The frame has ended
-            
-            if frames[-1-MAX_LIFE]
-              # Remove any object that has died from the frame MAX_LIFE frames ago
-              xobjects = frames[-1-MAX_LIFE]['objects']
-              xsize = xobjects.size
-              objects = frame['objects']
-              xobjects.slice!(objects.keys)
-              puts "  Frame #{frames.size - MAX_LIFE} finalized: #{xsize - xobjects.size} objects died, but #{xobjects.size} remain"
-              
-              # Now reverse, and remove any objects that were already alive from this frame
-              objects.unslice!(xobjects.keys)              
+
+            # The frame has ended; process the last one            
+            if frame
+              population = frame['objects'].keys
+              births = population - adults
+              deaths = adults - population
+              adults = population
+  
+              # assign births
+              frame['births'] = frame['objects'].slice(births)
+
+              if final = frames[-2]
+                final['deaths'] = final['objects'].slice(deaths)
+                bsize = final['births'].size
+                dsize = final['deaths'].size
+                puts "  Frame #{frames.size - 1} finalized: #{bsize} births, #{dsize} deaths, velocity #{bsize * 100 / dsize / 100.0}, population #{final['objects'].size}"
+                final.delete 'objects'
+              end
             end
 
             # Set up a new frame

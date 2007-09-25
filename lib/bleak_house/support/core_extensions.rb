@@ -18,18 +18,18 @@ end
 class Hash
 
   # Similar to the ActiveSupport methods in Rails
-  def slice!(keys)
+  def slice(keys)
     keys = Set.new(keys)
-    replace(reject do |key,| 
+    reject do |key,| 
       !keys.include?(key)
-    end)
+    end
   end  
   
-  def unslice!(keys)
+  def unslice(keys)
     keys = Set.new(keys)
-    replace(reject do |key,| 
+    reject do |key,| 
       keys.include?(key)
-    end)    
+    end
   end
 end
 

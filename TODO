@@ -1,4 +1,2 @@
 
-* Add source tracking to individual objects. If we write out the ids each pass, we should be able to correlate them later to source tags without having to store them in memory.
-
 * Per-object memory usage. This may be impossible to do accurately.

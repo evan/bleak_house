@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-unless ARGV[0]
+if !ARGV[0]
   puts "Please specify a BleakHouse logfile"
   exit
 elsif ARGV[0] == "--build"

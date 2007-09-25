@@ -5,7 +5,7 @@ if RUBY_PLATFORM =~ /win32|windows/
 end
 
 require 'fileutils'
-puts "building patched Ruby binary"
+puts "Building patched Ruby binary"
 
 tmp = "/tmp/"
 Dir.chdir(tmp) do
@@ -17,27 +17,27 @@ Dir.chdir(tmp) do
 
   begin
     Dir.chdir(build_dir) do
-      puts "  downloading Ruby source"
+      puts "  Downloading Ruby source"
       bz2 = "ruby-1.8.6.tar.bz2"
       system("wget 'http://rubyforge.org/frs/download.php/18434/ruby-1.8.6.tar.bz2' &> wget.log")
-      puts "  extracting"
+      puts "  Extracting"
       system("tar xjf #{bz2} &> tar.log")
       File.delete bz2
   
       Dir.chdir("ruby-1.8.6") do
-        puts "  patching"
-        system("patch -p0 < \'#{File.dirname(__FILE__)}/patches/gc.c.patch\' &> ../gc.c.patch.log")
-        system("patch -p0 < \'#{File.dirname(__FILE__)}/patches/parse.y.patch\' &> ../parse.y.patch.log")
-        puts "  configuring"
+        puts "  Patching"
+        system("patch -p0 < \'#{File.dirname(__FILE__)}/../../../patches/gc.c.patch\' &> ../gc.c.patch.log")
+        system("patch -p0 < \'#{File.dirname(__FILE__)}/../../../patches/parse.y.patch\' &> ../parse.y.patch.log")
+        puts "  Configuring"
         system("./configure --prefix=#{binary_dir[0..-5]} &> ../configure.log") # --with-static-linked-ext
-        puts "  making"
+        puts "  Making"
         system("make &> ../make.log")
 
         binary = "#{binary_dir}/ruby-bleak-house"
-        puts "  installing as #{binary}"
+        puts "  Installing as #{binary}"
         FileUtils.cp("./ruby", binary)
         FileUtils.chmod(0755, binary)
-        puts "  done"
+        puts "  Done"
       end
       
     end

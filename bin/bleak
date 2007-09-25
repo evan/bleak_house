@@ -1,4 +1,4 @@
-#!/usr/env ruby
+#!/usr/bin/env ruby
 
 unless ARGV[0]
   puts "Please specify a BleakHouse logfile"

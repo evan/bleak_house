@@ -1,15 +1,12 @@
 TODO
 test/unit/test_bleak_house.rb
 test/misc/direct.rb
-tasks/bleak_house_tasks.rake
 README
 Rakefile
 patches/parse.y.patch
 patches/gc.c.patch
-Manifest
 LICENSE_BSD
 LICENSE
-lib/bleak_houselogger
 lib/bleak_house.rb
 lib/bleak_house/support/rake.rb
 lib/bleak_house/support/core_extensions.rb
@@ -29,3 +26,5 @@ ext/bleak_house/logger/snapshot.h
 ext/bleak_house/logger/snapshot.c
 ext/bleak_house/logger/extconf.rb
 CHANGELOG
+bin/bleak
+Manifest

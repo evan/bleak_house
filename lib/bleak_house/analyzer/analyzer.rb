@@ -3,7 +3,6 @@ require 'rubygems'
 require 'fileutils'
 require 'yaml'
 require 'pp'
-require 'ruby-debug'
 
 module BleakHouse
 

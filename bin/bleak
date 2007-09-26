@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'rubygems'
+
 if !ARGV[0]
   puts "Please specify a BleakHouse logfile"
   exit
@@ -7,9 +9,6 @@ elsif ARGV[0] == "--build"
   require 'bleak_house/support/build'
 else
   $LOAD_PATH << "#{File.dirname(__FILE__)}/../lib/"
-  unless self.respond_to? 'gem'
-    $LOAD_PATH << "/opt/local/lib/ruby/gems/1.8/gems/ccsv-0.0.1/lib/"
-  end
   require 'bleak_house/analyzer'
   BleakHouse::Analyzer.run(ARGV[0])
 end

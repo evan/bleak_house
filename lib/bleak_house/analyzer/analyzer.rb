@@ -74,8 +74,10 @@ module BleakHouse
         LightCsv.foreach(logfile) do |row|                
         
           # Stupid is fast
-          row[0] = row[0].to_i if row[0].to_i != 0
-          row[1] = row[1].to_i if row[1].to_i != 0
+          i = row[0].to_i
+          row[0] = i if i != 0
+          i = row[1].to_i
+          row[1] = i if i != 0
           
           if row[0].to_i < 0          
             # Get frame meta-information

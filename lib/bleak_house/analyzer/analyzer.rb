@@ -63,7 +63,11 @@ module BleakHouse
                 bsize = final['births'].size
                 dsize = final['deaths'].size
                 final['slope'] = bsize * 100 / dsize / 100.0
-                puts "  Frame #{frames.size - 1} (#{final['meta']['tag']}): #{bsize} births, #{dsize} deaths, slope #{final['slope']}, population #{final['objects'].size}"
+                
+                final_num = frames.size - 1
+                percent = final_num * 100 / total_frames
+                
+                puts "  #{percent}%: #{final['meta']['tag']} (#{bsize} births, #{dsize} deaths, slope #{final['slope']}, population #{final['objects'].size})"
                 final.delete 'objects'
               end
             end

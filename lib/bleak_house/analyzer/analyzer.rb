@@ -17,23 +17,27 @@ module BleakHouse
       -6 => 'heap/free'
     }    
     
+    INITIAL_SKIP = 10
+    
     CLASS_KEYS = eval('[nil, ' + # skip 0
       open(
         File.dirname(__FILE__) + '/../../../ext/bleak_house/logger/snapshot.h'
       ).read[/\{(.*?)\}/m, 1] + ']')
     
-    def self.calculate!(frame)
+    def self.calculate!(frame, index, total)
       bsize = frame['births'].size
       dsize = frame['deaths'].size
       
       # Avoid divide by zero errors
-      frame['meta']['ratio'] = ratio = bsize / (dsize + 1).to_f
-      frame['meta']['impact'] = Math.log10((bsize - dsize).abs / 100.0)
+      frame['meta']['ratio'] = ratio = (bsize - dsize) / (bsize + dsize + 1).to_f
+      frame['meta']['impact'] = begin
+        Math.log10((bsize - dsize).abs.to_i)
+      rescue Errno::ERANGE
+        puts "  Range error"
+        0
+      end
       
-      frame_num = frames.size - 1
-      percent = frame_num * 100 / total_frames
-      
-      puts "  #{percent}%: #{frame['meta']['tag']} (#{bsize} births, #{dsize} deaths, ratio #{format('%.2f', frame['meta']['ratio'])}, impact #{format('%.2f', frame['meta']['impact'])})"
+      puts "  #{index * 100 / total}%: #{frame['meta']['tag']} (#{bsize} births, #{dsize} deaths, ratio #{format('%.2f', frame['meta']['ratio'])}, impact #{format('%.2f', frame['meta']['impact'])})"
     end
     
     # Parses and correlates a BleakHouse::Logger output file.
@@ -51,19 +55,22 @@ module BleakHouse
       frame = nil
       ix = nil
       
-      total_frames = `grep '^-1' #{logfile} | wc`.to_i
-      
-      puts "#{total_frames} frames"
-      
       if File.exist?(cachefile) and File.stat(cachefile).mtime > File.stat(logfile).mtime
         # Cache is fresh
         puts "Using cache"
         frames = Marshal.load(File.open(cachefile).read)
-        frames.each do |frame|
-          calculate!(frame)
+        
+        puts "#{frames.size} frames"
+        
+        frames[0..-3].each_with_index do |frame, index|
+          calculate!(frame, index + 1, frames.size - 1)
         end
+        
       else                        
         # Rebuild frames
+        total_frames = `grep '^-1' #{logfile} | wc`.to_i
+        
+        puts "#{total_frames} frames"     
         
         LightCsv.foreach(logfile) do |row|                
         
@@ -89,7 +96,7 @@ module BleakHouse
                 if final = frames[-2]
                   final['deaths'] = final['objects'].slice(deaths)
                   final.delete 'objects'
-                  calculate!(frame)
+                  calculate!(final, frames.size - 1, total_frames)
                 end
               end
   
@@ -122,7 +129,7 @@ module BleakHouse
       end
 
       # Remove bogus frames
-      frames = frames[1..-3]       
+      frames = frames[INITIAL_SKIP..-3]       
       
       total_births = frames.inject(0) do |births, frame|
         births + frame['births'].size
@@ -131,7 +138,7 @@ module BleakHouse
         deaths + frame['deaths'].size
       end
       
-      puts "\n#{total_births} total meaningful births, #{total_deaths} total meaningful deaths."
+      puts "\n#{total_births} births, #{total_deaths} deaths."
       
       leakers = {}
       
@@ -173,7 +180,7 @@ module BleakHouse
       
       frames.each do |frame|
         impacts[frame['meta']['tag']] ||= []
-        impacts[frame['meta']['tag']] << frame['meta']['impact']
+        impacts[frame['meta']['tag']] << frame['meta']['impact'] * frame['meta']['ratio']
       end      
       impacts = impacts.map do |tag, values|
         [tag, values.inject(0) {|acc, i| acc + i} / values.size.to_f]
@@ -181,10 +188,10 @@ module BleakHouse
         -impact
       end
       
-      puts "\nTags sorted by average impact:"
+      puts "\nTags sorted by impact ratio:"
       
       impacts.each do |tag, total|
-        puts "  #{tag}: #{total}"
+        puts "  #{tag}: #{format('%2f', total)}"
       end
 
       puts "\nBye"

@@ -27,15 +27,17 @@ module BleakHouse
       unless File.exists? logfile
         puts "No data file found: #{logfile}"
         exit 
-      end 
-            
+      end
+      
       frames = []
       last_population = []
       frame = nil
       ix = nil
       
-      puts "Examining objects"
+      total_frames = `grep '^-1' #{logfile} | wc`.to_i
       
+      puts "Examining #{total_frames} total frames."
+                  
       LightCsv.foreach(logfile) do |row|        
       
         # Stupid is fast
@@ -61,7 +63,7 @@ module BleakHouse
                 bsize = final['births'].size
                 dsize = final['deaths'].size
                 final['slope'] = bsize * 100 / dsize / 100.0
-                puts "  Frame #{frames.size - 1} (#{final['meta']['tag']}) finalized: #{bsize} births, #{dsize} deaths, slope #{final['slope']}, population #{final['objects'].size}"
+                puts "  Frame #{frames.size - 1} (#{final['meta']['tag']}): #{bsize} births, #{dsize} deaths, slope #{final['slope']}, population #{final['objects'].size}"
                 final.delete 'objects'
               end
             end

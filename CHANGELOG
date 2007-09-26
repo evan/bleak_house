@@ -1,4 +1,6 @@
 
+v3.2. Use Ccsv for faster parsing.
+
 v3.0.3. Caching; build task; impact factor.
 
 v3.0.1. Rewrite. Remove Gruffs and graphs. Become a standard compiled extension. Walk the symbol table. Track object histories. Use custom CSV format instead of YAML.

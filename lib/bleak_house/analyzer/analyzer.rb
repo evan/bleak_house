@@ -31,9 +31,8 @@ module BleakHouse
       # Avoid divide by zero errors
       frame['meta']['ratio'] = ratio = (bsize - dsize) / (bsize + dsize + 1).to_f
       frame['meta']['impact'] = begin
-        Math.log10((bsize - dsize).abs.to_i)
+        Math.log10((bsize - dsize).abs.to_i / 10.0)
       rescue Errno::ERANGE
-        puts "  Range error"
         0
       end
       

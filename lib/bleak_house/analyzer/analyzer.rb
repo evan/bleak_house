@@ -71,7 +71,7 @@ module BleakHouse
         
         puts "#{total_frames} frames"     
         
-        LightCsv.foreach(logfile) do |row|                
+        Ccsv.foreach(logfile) do |row|                
         
           # Stupid is fast
           i = row[0].to_i
@@ -167,10 +167,10 @@ module BleakHouse
       
       puts "\nTags sorted by immortal leaks:"
       leakers.each do |tag, value|
-        puts "  #{tag} leaked per request:"
         requests = frames.select do |frame|
           frame['meta']['tag'] == tag
         end.size
+        puts "  #{tag} leaks, averaged over #{requests} requests:"
         value.each do |klass, count|
           count = count/requests          
           puts "    #{count} #{klass}" if count > 0
@@ -189,10 +189,10 @@ module BleakHouse
         -impact
       end
       
-      puts "\nTags sorted by impact ratio:"
+      puts "\nTags sorted by impact * ratio:"
       
       impacts.each do |tag, total|
-        puts "  #{tag}: #{format('%2f', total)}"
+        puts "  #{format('%.4f', total).rjust(7)}: #{tag}"
       end
 
       puts "\nBye"

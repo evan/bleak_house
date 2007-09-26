@@ -11,6 +11,7 @@ begin
     p.url = "http://blog.evanweaver.com/files/doc/fauna/bleak_house/"
     p.docs_host = 'blog.evanweaver.com:~/www/bax/public/files/doc/'
     p.rdoc_pattern = /^ext.*\.c|lib.*logger.*rb|analyzer|rails\/bleak_house|^README|^CHANGELOG|^TODO|^LICENSE|^COPYING$/
+    p.dependencies = ['ccsv']
     p.require_signed = true
     p.include_gemspec = false
     p.include_rakefile = true      

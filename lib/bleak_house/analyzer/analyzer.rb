@@ -21,7 +21,21 @@ module BleakHouse
       open(
         File.dirname(__FILE__) + '/../../../ext/bleak_house/logger/snapshot.h'
       ).read[/\{(.*?)\}/m, 1] + ']')
-            
+    
+    def self.calculate!(frame)
+      bsize = frame['births'].size
+      dsize = frame['deaths'].size
+      
+      # Avoid divide by zero errors
+      frame['meta']['ratio'] = ratio = bsize / (dsize + 1).to_f
+      frame['meta']['impact'] = Math.log10((bsize - dsize).abs / 100.0)
+      
+      frame_num = frames.size - 1
+      percent = frame_num * 100 / total_frames
+      
+      puts "  #{percent}%: #{frame['meta']['tag']} (#{bsize} births, #{dsize} deaths, ratio #{format('%.2f', frame['meta']['ratio'])}, impact #{format('%.2f', frame['meta']['impact'])})"
+    end
+    
     # Parses and correlates a BleakHouse::Logger output file.
     def self.run(logfile)
       unless File.exists? logfile
@@ -29,6 +43,9 @@ module BleakHouse
         exit 
       end
       
+      puts "Working..."
+      
+      cachefile = logfile + ".cache"
       frames = []
       last_population = []
       frame = nil
@@ -36,56 +53,67 @@ module BleakHouse
       
       total_frames = `grep '^-1' #{logfile} | wc`.to_i
       
-      puts "Examining #{total_frames} total frames."
-                  
-      LightCsv.foreach(logfile) do |row|        
+      puts "#{total_frames} frames"
       
-        # Stupid is fast
-        row[0] = row[0].to_i if row[0].to_i != 0
-        row[1] = row[1].to_i if row[1].to_i != 0
-        
-        if row[0].to_i < 0          
-          # Get frame meta-information
-          if MAGIC_KEYS[row[0]] == 'timestamp'
-
-            # The frame has ended; process the last one            
-            if frame
-              population = frame['objects'].keys
-              births = population - last_population
-              deaths = last_population - population
-              last_population = population
-  
-              # assign births
-              frame['births'] = frame['objects'].slice(births)
-
-              if final = frames[-2]
-                final['deaths'] = final['objects'].slice(deaths)
-                bsize = final['births'].size
-                dsize = final['deaths'].size
-                final['slope'] = bsize * 100 / dsize / 100.0
-                
-                final_num = frames.size - 1
-                percent = final_num * 100 / total_frames
-                
-                puts "  #{percent}%: #{final['meta']['tag']} (#{bsize} births, #{dsize} deaths, slope #{final['slope']}, population #{final['objects'].size})"
-                final.delete 'objects'
-              end
-            end
-
-            # Set up a new frame
-            frame = {}
-            frames << frame
-            frame['objects'] ||= {}
-            frame['meta'] ||= {}
-            
-            #puts "  Frame #{frames.size} opened"
-          end
-          
-          frame['meta'][MAGIC_KEYS[row[0]]] = row[1]
-        else
-          # Assign live objects
-          frame['objects'][row[1]] = row[0]
+      if File.exist?(cachefile) and File.stat(cachefile).mtime > File.stat(logfile).mtime
+        # Cache is fresh
+        puts "Using cache"
+        frames = Marshal.load(File.open(cachefile).read)
+        frames.each do |frame|
+          calculate!(frame)
         end
+      else                        
+        # Rebuild frames
+        
+        LightCsv.foreach(logfile) do |row|                
+        
+          # Stupid is fast
+          row[0] = row[0].to_i if row[0].to_i != 0
+          row[1] = row[1].to_i if row[1].to_i != 0
+          
+          if row[0].to_i < 0          
+            # Get frame meta-information
+            if MAGIC_KEYS[row[0]] == 'timestamp'
+  
+              # The frame has ended; process the last one            
+              if frame
+                population = frame['objects'].keys
+                births = population - last_population
+                deaths = last_population - population
+                last_population = population
+    
+                # assign births
+                frame['births'] = frame['objects'].slice(births)
+                
+                # assign deaths to previous frame
+                if final = frames[-2]
+                  final['deaths'] = final['objects'].slice(deaths)
+                  final.delete 'objects'
+                  calculate!(frame)
+                end
+              end
+  
+              # Set up a new frame
+              frame = {}
+              frames << frame
+              frame['objects'] ||= {}
+              frame['meta'] ||= {}
+              
+              #puts "  Frame #{frames.size} opened"
+            end
+            
+            frame['meta'][MAGIC_KEYS[row[0]]] = row[1]
+          else
+            # Assign live objects
+            frame['objects'][row[1]] = row[0]
+          end
+        end
+        
+        # Cache the result
+        File.open(cachefile, 'w') do |f|
+          f.write Marshal.dump(frames)
+        end
+        
       end
             
       # See what objects are still laying around
@@ -103,7 +131,7 @@ module BleakHouse
         deaths + frame['deaths'].size
       end
       
-      puts "#{total_births} total meaningful births, #{total_deaths} total meaningful deaths.\n\n"
+      puts "\n#{total_births} total meaningful births, #{total_deaths} total meaningful deaths."
       
       leakers = {}
       
@@ -129,7 +157,7 @@ module BleakHouse
         Hash[*value.flatten].values.inject(0) {|i, v| i - v}
       end
       
-      puts "Here are your leaks:"
+      puts "\nTags sorted by immortal leaks:"
       leakers.each do |tag, value|
         puts "  #{tag} leaked per request:"
         requests = frames.select do |frame|
@@ -139,7 +167,26 @@ module BleakHouse
           count = count/requests          
           puts "    #{count} #{klass}" if count > 0
         end
+      end
+            
+      impacts = {}
+      
+      frames.each do |frame|
+        impacts[frame['meta']['tag']] ||= []
+        impacts[frame['meta']['tag']] << frame['meta']['impact']
       end      
+      impacts = impacts.map do |tag, values|
+        [tag, values.inject(0) {|acc, i| acc + i} / values.size.to_f]
+      end.sort_by do |tag, impact|
+        -impact
+      end
+      
+      puts "\nTags sorted by average impact:"
+      
+      impacts.each do |tag, total|
+        puts "  #{tag}: #{total}"
+      end
+
       puts "\nBye"
 
     end

@@ -26,7 +26,7 @@ The public certificate for this gem is at http://rubyforge.org/frs/download.php/
 == Installation
 
 Install the gem:
-  sudo gem install bleak_house -v 3.0.2
+  sudo gem install bleak_house
 
 You need to compile the BleakHouse patched Ruby build. Run:
   bleak --build

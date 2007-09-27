@@ -1,2 +1,2 @@
 
-* Per-object memory usage. This may be impossible to do accurately.
+* Some bug in the immortal detector; no results returned on the CHOW 2gb dump.

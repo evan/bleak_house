@@ -16,7 +16,7 @@ module BleakHouse
       -5 => 'heap/filled',
       -6 => 'heap/free'
     }    
-    
+        
     INITIAL_SKIP = 10
     
     CLASS_KEYS = eval('[nil, ' + # skip 0
@@ -31,7 +31,9 @@ module BleakHouse
       # Avoid divide by zero errors
       frame['meta']['ratio'] = ratio = (bsize - dsize) / (bsize + dsize + 1).to_f
       frame['meta']['impact'] = begin
-        Math.log10((bsize - dsize).abs.to_i / 10.0)
+        result = Math.log10((bsize - dsize).abs.to_i / 10.0)
+        raise Errno::ERANGE if result.nan? or result.infinite?
+        result
       rescue Errno::ERANGE
         0
       end
@@ -41,20 +43,22 @@ module BleakHouse
     
     # Parses and correlates a BleakHouse::Logger output file.
     def self.run(logfile)
-      unless File.exists? logfile
+
+      cachefile = logfile + ".cache"
+
+      unless File.exists? logfile or File.exists? cachefile
         puts "No data file found: #{logfile}"
         exit 
       end
       
       puts "Working..."
       
-      cachefile = logfile + ".cache"
       frames = []
       last_population = []
       frame = nil
       ix = nil
       
-      if File.exist?(cachefile) and File.stat(cachefile).mtime > File.stat(logfile).mtime
+      if File.exist?(cachefile) and (!File.exists? logfile or File.stat(cachefile).mtime > File.stat(logfile).mtime)
         # Cache is fresh
         puts "Using cache"
         frames = Marshal.load(File.open(cachefile).read)
@@ -170,10 +174,17 @@ module BleakHouse
         requests = frames.select do |frame|
           frame['meta']['tag'] == tag
         end.size
-        puts "  #{tag} leaks, averaged over #{requests} requests:"
-        value.each do |klass, count|
-          count = count/requests          
-          puts "    #{count} #{klass}" if count > 0
+        values = value.map do |klass, count|
+          count = count/requests
+          [klass, count]
+        end.select do |klass, count|
+          count > 0          
+        end
+        if values.any? 
+          puts "  #{tag} leaks, averaged over #{requests} requests:"
+          values.each do |klass, count|
+            puts "    #{count} #{klass}"
+          end
         end
       end
             
@@ -186,7 +197,7 @@ module BleakHouse
       impacts = impacts.map do |tag, values|
         [tag, values.inject(0) {|acc, i| acc + i} / values.size.to_f]
       end.sort_by do |tag, impact|
-        -impact
+        impact.nan? ? 0 : -impact
       end
       
       puts "\nTags sorted by impact * ratio:"

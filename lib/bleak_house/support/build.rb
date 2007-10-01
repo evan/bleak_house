@@ -38,7 +38,7 @@ Dir.chdir(tmp) do
 
         if File.exist? "ruby"        
           # Avoid a "Text file busy" error
-          exec("rm #{binary}; cp ./ruby #{binary}; chmod -755 #{binary}; echoe \"  Done\"")
+          exec("rm #{binary}; cp ./ruby #{binary}; chmod 755 #{binary}; echo \"  Done\"")
         else
           raise "Binary did not build"
         end

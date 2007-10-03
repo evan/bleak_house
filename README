@@ -28,10 +28,7 @@ The public certificate for this gem is at http://rubyforge.org/frs/download.php/
 Install the gem:
   sudo gem install bleak_house
 
-You need to compile the BleakHouse patched Ruby build. Run:
-  bleak --build
-  
-This gives you a Ruby binary named <tt>ruby-bleak-house</tt> alongside your regular binary.
+The installation takes a long time because it compiles a patched Ruby binary for you. It is installed as <tt>ruby-bleak-house</tt> alongside your regular <tt>ruby</tt>binary.
 
 == Profiling a Rails app
 

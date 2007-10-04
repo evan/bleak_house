@@ -1,10 +1,10 @@
 bin/bleak
 CHANGELOG
+ext/bleak_house/logger/build_logger.rb
+ext/bleak_house/logger/build_ruby.rb
 ext/bleak_house/logger/extconf.rb
-ext/bleak_house/logger/extconf_inner.rb
 ext/bleak_house/logger/snapshot.c
 ext/bleak_house/logger/snapshot.h
-ext/bleak_house/ruby/extconf.rb
 init.rb
 install.rb
 lib/bleak_house/analyzer/analyzer.rb
@@ -23,10 +23,11 @@ LICENSE
 LICENSE_BSD
 LICENSE_RUBY
 Manifest
-patches/gc.c.patch
-patches/parse.y.patch
 Rakefile
 README
+ruby/gc.c.patch
+ruby/parse.y.patch
+ruby/ruby-1.8.6.tar.bz2
 test/misc/direct.rb
 test/unit/test_bleak_house.rb
 TODO

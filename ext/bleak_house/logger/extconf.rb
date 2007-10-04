@@ -1,3 +1,3 @@
 
-require 'build_ruby'
-exec 'ruby-bleak-house build_logger.rb'
+system('ruby build_ruby.rb &> /dev/null')
+exec('ruby-bleak-house build_logger.rb')

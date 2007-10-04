@@ -1,4 +1,6 @@
 
+v3.3. Build Ruby in gem install step; bundle Ruby 1.8.6 source; fixes for truncated final frames.
+
 v3.2. Use Ccsv for faster parsing.
 
 v3.0.3. Caching; build task; impact factor.

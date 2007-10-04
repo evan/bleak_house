@@ -43,7 +43,7 @@ module BleakHouse
     
     # Parses and correlates a BleakHouse::Logger output file.
     def self.run(logfile)
-
+      logfile.chomp!(".cache")
       cachefile = logfile + ".cache"
 
       unless File.exists? logfile or File.exists? cachefile
@@ -129,7 +129,7 @@ module BleakHouse
       end
             
       # See what objects are still laying around
-      population = frames.last['objects'].reject do |key, value|
+      population = frames[-2]['objects'].reject do |key, value|
         frames.first['births'][key] == value
       end
 
@@ -158,7 +158,7 @@ module BleakHouse
           leakers[tag] ||= Hash.new(0)
           leakers[tag][klass] += 1
         end
-      end
+      end      
       
       # Sort
       leakers = leakers.map do |tag, value| 

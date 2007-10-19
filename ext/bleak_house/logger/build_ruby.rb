@@ -24,20 +24,20 @@ if `which ruby-bleak-house` =~ /no ruby-bleak-house in/
         FileUtils.copy "#{source_dir}/#{bz2}", bz2
   
         # Extract
-        system("tar xjf #{bz2} &> tar.log")
+        system("tar xjf #{bz2} > tar.log 2>&1")
         File.delete bz2
     
         Dir.chdir("ruby-1.8.6") do
   
           # Patch
-          system("patch -p0 < \'#{source_dir}/gc.c.patch\' &> ../gc.c.patch.log")
-          system("patch -p0 < \'#{source_dir}/parse.y.patch\' &> ../parse.y.patch.log")
+          system("patch -p0 < \'#{source_dir}/gc.c.patch\' > ../gc.c.patch.log 2>&1")
+          system("patch -p0 < \'#{source_dir}/parse.y.patch\' > ../parse.y.patch.log 2>&1")
   
           # Configure
-          system("./configure --prefix=#{binary_dir[0..-5]} &> ../configure.log") # --with-static-linked-ext
+          system("./configure --prefix=#{binary_dir[0..-5]} > ../configure.log 2>&1") # --with-static-linked-ext
   
           # Make
-          system("make &> ../make.log")
+          system("make > ../make.log 2>&1")
   
           binary = "#{binary_dir}/ruby-bleak-house"
   

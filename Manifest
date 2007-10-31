@@ -18,7 +18,6 @@ lib/bleak_house/rails.rb
 lib/bleak_house/support/core_extensions.rb
 lib/bleak_house/support/rake.rb
 lib/bleak_house.rb
-lib/vendor/lightcsv.rb
 LICENSE
 LICENSE_BSD
 LICENSE_RUBY

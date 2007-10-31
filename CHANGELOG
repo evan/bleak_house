@@ -1,4 +1,6 @@
 
+v3.4. Clearer output descriptions; work around a Marshal bug on x64; fix for missing immortal leaks.
+
 v3.3. Build Ruby in gem install step; bundle Ruby 1.8.6 source; fixes for truncated final frames.
 
 v3.2. Use Ccsv for faster parsing.

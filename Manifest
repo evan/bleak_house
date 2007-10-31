@@ -20,7 +20,6 @@ lib/bleak_house/support/rake.rb
 lib/bleak_house.rb
 LICENSE
 LICENSE_BSD
-LICENSE_RUBY
 Manifest
 Rakefile
 README

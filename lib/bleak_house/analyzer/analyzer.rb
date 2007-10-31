@@ -19,7 +19,7 @@ module BleakHouse
         
     INITIAL_SKIP = 15
     
-    CLASS_KEYS = eval('[nil, ' + # skip 0
+    CLASS_KEYS = eval('[nil, ' + # Skip 0 so that the output of String#to_s is useful
       open(
         File.dirname(__FILE__) + '/../../../ext/bleak_house/logger/snapshot.h'
       ).read[/\{(.*?)\}/m, 1] + ']')
@@ -93,11 +93,11 @@ module BleakHouse
                 last_population = population
     
                 # assign births
-                frame['births'] = frame['objects'].slice(births).to_a # XXX Work around a Marshal bug
+                frame['births'] = frame['objects'].slice(births).to_a # Work around a Marshal bug
                 
                 # assign deaths to previous frame
                 if final = frames[-2]
-                  final['deaths'] = final['objects'].slice(deaths).to_a # XXX Work around a Marshal bug
+                  final['deaths'] = final['objects'].slice(deaths).to_a # Work around a Marshal bug
                   obj_count = final['objects'].size
                   final.delete 'objects'
                   calculate!(final, frames.size - 1, total_frames, obj_count)
@@ -121,7 +121,7 @@ module BleakHouse
         end
         
         frames = frames[0..-2]       
-        frames.last['objects'] = frames.last['objects'].to_a # XXX Work around a Marshal bug
+        frames.last['objects'] = frames.last['objects'].to_a # Work around a Marshal bug
         
         # Cache the result
         File.open(cachefile, 'w') do |f|

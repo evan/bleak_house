@@ -17,7 +17,7 @@ module BleakHouse
       -6 => 'heap/free'
     }    
         
-    INITIAL_SKIP = 30
+    INITIAL_SKIP = 15
     
     CLASS_KEYS = eval('[nil, ' + # skip 0
       open(
@@ -62,10 +62,10 @@ module BleakHouse
         # Cache is fresh
         puts "Using cache"
         frames = Marshal.load(File.open(cachefile).read)
-        puts "#{frames.size} frames"        
-#        frames[0..-3].each_with_index do |frame, index|
-#          calculate!(frame, index + 1, frames.size)
-#        end
+        puts "#{frames.size - 1} frames"        
+        frames[0..-2].each_with_index do |frame, index|
+          calculate!(frame, index + 1, frames.size - 1)
+        end
         
       else                        
         # Rebuild frames
@@ -93,11 +93,11 @@ module BleakHouse
                 last_population = population
     
                 # assign births
-                frame['births'] = frame['objects'].slice(births)
+                frame['births'] = frame['objects'].slice(births).to_a # XXX Work around a Marshal bug
                 
                 # assign deaths to previous frame
                 if final = frames[-2]
-                  final['deaths'] = final['objects'].slice(deaths)
+                  final['deaths'] = final['objects'].slice(deaths).to_a # XXX Work around a Marshal bug
                   obj_count = final['objects'].size
                   final.delete 'objects'
                   calculate!(final, frames.size - 1, total_frames, obj_count)
@@ -120,7 +120,8 @@ module BleakHouse
           end
         end
         
-        frames = frames[0..-2]
+        frames = frames[0..-2]       
+        frames.last['objects'] = frames.last['objects'].to_a # XXX Work around a Marshal bug
         
         # Cache the result
         File.open(cachefile, 'w') do |f|
@@ -128,17 +129,16 @@ module BleakHouse
         end
         
       end
-      
-      puts "\n#{frames.size} full frames."
-      
-            
+                             
       # See what objects are still laying around
       population = frames.last['objects'].reject do |key, value|
         frames.first['births'][key] == value
-      end
+      end      
+
+      puts "\n#{frames.size - 1} full frames. Removing #{INITIAL_SKIP} frames from each end of the run to account for\nstartup overhead and GC lag."
 
       # Remove border frames
-      frames = frames[INITIAL_SKIP..-2]       
+      frames = frames[INITIAL_SKIP..-INITIAL_SKIP]
       
       total_births = frames.inject(0) do |births, frame|
         births + frame['births'].size
@@ -150,9 +150,7 @@ module BleakHouse
       puts "\n#{total_births} total births, #{total_deaths} total deaths, #{population.size} uncollected objects."
       
       leakers = {}
-      
-#      require 'ruby-debug'; Debugger.start; debugger
-      
+            
       # Find the sources of the leftover objects in the final population
       population.each do |id, klass|
         leaker = frames.detect do |frame|
@@ -175,16 +173,19 @@ module BleakHouse
         Hash[*value.flatten].values.inject(0) {|i, v| i - v}
       end
       
-      puts "\nTags sorted by persistent uncollected objects. These objects were instantiated "
-      puts "by the associated tags but never garbage collected:"
-      leakers.each do |tag, value|
-        requests = frames.select do |frame|
-          frame['meta']['tag'] == tag
-        end.size
-        puts "  #{tag} leaked (over #{requests} requests):"
-        value.each do |klass, count|
-          puts "    #{count} #{klass}"
+      if leakers.any?
+        puts "\nTags sorted by persistent uncollected objects. These objects did not exist at\nstartup, were instantiated by the associated tags, but were never garbage\ncollected:"
+        leakers.each do |tag, value|
+          requests = frames.select do |frame|
+            frame['meta']['tag'] == tag
+          end.size
+          puts "  #{tag} leaked (over #{requests} requests):"
+          value.each do |klass, count|
+            puts "    #{count} #{klass}"
+          end
         end
+      else
+        puts "\nNo persistent uncollected objects found for any tags."
       end
             
       impacts = {}
@@ -205,9 +206,6 @@ module BleakHouse
       impacts.each do |tag, total|
         puts "  #{format('%.4f', total).rjust(7)}: #{tag}"
       end
-
-      puts "\nBye"
-
     end
     
   end

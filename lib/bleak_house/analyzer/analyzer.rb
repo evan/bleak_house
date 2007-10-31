@@ -17,7 +17,7 @@ module BleakHouse
       -6 => 'heap/free'
     }    
         
-    INITIAL_SKIP = 15
+    INITIAL_SKIP = 15 # XXX Might be better as a per-tag skip but that gets kinda complicated
     
     CLASS_KEYS = eval('[nil, ' + # Skip 0 so that the output of String#to_s is useful
       open(
@@ -129,11 +129,16 @@ module BleakHouse
         end
         
       end
+      
+      # Convert births back to hashes, necessary due to the Marshal workaround    
+      frames.each do |frame|
+        frame['births'] = Hash[*frame['births'].flatten]
+      end
                              
       # See what objects are still laying around
       population = frames.last['objects'].reject do |key, value|
         frames.first['births'][key] == value
-      end      
+      end
 
       puts "\n#{frames.size - 1} full frames. Removing #{INITIAL_SKIP} frames from each end of the run to account for\nstartup overhead and GC lag."
 
@@ -207,6 +212,8 @@ module BleakHouse
         puts "  #{format('%.4f', total).rjust(7)}: #{tag}"
       end
     end
+    
+    puts "\nDone"
     
   end
 end

@@ -17,14 +17,14 @@ module BleakHouse
       -6 => 'heap/free'
     }    
         
-    INITIAL_SKIP = 10
+    INITIAL_SKIP = 30
     
     CLASS_KEYS = eval('[nil, ' + # skip 0
       open(
         File.dirname(__FILE__) + '/../../../ext/bleak_house/logger/snapshot.h'
       ).read[/\{(.*?)\}/m, 1] + ']')
     
-    def self.calculate!(frame, index, total)
+    def self.calculate!(frame, index, total, obj_count = nil)
       bsize = frame['births'].size
       dsize = frame['deaths'].size
       
@@ -38,7 +38,7 @@ module BleakHouse
         0
       end
       
-      puts "  #{index * 100 / total}%: #{frame['meta']['tag']} (#{bsize} births, #{dsize} deaths, ratio #{format('%.2f', frame['meta']['ratio'])}, impact #{format('%.2f', frame['meta']['impact'])})"
+      puts "  F#{index}:#{total} (#{index * 100 / total}%): #{frame['meta']['tag']} (#{obj_count.to_s + ' population, ' if obj_count}#{bsize} births, #{dsize} deaths, ratio #{format('%.2f', frame['meta']['ratio'])}, impact #{format('%.2f', frame['meta']['impact'])})"
     end
     
     # Parses and correlates a BleakHouse::Logger output file.
@@ -62,16 +62,14 @@ module BleakHouse
         # Cache is fresh
         puts "Using cache"
         frames = Marshal.load(File.open(cachefile).read)
-        
-        puts "#{frames.size} frames"
-        
-        frames[0..-3].each_with_index do |frame, index|
-          calculate!(frame, index + 1, frames.size - 1)
-        end
+        puts "#{frames.size} frames"        
+#        frames[0..-3].each_with_index do |frame, index|
+#          calculate!(frame, index + 1, frames.size)
+#        end
         
       else                        
         # Rebuild frames
-        total_frames = `grep '^-1' #{logfile} | wc`.to_i
+        total_frames = `grep '^-1' #{logfile} | wc`.to_i - 2
         
         puts "#{total_frames} frames"     
         
@@ -100,8 +98,9 @@ module BleakHouse
                 # assign deaths to previous frame
                 if final = frames[-2]
                   final['deaths'] = final['objects'].slice(deaths)
+                  obj_count = final['objects'].size
                   final.delete 'objects'
-                  calculate!(final, frames.size - 1, total_frames)
+                  calculate!(final, frames.size - 1, total_frames, obj_count)
                 end
               end
   
@@ -121,20 +120,25 @@ module BleakHouse
           end
         end
         
+        frames = frames[0..-2]
+        
         # Cache the result
         File.open(cachefile, 'w') do |f|
           f.write Marshal.dump(frames)
         end
         
       end
+      
+      puts "\n#{frames.size} full frames."
+      
             
       # See what objects are still laying around
-      population = frames[-2]['objects'].reject do |key, value|
+      population = frames.last['objects'].reject do |key, value|
         frames.first['births'][key] == value
       end
 
-      # Remove bogus frames
-      frames = frames[INITIAL_SKIP..-3]       
+      # Remove border frames
+      frames = frames[INITIAL_SKIP..-2]       
       
       total_births = frames.inject(0) do |births, frame|
         births + frame['births'].size
@@ -143,9 +147,11 @@ module BleakHouse
         deaths + frame['deaths'].size
       end
       
-      puts "\n#{total_births} births, #{total_deaths} deaths."
+      puts "\n#{total_births} total births, #{total_deaths} total deaths, #{population.size} uncollected objects."
       
       leakers = {}
+      
+#      require 'ruby-debug'; Debugger.start; debugger
       
       # Find the sources of the leftover objects in the final population
       population.each do |id, klass|
@@ -169,22 +175,15 @@ module BleakHouse
         Hash[*value.flatten].values.inject(0) {|i, v| i - v}
       end
       
-      puts "\nTags sorted by immortal leaks:"
+      puts "\nTags sorted by persistent uncollected objects. These objects were instantiated "
+      puts "by the associated tags but never garbage collected:"
       leakers.each do |tag, value|
         requests = frames.select do |frame|
           frame['meta']['tag'] == tag
         end.size
-        values = value.map do |klass, count|
-          count = count/requests
-          [klass, count]
-        end.select do |klass, count|
-          count > 0          
-        end
-        if values.any? 
-          puts "  #{tag} leaks, averaged over #{requests} requests:"
-          values.each do |klass, count|
-            puts "    #{count} #{klass}"
-          end
+        puts "  #{tag} leaked (over #{requests} requests):"
+        value.each do |klass, count|
+          puts "    #{count} #{klass}"
         end
       end
             
@@ -200,7 +199,8 @@ module BleakHouse
         impact.nan? ? 0 : -impact
       end
       
-      puts "\nTags sorted by impact * ratio:"
+      puts "\nTags sorted by average impact * ratio. Impact is the log10 of the size of the"
+      puts "change in object count for a frame:"
       
       impacts.each do |tag, total|
         puts "  #{format('%.4f', total).rjust(7)}: #{tag}"

@@ -179,7 +179,7 @@ module BleakHouse
       end
       
       if leakers.any?
-        puts "\nTags sorted by persistent uncollected objects. These objects did not exist at\nstartup, were instantiated by the associated tags, but were never garbage\ncollected:"
+        puts "\nTags sorted by persistent uncollected objects. These objects did not exist at\nstartup, were instantiated by the associated tags, and were never garbage\ncollected:"
         leakers.each do |tag, value|
           requests = frames.select do |frame|
             frame['meta']['tag'] == tag

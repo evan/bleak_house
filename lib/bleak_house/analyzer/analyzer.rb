@@ -70,8 +70,13 @@ module BleakHouse
       else                        
         # Rebuild frames
         total_frames = `grep '^-1' #{logfile} | wc`.to_i - 2
-        
+                
         puts "#{total_frames} frames"     
+
+        if total_frames < INITIAL_SKIP * 3
+          puts "Not enough frames for accurate results. Please record at least #{INITIAL_SKIP * 3} frames."
+          exit!
+        end
         
         Ccsv.foreach(logfile) do |row|                
         
@@ -155,8 +160,9 @@ module BleakHouse
       puts "\n#{total_births} total births, #{total_deaths} total deaths, #{population.size} uncollected objects."
       
       leakers = {}
-            
+      
       # Find the sources of the leftover objects in the final population
+      frames.reverse!            
       population.each do |id, klass|
         leaker = frames.detect do |frame|
           frame['births'][id] == klass
@@ -168,6 +174,7 @@ module BleakHouse
           leakers[tag][klass] += 1
         end
       end      
+      frames.reverse!            
       
       # Sort
       leakers = leakers.map do |tag, value| 

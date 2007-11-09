@@ -8,7 +8,7 @@ tmp = "/tmp/"
 
 require 'fileutils'
 
-if `which ruby-bleak-house` =~ /no ruby-bleak-house in/
+if !system('which') or `which ruby-bleak-house` =~ /no ruby-bleak-house in/
   
   Dir.chdir(tmp) do
     build_dir = "bleak_house"

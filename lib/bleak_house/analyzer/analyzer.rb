@@ -218,9 +218,9 @@ module BleakHouse
       impacts.each do |tag, total|
         puts "  #{format('%.4f', total).rjust(7)}: #{tag}"
       end
-    end
-    
-    puts "\nDone"
-    
+
+      puts "\nDone"
+
+    end    
   end
 end

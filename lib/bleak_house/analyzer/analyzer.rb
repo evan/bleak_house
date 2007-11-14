@@ -126,7 +126,7 @@ module BleakHouse
         end
         
         frames = frames[0..-2]       
-        frames.last['objects'] = frames.last['objects'].to_a # Work around a Marshal bug
+        frames.last['objects'] = frames.last['objects'].to_a # Work around a Marshal bug on x86-64
         
         # Cache the result
         File.open(cachefile, 'w') do |f|
@@ -134,6 +134,8 @@ module BleakHouse
         end
         
       end
+      
+      puts "\nRehashing."
       
       # Convert births back to hashes, necessary due to the Marshal workaround    
       frames.each do |frame|
@@ -162,9 +164,8 @@ module BleakHouse
       leakers = {}
       
       # Find the sources of the leftover objects in the final population
-      frames.reverse!            
       population.each do |id, klass|
-        leaker = frames.detect do |frame|
+        leaker = backwards_detect(frames) do |frame|
           frame['births'][id] == klass
         end
         if leaker
@@ -174,7 +175,6 @@ module BleakHouse
           leakers[tag][klass] += 1
         end
       end      
-      frames.reverse!            
       
       # Sort
       leakers = leakers.map do |tag, value| 
@@ -222,5 +222,17 @@ module BleakHouse
       puts "\nDone"
 
     end    
+    
+    private
+    
+    def backwards_detect(array)
+      i = array.size - 1
+      while i >= 0
+        result = yield array[i]
+        return result if result        
+        i -= 1
+      end
+    end
+    
   end
 end

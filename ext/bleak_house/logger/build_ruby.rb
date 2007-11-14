@@ -39,14 +39,10 @@ unless which('ruby-bleak-house')
     
         Dir.chdir("ruby-1.8.6") do
   
-          # Patch
+          # Patch, configure, and build
           system("patch -p0 < \'#{source_dir}/gc.c.patch\' > ../gc.c.patch.log 2>&1")
           system("patch -p0 < \'#{source_dir}/parse.y.patch\' > ../parse.y.patch.log 2>&1")
-  
-          # Configure
           system("./configure --prefix=#{binary_dir[0..-5]} > ../configure.log 2>&1") # --with-static-linked-ext
-  
-          # Make
           system("make > ../make.log 2>&1")
   
           binary = "#{binary_dir}/ruby-bleak-house"

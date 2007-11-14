@@ -1,4 +1,6 @@
 
+# Extension abuse in order to build our patched binary as part of the gem install process.
+
 if RUBY_PLATFORM =~ /win32|windows/
   raise "Windows is not supported."
 end
@@ -8,7 +10,15 @@ tmp = "/tmp/"
 
 require 'fileutils'
 
-if !system('which') or `which ruby-bleak-house` =~ /no ruby-bleak-house in/
+def which(basename)
+  # system('which') is not compatible across Linux and BSD
+  ENV['PATH'].split(File::PATH_SEPARATOR).detect do |directory|
+    path = File.join(directory, basename.to_s)
+    path if File.exist?(path)
+  end
+end
+  
+unless which('ruby-bleak-house')
   
   Dir.chdir(tmp) do
     build_dir = "bleak_house"

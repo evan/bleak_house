@@ -1,5 +1,5 @@
 
-v3.5. Explain when you need more frames. Build Ruby properly when `which` is missing. Slight accuracy improvement.
+v3.5. Explain when you need more frames. Use a cross-platform version of 'which'. Slight accuracy improvement.
 
 v3.4. Clearer output descriptions; work around a Marshal bug on x64; fix for missing immortal leaks.
 

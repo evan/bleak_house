@@ -23,6 +23,15 @@ module BleakHouse
       open(
         File.dirname(__FILE__) + '/../../../ext/bleak_house/logger/snapshot.h'
       ).read[/\{(.*?)\}/m, 1] + ']')
+
+    def self.backwards_detect(array)
+      i = array.size - 1
+      while i >= 0
+        item = array[i]
+        return item if yield(item)
+        i -= 1
+      end
+    end   
     
     def self.calculate!(frame, index, total, obj_count = nil)
       bsize = frame['births'].size
@@ -126,7 +135,7 @@ module BleakHouse
         end
         
         frames = frames[0..-2]       
-        frames.last['objects'] = frames.last['objects'].to_a # Work around a Marshal bug on x86-64
+        frames.last['objects'] = frames.last['objects'].to_a # Work around a Marshal bug x86-64
         
         # Cache the result
         File.open(cachefile, 'w') do |f|
@@ -139,12 +148,20 @@ module BleakHouse
       
       # Convert births back to hashes, necessary due to the Marshal workaround    
       frames.each do |frame|
-        frame['births'] = Hash[*frame['births'].flatten]
+        frame['births_hash'] = {}
+        frame['births'].each do |key, value|
+          frame['births_hash'][key] = value
+        end
+        frame.delete('births')
       end
+
+#      require 'ruby-debug'; Debugger.start
+#      
+#      debugger
                              
       # See what objects are still laying around
       population = frames.last['objects'].reject do |key, value|
-        frames.first['births'][key] == value
+        frames.first['births_hash'][key] == value
       end
 
       puts "\n#{frames.size - 1} full frames. Removing #{INITIAL_SKIP} frames from each end of the run to account for\nstartup overhead and GC lag."
@@ -153,7 +170,7 @@ module BleakHouse
       frames = frames[INITIAL_SKIP..-INITIAL_SKIP]
       
       total_births = frames.inject(0) do |births, frame|
-        births + frame['births'].size
+        births + frame['births_hash'].size
       end
       total_deaths = frames.inject(0) do |deaths, frame|
         deaths + frame['deaths'].size
@@ -163,12 +180,15 @@ module BleakHouse
       
       leakers = {}
       
+#      debugger
+      
       # Find the sources of the leftover objects in the final population
       population.each do |id, klass|
         leaker = backwards_detect(frames) do |frame|
-          frame['births'][id] == klass
+          frame['births_hash'][id] == klass
         end
         if leaker
+#          debugger
           tag = leaker['meta']['tag']
           klass = CLASS_KEYS[klass] if klass.is_a? Fixnum
           leakers[tag] ||= Hash.new(0)
@@ -222,17 +242,6 @@ module BleakHouse
       puts "\nDone"
 
     end    
-    
-    private
-    
-    def backwards_detect(array)
-      i = array.size - 1
-      while i >= 0
-        result = yield array[i]
-        return result if result        
-        i -= 1
-      end
-    end
     
   end
 end

@@ -14,7 +14,7 @@ def which(basename)
   # system('which') is not compatible across Linux and BSD
   ENV['PATH'].split(File::PATH_SEPARATOR).detect do |directory|
     path = File.join(directory, basename.to_s)
-    path if File.exist?(path)
+    path if File.exist? path
   end
 end
   
@@ -54,7 +54,8 @@ unless which('ruby-bleak-house')
           # Install binary
           if File.exist? "ruby"        
             # Avoid "Text file busy" error
-            exec("rm #{binary}; cp ./ruby #{binary}; chmod 755 #{binary}")
+            File.delete binary if File.exist? binary
+            exec("cp ./ruby #{binary}; chmod 755 #{binary}")
           else
             raise "Binary did not build"
           end

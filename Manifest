@@ -25,7 +25,7 @@ Rakefile
 README
 ruby/gc.c.patch
 ruby/parse.y.patch
-ruby/ruby-1.8.6.tar.bz2
+ruby/ruby-1.8.6-p110.tar.bz2
 test/misc/direct.rb
 test/unit/test_bleak_house.rb
 TODO

@@ -30,14 +30,14 @@ unless which('ruby-bleak-house')
       Dir.chdir(build_dir) do
   
         # Copy Ruby source
-        bz2 = "ruby-1.8.6.tar.bz2"
+        bz2 = "ruby-1.8.6-p110.tar.bz2"
         FileUtils.copy "#{source_dir}/#{bz2}", bz2
   
         # Extract
         system("tar xjf #{bz2} > tar.log 2>&1")
         File.delete bz2
     
-        Dir.chdir("ruby-1.8.6") do
+        Dir.chdir("ruby-1.8.6-p110") do
   
           # Patch, configure, and build
           system("patch -p0 < \'#{source_dir}/gc.c.patch\' > ../gc.c.patch.log 2>&1")

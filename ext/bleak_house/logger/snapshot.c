@@ -1,4 +1,4 @@
-
+#include <time.h>
 #include "snapshot.h"
 
 static VALUE rb_mBleakHouse;
@@ -20,7 +20,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
   Check_Type(tag, T_STRING);
 
   RVALUE *obj, *obj_end;
-  st_table_entry *sym, *sym_end;
+  st_table_entry *sym; 
   
   struct heaps_slot * heaps = rb_gc_heap_slots();
   struct st_table * sym_tbl = rb_parse_sym_tbl();
@@ -39,21 +39,20 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
     rb_raise(rb_eRuntimeError, "couldn't open snapshot file");
 
   /* write the time */
-  fprintf(logfile, "-1,%i\n", time(0));
+  fprintf(logfile, "-1,%li\n", time(0));
   
   /* get and write the memory usage */
   VALUE mem = rb_funcall(self, rb_intern("mem_usage"), 0);
-  fprintf(logfile, "-2,%i\n", NUM2INT(RARRAY_PTR(mem)[0]));
-  fprintf(logfile, "-3,%i\n", NUM2INT(RARRAY_PTR(mem)[1]));
+  fprintf(logfile, "-2,%li\n", NUM2INT(RARRAY_PTR(mem)[0]));
+  fprintf(logfile, "-3,%li\n", NUM2INT(RARRAY_PTR(mem)[1]));
   
-  int current_pos = 0;  
   int filled_slots = 0;
   int free_slots = 0;
 
   /* write the tag header */
   fprintf(logfile, "-4,%s\n", StringValueCStr(tag));
 
-  int i, j;
+  int i; 
   
   /* walk the heap */
   for (i = 0; i < rb_gc_heaps_used(); i++) {

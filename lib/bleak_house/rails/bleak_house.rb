@@ -1,6 +1,8 @@
 
 module BleakHouse
   module Rails  
+    @@last_request_name = nil
+
     class << self
 
       def last_request_name

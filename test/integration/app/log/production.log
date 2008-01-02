@@ -1,0 +1,29 @@
+** Starting Mongrel listening at 0.0.0.0:43039
+** Starting Rails with production environment...
+** Rails loaded.
+** Loading any Rails specific GemPlugins
+** Signals ready.  TERM => stop.  USR2 => restart.  INT => stop (no restart).
+** Rails signals registered.  HUP => reload (without restart).  It might not work well.
+** Mongrel 1.1.2 available at 0.0.0.0:43039
+** Use CTRL-C to stop.
+** TERM signal received.
+=> Booting Mongrel (use 'script/server webrick' to force WEBrick)
+=> Rails application starting on http://0.0.0.0:43039
+=> Call with -d to detach
+=> Ctrl-C to shutdown server
+** Starting Mongrel listening at 0.0.0.0:43039
+** Starting Rails with production environment...
+** Rails loaded.
+** Loading any Rails specific GemPlugins
+** Signals ready.  TERM => stop.  USR2 => restart.  INT => stop (no restart).
+** Rails signals registered.  HUP => reload (without restart).  It might not work well.
+** Mongrel 1.1.2 available at 0.0.0.0:43039
+** Use CTRL-C to stop.
+
+
+Processing ItemsController#index (for 127.0.0.1 at 2008-01-02 02:51:28) [GET]
+  Session ID: 68a9c59fa9fbd8bb439499f9f20102ad
+  Parameters: {"action"=>"index", "controller"=>"items"}
+Rendering items/index
+Completed in 0.00230 (435 reqs/sec) | Rendering: 0.00108 (46%) | 200 OK [http://localhost/items]
+Exiting

@@ -1,5 +1,5 @@
 
-require 'rubygems'
+require 'ccsv'
 require 'fileutils'
 require 'yaml'
 require 'pp'
@@ -84,7 +84,7 @@ module BleakHouse
 
         if total_frames < INITIAL_SKIP * 3
           puts "Not enough frames for accurate results. Please record at least #{INITIAL_SKIP * 3} frames."
-          exit!
+          exit # Should be exit! but that messes up backticks capturing in the tests
         end
         
         Ccsv.foreach(logfile) do |row|                

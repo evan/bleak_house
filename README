@@ -48,7 +48,7 @@ Be patient.
 
 == Using BleakHouse outside of Rails
 
-Just instantiate a BleakHouse::Logger object, and make calls to <tt>snapshot</tt> at appropriate times.
+Just instantiate a BleakHouse::Logger object, and make calls to <tt>snapshot</tt> at appropriate times, with tags to identify their context.
 
 == Troubleshooting
 

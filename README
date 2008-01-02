@@ -29,7 +29,7 @@ The public certificate for this gem is at http://rubyforge.org/frs/download.php/
 Install the gem:
   sudo gem install bleak_house
 
-The installation takes a long time because it compiles a patched Ruby binary for you. It is installed as <tt>ruby-bleak-house</tt> alongside your regular <tt>ruby</tt>binary.
+The installation takes a long time because it compiles a patched Ruby binary for you. It is installed as <tt>ruby-bleak-house</tt> alongside your regular <tt>ruby</tt> binary.
 
 Please see the forum ( http://rubyforge.org/forum/forum.php?forum_id=13983 ) if you have installation problems.
 

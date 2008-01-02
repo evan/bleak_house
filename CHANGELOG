@@ -1,4 +1,6 @@
 
+v3.6. Rails 2.0.2 compatibility.
+
 v3.5.1. Update bundled Ruby to patchlevel 110. Delete your current ruby-bleak-house and reinstall.
 
 v3.5. Explain when you need more frames. Use a cross-platform version of 'which'. Slight accuracy improvement.

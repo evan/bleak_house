@@ -12,3 +12,21 @@
 	from /opt/local/lib/ruby/site_ruby/1.8/rubygems/custom_require.rb:27:in `gem_original_require'
 	from /opt/local/lib/ruby/site_ruby/1.8/rubygems/custom_require.rb:27:in `require'
 	from script/server:3
+** bleak_house: enabled (log/bleak_house_development.dump)
+** bleak_house: enabled (log/bleak_house_development.dump)
+
+
+Processing ItemsController#index (for 127.0.0.1 at 2008-01-02 03:24:06) [GET]
+  Session ID: 409e5e6247e6785438eb86235d05e864
+  Parameters: {"action"=>"index", "controller"=>"items"}
+Rendering items/index
+Completed in 0.00476 (210 reqs/sec) | Rendering: 0.00207 (43%) | 200 OK [http://localhost/items]
+
+
+Processing ItemsController#index (for 127.0.0.1 at 2008-01-02 03:24:07) [GET]
+  Session ID: BAh7BiIKZmxhc2hJQzonQWN0aW9uQ29udHJvbGxlcjo6Rmxhc2g6OkZsYXNo%0ASGFzaHsABjoKQHVzZWR7AA%3D%3D--ecb8fe3bf1a9149e166bd65a085cbc78525be4a6
+  Parameters: {"action"=>"index", "controller"=>"items"}
+Rendering items/index
+Completed in 0.00434 (230 reqs/sec) | Rendering: 0.00149 (34%) | 200 OK [http://localhost/items]
+** bleak_house: renamed old logfile
+** bleak_house: enabled (log/bleak_house_development.dump)

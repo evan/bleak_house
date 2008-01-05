@@ -20,7 +20,6 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials, VA
   Check_Type(tag, T_STRING);
 
   RVALUE *obj, *obj_end;
-  VALUE inspect;
   st_table_entry *sym; 
   
   struct heaps_slot * heaps = rb_gc_heap_slots();
@@ -102,8 +101,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials, VA
           /* write sample, if requested */
           if (samples && hashed < BUILTINS_SIZE) {
             if (rand()/((double)RAND_MAX + 1) < 0.05) {
-              inspect = rb_funcall((VALUE)obj, rb_intern("inspect"), 0);
-              fprint(logfile, "%s", StringValueCStr(inspect));
+              fprintf(logfile, "%s", rb_rescue(inspect, (VALUE)obj, handle_exception, Qnil));
             }
           }
           
@@ -130,6 +128,16 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials, VA
     
   rb_funcall(rb_mGC, rb_intern("start"), 0); /* request GC run */
   return Qtrue;
+}
+
+char * inspect(VALUE obj) {
+  VALUE result;
+  result = rb_funcall((VALUE)obj, rb_intern("inspect"), 0);
+  return StringValueCStr(result);
+}
+
+char * handle_exception(VALUE unused) {
+  return "";
 }
 
 int lookup_builtin(char * name) {

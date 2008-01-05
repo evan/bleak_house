@@ -96,4 +96,6 @@ struct heaps_slot * rb_gc_heap_slots();
 int rb_gc_heaps_used();
 int rb_gc_heaps_length();
 
+char * inspect(VALUE);
+char * handle_exception(VALUE);
 int lookup_builtin(char *);

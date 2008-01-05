@@ -4,6 +4,8 @@ require 'fileutils'
 require 'yaml'
 require 'pp'
 
+require 'ruby-debug'
+
 module BleakHouse
 
   class Analyzer 
@@ -17,7 +19,9 @@ module BleakHouse
       -6 => 'heap/free'
     }    
         
-    INITIAL_SKIP = 15 # XXX Might be better as a per-tag skip but that gets kinda complicated
+    # Might be better as a per-tag skip but that gets kinda complicated
+    initial_skip = (ENV['INITIAL_SKIP'] || 15).to_i
+    INITIAL_SKIP = initial_skip < 2 ? 2 : initial_skip
     
     CLASS_KEYS = eval('[nil, ' + # Skip 0 so that the output of String#to_s is useful
       open(
@@ -130,12 +134,15 @@ module BleakHouse
             frame['meta'][MAGIC_KEYS[row[0]]] = row[1]
           else
             # Assign live objects
-            frame['objects'][row[1]] = row[0]
+            value = [row[0]] # id
+            content = row[2..-1].compact.join(',') # sampled value, if any
+            value << content if content.any?
+            frame['objects'][row[1]] = value
           end
         end
         
         frames = frames[0..-2]       
-        frames.last['objects'] = frames.last['objects'].to_a # Work around a Marshal bug x86-64
+        frames.last['objects'] = frames.last['objects'].to_a # Work around a Marshal bug on x86_64
         
         # Cache the result
         File.open(cachefile, 'w') do |f|
@@ -161,7 +168,7 @@ module BleakHouse
                              
       # See what objects are still laying around
       population = frames.last['objects'].reject do |key, value|
-        frames.first['births_hash'][key] == value
+        frames.first['births_hash'][key] and frames.first['births_hash'][key].first == value.first
       end
 
       puts "\n#{frames.size - 1} full frames. Removing #{INITIAL_SKIP} frames from each end of the run to account for\nstartup overhead and GC lag."
@@ -183,26 +190,30 @@ module BleakHouse
 #      debugger
       
       # Find the sources of the leftover objects in the final population
-      population.each do |id, klass|
+      population.each do |id, value|
+        klass = value[0]
+        content = value[1]
         leaker = backwards_detect(frames) do |frame|
-          frame['births_hash'][id] == klass
+          frame['births_hash'][id] and frame['births_hash'][id].first == klass
         end
         if leaker
 #          debugger
           tag = leaker['meta']['tag']
           klass = CLASS_KEYS[klass] if klass.is_a? Fixnum
-          leakers[tag] ||= Hash.new(0)
-          leakers[tag][klass] += 1
+          leakers[tag] ||= Hash.new()
+          leakers[tag][klass] ||= {:count => 0, :contents => []}
+          leakers[tag][klass][:count] += 1
+          leakers[tag][klass][:contents] << content if content
         end
       end      
       
       # Sort
       leakers = leakers.map do |tag, value| 
-        [tag, value.sort_by do |klass, count| 
-          -count
+        [tag, value.sort_by do |klass, hash| 
+          -hash[:count]
         end]
       end.sort_by do |tag, value|
-        Hash[*value.flatten].values.inject(0) {|i, v| i - v}
+        Hash[*value.flatten].values.inject(0) {|i, hash| i - hash[:count]}
       end
       
       if leakers.any?
@@ -211,9 +222,29 @@ module BleakHouse
           requests = frames.select do |frame|
             frame['meta']['tag'] == tag
           end.size
-          puts "  #{tag} leaked (over #{requests} requests):"
-          value.each do |klass, count|
-            puts "    #{count} #{klass}"
+          puts "  #{tag} leaked per request (#{requests}):"
+          value.each do |klass, hash|
+            puts "    #{sprintf('%.1f', hash[:count] / requests.to_f)} #{klass}"
+            
+            contents = begin
+              hist = Hash.new(0)
+              hash[:contents].each do |content|
+                hist[content] += 1 
+              end
+              hist.sort_by do |content, count| 
+                -count
+              end[0..5].select do |content, count|
+                count > 5
+              end
+            end
+            
+            if contents.any?
+              puts "      Inspection samples:"
+              contents.each do |content, count|
+                puts "        #{sprintf('%.1f', count / requests.to_f)} #{content}"
+              end
+            end
+
           end
         end
       else

@@ -15,18 +15,19 @@ static VALUE heaps_length(VALUE self) {
 }
 
 /* Count the live objects on the heap and in the symbol table and write a CSV frame to <tt>_logfile</tt>. Set <tt>_specials = true</tt> if you also want to count AST nodes and var scopes; otherwise, use <tt>false</tt>. Note that common classes in the CSV output are hashed to small integers in order to save space.*/
-static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials, VALUE _samples) {
+static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials, VALUE _sampler) {
   Check_Type(_logfile, T_STRING);
   Check_Type(tag, T_STRING);
 
   RVALUE *obj, *obj_end;
   st_table_entry *sym; 
   
+  /* printf("Requested: %f\n", rb_num2dbl(_sampler)); */
+  
   struct heaps_slot * heaps = rb_gc_heap_slots();
   struct st_table * sym_tbl = rb_parse_sym_tbl();
 
   int specials = RTEST(_specials);
-  int samples = RTEST(_samples);
   int hashed;
 
   /* see if the logfile exists already */
@@ -96,12 +97,12 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials, VA
           }
 
           /* write id */
-          fprintf(logfile, ",%lu,", FIX2ULONG(rb_obj_id((VALUE)obj)));
+          fprintf(logfile, ",%lu", FIX2ULONG(rb_obj_id((VALUE)obj)));
 
           /* write sample, if requested */
-          if (samples && hashed < BUILTINS_SIZE) {
-            if (rand()/((double)RAND_MAX + 1) < 0.05) {
-              fprintf(logfile, "%s", rb_rescue(inspect, (VALUE)obj, handle_exception, Qnil));
+          if (hashed < BUILTINS_SIZE) {
+            if (rand()/((double)RAND_MAX + 1) < rb_num2dbl(_sampler)) {
+              fprintf(logfile, ",%s", rb_rescue(inspect, (VALUE)obj, handle_exception, Qnil));
             }
           }
           
@@ -118,7 +119,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials, VA
   hashed = lookup_builtin("Symbol");
   for (i = 0; i < sym_tbl->num_bins; i++) {
     for (sym = sym_tbl->bins[i]; sym != 0; sym = sym->next) {
-      fprintf(logfile, "%i,%lu,\n", hashed + 1, sym->record);
+      fprintf(logfile, "%i,%lu\n", hashed + 1, sym->record);
     }
   }
     
@@ -130,10 +131,30 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials, VA
   return Qtrue;
 }
 
-char * inspect(VALUE obj) {
-  VALUE result;
-  result = rb_funcall((VALUE)obj, rb_intern("inspect"), 0);
-  return StringValueCStr(result);
+char * inspect(VALUE obj) {  
+  VALUE value;
+  char * string;
+  int i, length;
+  
+  value = rb_funcall((VALUE)obj, rb_intern("inspect"), 0);
+  string = StringValueCStr(value);
+  length = strlen(string);
+  
+  if (length > MAX_SAMPLE_LENGTH) {
+    string[MAX_SAMPLE_LENGTH] = '\0';
+    length = MAX_SAMPLE_LENGTH;
+  }
+  
+  for (i = 0; i < length; i++) {
+    if ( string[i] == '\n') {
+      string[i] = ' ';
+    } if ( string[i] == ',') {
+      string[i] = ' ';
+    }
+  }
+    
+  /* result = rb_funcall(result, rb_intern("gsub"), 2, rb_str_new2(","), rb_str_new2(",")); */
+  return string;
 }
 
 char * handle_exception(VALUE unused) {
@@ -172,7 +193,7 @@ Init_snapshot()
 {
   rb_mBleakHouse = rb_define_module("BleakHouse");
   rb_cC = rb_define_class_under(rb_mBleakHouse, "Logger", rb_cObject);
-  rb_define_method(rb_cC, "snapshot", snapshot, 3);
+  rb_define_method(rb_cC, "snapshot", snapshot, 4);
   rb_define_method(rb_cC, "heaps_used", heaps_used, 0);
   rb_define_method(rb_cC, "heaps_length", heaps_length, 0);
 }

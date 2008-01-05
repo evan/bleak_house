@@ -55,6 +55,8 @@ module BleakHouse
     
     WITH_SPECIALS = false
     
+    SAMPLE_RATE = ENV['SAMPLE_RATE'].to_f
+    
     MEMLOGGER = Logger.new    
   end
 end

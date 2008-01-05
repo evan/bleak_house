@@ -19,14 +19,14 @@ class ServerTest < Test::Unit::TestCase
   end
   
   def test_enough_frames
-    24.times do
+    11.times do
       browse("items")
     end
 
     result = analyze
 
     # XXX Doesn't test the caching mechanism
-
+ 
     assert_match(/over 9 requests/, result)
     assert_match(/items\/index\/GET leaked/mi, result)
     assert_match(/core rails leaked/, result)
@@ -51,6 +51,7 @@ class ServerTest < Test::Unit::TestCase
   end
   
   def analyze
+    ENV['INITIAL_SKIP'] = "2"
     `#{HERE}/../bin/bleak #{HERE}/integration/app/log/bleak_house_production.dump`
   end
   
@@ -67,7 +68,7 @@ class ServerTest < Test::Unit::TestCase
     Process.fork do
       Dir.chdir(RAILS_ROOT) do 
         ENV['RAILS_GEM_VERSION'] = ENV['MULTIRAILS_RAILS_VERSION']
-        exec("RAILS_ENV=production BLEAK_HOUSE=1 script/server -p #{PORT} &> #{LOG}")
+        exec("RAILS_ENV=production SAMPLE_RATE=0.1 BLEAK_HOUSE=1 script/server -p #{PORT} &> #{LOG}")
       end
     end    
     

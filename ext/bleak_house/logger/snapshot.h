@@ -50,6 +50,7 @@ static char * builtins[] = {
 
 #define BUILTINS_SIZE 30
 #define SPECIALS_SIZE 7
+#define MAX_SAMPLE_LENGTH 100
 
 typedef struct RVALUE {
     union {

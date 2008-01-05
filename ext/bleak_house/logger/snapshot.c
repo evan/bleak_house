@@ -15,17 +15,19 @@ static VALUE heaps_length(VALUE self) {
 }
 
 /* Count the live objects on the heap and in the symbol table and write a CSV frame to <tt>_logfile</tt>. Set <tt>_specials = true</tt> if you also want to count AST nodes and var scopes; otherwise, use <tt>false</tt>. Note that common classes in the CSV output are hashed to small integers in order to save space.*/
-static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
+static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials, VALUE _samples) {
   Check_Type(_logfile, T_STRING);
   Check_Type(tag, T_STRING);
 
   RVALUE *obj, *obj_end;
+  VALUE inspect;
   st_table_entry *sym; 
   
   struct heaps_slot * heaps = rb_gc_heap_slots();
   struct st_table * sym_tbl = rb_parse_sym_tbl();
 
   int specials = RTEST(_specials);
+  int samples = RTEST(_samples);
   int hashed;
 
   /* see if the logfile exists already */
@@ -81,17 +83,33 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
               hashed = lookup_builtin(rb_obj_classname((VALUE)obj));
             }
         }
+        
         /* write to log */
-        if (hashed < 0) {
-          /* regular classname */
-          fprintf(logfile, "%s,%lu\n", rb_obj_classname((VALUE)obj), FIX2ULONG(rb_obj_id((VALUE)obj)));
-        } else {
-          /* builtins key */
-          if (specials || hashed < BUILTINS_SIZE) {
+        if (specials || hashed < BUILTINS_SIZE) {
+          /* write classname */
+          if (hashed < 0) {
+            /* regular classname */
+            fprintf(logfile, "%s", rb_obj_classname((VALUE)obj));
+          } else {
+            /* builtins key */
             /* 0 is not used for 'hashed' because Ruby's to_i turns any String into 0 */
-            fprintf(logfile, "%i,%lu\n", hashed + 1, FIX2ULONG(rb_obj_id((VALUE)obj)));
+            fprintf(logfile, "%i", hashed + 1); 
           }
-        }
+
+          /* write id */
+          fprintf(logfile, ",%lu,", FIX2ULONG(rb_obj_id((VALUE)obj)));
+
+          /* write sample, if requested */
+          if (samples && hashed < BUILTINS_SIZE) {
+            if (rand()/((double)RAND_MAX + 1) < 0.05) {
+              inspect = rb_funcall((VALUE)obj, rb_intern("inspect"), 0);
+              fprint(logfile, "%s", StringValueCStr(inspect));
+            }
+          }
+          
+          /* write newline */
+          fprintf(logfile, "\n");
+        }        
       } else {
         free_slots ++;
       }
@@ -102,7 +120,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials) {
   hashed = lookup_builtin("Symbol");
   for (i = 0; i < sym_tbl->num_bins; i++) {
     for (sym = sym_tbl->bins[i]; sym != 0; sym = sym->next) {
-      fprintf(logfile, "%i,%lu\n", hashed + 1, sym->record);
+      fprintf(logfile, "%i,%lu,\n", hashed + 1, sym->record);
     }
   }
     

@@ -23,6 +23,8 @@ module BleakHouse
     initial_skip = (ENV['INITIAL_SKIP'] || 15).to_i
     INITIAL_SKIP = initial_skip < 2 ? 2 : initial_skip
     
+    DISPLAY_SAMPLES = (ENV['DISPLAY_SAMPLES'] || 5).to_i
+    
     CLASS_KEYS = eval('[nil, ' + # Skip 0 so that the output of String#to_s is useful
       open(
         File.dirname(__FILE__) + '/../../../ext/bleak_house/logger/snapshot.h'
@@ -133,10 +135,15 @@ module BleakHouse
             
             frame['meta'][MAGIC_KEYS[row[0]]] = row[1]
           else
-            # Assign live objects
-            value = [row[0]] # id
-            content = row[2..-1].compact.join(',') # sampled value, if any
-            value << content if content.any?
+            # Not done with the frame, so assign this object to the object hash
+            
+            # Id
+            value = [row[0]]
+            
+            # Sample content, if it exists
+            content = row[2..-1].compact.join(',')
+            value << content.gsub(/0x[\da-f]{8}/, "0xID") if content.any?
+
             frame['objects'][row[1]] = value
           end
         end
@@ -207,17 +214,19 @@ module BleakHouse
         end
       end      
       
-      # Sort
-      leakers = leakers.map do |tag, value| 
+      # Sort the leakers
+      leakers = leakers.map do |tag, value|
+        # Sort leakiest classes within each tag
         [tag, value.sort_by do |klass, hash| 
           -hash[:count]
         end]
       end.sort_by do |tag, value|
+        # Sort leakiest tags as a whole
         Hash[*value.flatten].values.inject(0) {|i, hash| i - hash[:count]}
       end
       
       if leakers.any?
-        puts "\nTags sorted by persistent uncollected objects. These objects did not exist at\nstartup, were instantiated by the associated tags, and were never garbage\ncollected:"
+        puts "\nTags sorted by persistent uncollected objects. These objects did not exist at\nstartup, were instantiated by the associated tags during the run, and were\nnever garbage collected:"
         leakers.each do |tag, value|
           requests = frames.select do |frame|
             frame['meta']['tag'] == tag
@@ -226,6 +235,7 @@ module BleakHouse
           value.each do |klass, hash|
             puts "    #{sprintf('%.1f', hash[:count] / requests.to_f)} #{klass}"
             
+            # Extract most common samples
             contents = begin
               hist = Hash.new(0)
               hash[:contents].each do |content|
@@ -233,8 +243,8 @@ module BleakHouse
               end
               hist.sort_by do |content, count| 
                 -count
-              end[0..5].select do |content, count|
-                count > 5
+              end[0..DISPLAY_SAMPLES].select do |content, count|
+                ENV['DISPLAY_SAMPLES'] or count > 5
               end
             end
             

@@ -4,8 +4,6 @@ require 'fileutils'
 require 'yaml'
 require 'pp'
 
-require 'ruby-debug'
-
 module BleakHouse
 
   class Analyzer 
@@ -120,6 +118,9 @@ module BleakHouse
                   final['deaths'] = final['objects'].slice(deaths).to_a # Work around a Marshal bug
                   obj_count = final['objects'].size
                   final.delete 'objects'
+                  
+                  4.times { GC.start } # Try to reduce memory footprint
+                  
                   calculate!(final, frames.size - 1, total_frames, obj_count)
                 end
               end
@@ -140,7 +141,7 @@ module BleakHouse
             # Id
             value = [row[0]]            
             # Sample content, if it exists
-            value << row[2].gsub(/0x[\da-f]{8}/, "0xID") if row[2].any?
+            value << row[2].gsub(/0x[\da-f]{8}/, "0xID") if row[2]
 
             frame['objects'][row[1]] = value
           end

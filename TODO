@@ -1,2 +1,3 @@
 
 * Better docs on what the tags mean
+* Use per-frame file storage to avoid out-of-memory problems

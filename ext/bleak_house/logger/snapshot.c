@@ -149,10 +149,11 @@ char * inspect(VALUE obj) {
     length = MAX_SAMPLE_LENGTH;
   }
   
+  /* Replace control characters */
   for (i = 0; i < length; i++) {
-    if ( string[i] == '\n') {
+    if (string[i] == '\n') {
       string[i] = ' ';
-    } if ( string[i] == ',') {
+    } if (string[i] == ',') {
       string[i] = ' ';
     }
   }

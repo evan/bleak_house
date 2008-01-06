@@ -12,7 +12,6 @@ The public certificate for this gem is at http://rubyforge.org/frs/download.php/
 == Features
 
 * leak-proof C instrumentation
-* minimal performance impact on the app itself
 * tracks all objects and symbols
 * inspection of sample leaked objects (optional)
 * easy Rails integration

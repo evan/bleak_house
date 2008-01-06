@@ -138,11 +138,9 @@ module BleakHouse
             # Not done with the frame, so assign this object to the object hash
             
             # Id
-            value = [row[0]]
-            
+            value = [row[0]]            
             # Sample content, if it exists
-            content = row[2..-1].compact.join(',')
-            value << content.gsub(/0x[\da-f]{8}/, "0xID") if content.any?
+            value << row[2].gsub(/0x[\da-f]{8}/, "0xID") if row[2].any?
 
             frame['objects'][row[1]] = value
           end

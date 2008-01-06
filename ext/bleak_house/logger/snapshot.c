@@ -127,7 +127,11 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials, VA
   fprintf(logfile, "-6,%i\n", free_slots);
   fclose(logfile);
     
-  rb_funcall(rb_mGC, rb_intern("start"), 0); /* request GC run */
+  for (i = 0; i < 3; i++) {
+    /* request GC run */
+    rb_funcall(rb_mGC, rb_intern("start"), 0); 
+  }
+  
   return Qtrue;
 }
 

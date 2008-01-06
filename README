@@ -21,7 +21,7 @@ The public certificate for this gem is at http://rubyforge.org/frs/download.php/
 
 * A unix-like operating system
 * Ruby 1.8.6
-* Rails 2.0.2 or greater
+* Rails 1.2.x or 2.0.x
 
 = Usage
 

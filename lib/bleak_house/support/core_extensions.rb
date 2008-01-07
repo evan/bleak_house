@@ -15,24 +15,6 @@ class Array
     
 end
 
-class Hash
-
-  # Similar to the ActiveSupport methods in Rails
-  def slice(keys)
-    keys = Set.new(keys)
-    reject do |key,| 
-      !keys.include?(key)
-    end
-  end  
-  
-  def unslice(keys)
-    keys = Set.new(keys)
-    reject do |key,| 
-      keys.include?(key)
-    end
-  end
-end
-
 class Dir
   def self.descend path, &block
     path = path.split("/") unless path.is_a? Array
@@ -64,7 +46,16 @@ class Symbol
   def =~ regex
     self.to_s =~ regex
   end
+
   def [](*args)
     self.to_s[*args]
   end
+  
+  def < operand
+    false
+  end
+  
+  def > operand
+    false
+  end    
 end

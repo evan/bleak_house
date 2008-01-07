@@ -4,17 +4,19 @@ require 'fileutils'
 require 'yaml'
 require 'pp'
 
+require 'ruby-debug' if ENV['DEBUG']
+
 module BleakHouse
 
   class Analyzer 
   
-    MAGIC_KEYS = {
-      -1 => 'timestamp',
-      -2 => 'mem usage/swap',
-      -3 => 'mem usage/real',
-      -4 => 'tag',
-      -5 => 'heap/filled',
-      -6 => 'heap/free'
+    SPECIALS = {
+      -1 => :timestamp,
+      -2 => :'mem usage/swap',
+      -3 => :'mem usage/real',
+      -4 => :tag,
+      -5 => :'heap/filled',
+      -6 => :'heap/free'
     }    
         
     # Might be better as a per-tag skip but that gets kinda complicated
@@ -22,13 +24,15 @@ module BleakHouse
     INITIAL_SKIP = initial_skip < 2 ? 2 : initial_skip
     
     DISPLAY_SAMPLES = (ENV['DISPLAY_SAMPLES'] || 5).to_i
-    
-    CLASS_KEYS = eval('[nil, ' + # Skip 0 so that the output of String#to_s is useful
-      open(
-        File.dirname(__FILE__) + '/../../../ext/bleak_house/logger/snapshot.h'
-      ).read[/\{(.*?)\}/m, 1] + ']')
+        
+    class_key_source = File.dirname(__FILE__) + '/../../../ext/bleak_house/logger/snapshot.h'
+    class_key_string = open(class_key_source).read[/\{(.*?)\}/m, 1]
+    # Skip 0 so that the output of String#to_s is useful
+    CLASS_KEYS = eval("[nil, #{class_key_string} ]").map do |class_name|
+      class_name.to_sym if class_name
+    end      
 
-    def self.backwards_detect(array)
+    def self.reverse_detect(array)
       i = array.size - 1
       while i >= 0
         item = array[i]
@@ -37,13 +41,13 @@ module BleakHouse
       end
     end   
     
-    def self.calculate!(frame, index, total, obj_count = nil)
-      bsize = frame['births'].size
-      dsize = frame['deaths'].size
+    def self.calculate!(frame, index, total, population = nil)
+      bsize = frame[:births].size
+      dsize = frame[:deaths].size
       
       # Avoid divide by zero errors
-      frame['meta']['ratio'] = ratio = (bsize - dsize) / (bsize + dsize + 1).to_f
-      frame['meta']['impact'] = begin
+      frame[:meta][:ratio] = ratio = (bsize - dsize) / (bsize + dsize + 1).to_f
+      frame[:meta][:impact] = begin
         result = Math.log10((bsize - dsize).abs.to_i / 10.0)
         raise Errno::ERANGE if result.nan? or result.infinite?
         result
@@ -51,10 +55,141 @@ module BleakHouse
         0
       end
       
-      puts "  F#{index}:#{total} (#{index * 100 / total}%): #{frame['meta']['tag']} (#{obj_count.to_s + ' population, ' if obj_count}#{bsize} births, #{dsize} deaths, ratio #{format('%.2f', frame['meta']['ratio'])}, impact #{format('%.2f', frame['meta']['impact'])})"
+      puts "  F#{index}:#{total} (#{index * 100 / total}%): #{frame[:meta][:tag]} (#{population.to_s + ' population, ' if population}#{bsize} births, #{dsize} deaths, ratio #{format('%.2f', frame[:meta][:ratio])}, impact #{format('%.2f', frame[:meta][:impact])})"
     end
     
-    # Parses and correlates a BleakHouse::Logger output file.
+    # Read from the cache
+    def self.read_cache(cachefile)      
+      frames = Marshal.load(File.open(cachefile).read)
+      puts "#{frames.size - 1} frames"        
+      frames[0..-2].each_with_index do |frame, index|
+        calculate!(frame, index + 1, frames.size - 1)
+      end
+      frames
+    end
+    
+    # Rebuild frames
+    def self.read(logfile)      
+      total_frames = `grep '^-1' #{logfile} | wc`.to_i - 2
+              
+      puts "#{total_frames} frames"     
+
+      if total_frames < INITIAL_SKIP * 3
+        puts "Not enough frames for accurate results. Please record at least #{INITIAL_SKIP * 3} frames."
+        exit # Should be exit! but that messes up backticks capturing in the tests
+      end
+      
+      frames = loop(logfile, total_frames)      
+    end
+    
+    def self.normalize_row(row)
+      # Convert the class_index to a Fixnum, if possible
+      
+      2.times do |index|
+        if (int = row[index].to_i) != 0
+          row[index] = int
+        else
+          row[index] = row[index].to_sym
+        end
+      end
+      
+      if row[2]
+        row[2] = row[2].gsub(/0x[\da-f]{8}/, "0xID").to_sym 
+      end
+      
+      row
+    end
+    
+    # Inner loop of the raw log reader. The implementation is kind of a mess.
+    def self.loop(logfile, total_frames)
+
+      frames = []
+      last_population = []
+      frame = nil
+
+      Ccsv.foreach(logfile) do |row|                
+      
+        class_index, id_or_tag, sampled_content = normalize_row(row)
+        
+        # Check for frame headers
+        if class_index < 0          
+
+          # Get frame meta-information
+          if SPECIALS[class_index] == :timestamp
+
+            # The frame has ended; process the last one            
+            if frame
+              population = frame[:objects].keys
+              births = population - last_population
+              deaths = last_population - population
+              last_population = population
+              
+              # Assign births
+              frame[:births] = [] # Uses an Array to work around a Marshal bug
+              births.each do |key|
+                frame[:births] << [key, frame[:objects][key]]
+              end
+              
+              # Assign deaths to previous frame
+              final = frames[-2]
+              
+              if final
+                              
+                final[:deaths] = [] # Uses an Array to work around a Marshal bug
+                deaths.each do |key|
+                  final[:deaths] << [key, [final[:objects][key].first]] # Don't need the sample content for deaths
+                end
+                
+                # Try to reduce memory footprint
+                final.delete :objects                  
+                GC.start
+                
+                calculate!(final, frames.size - 1, total_frames, population.size)
+              end
+            end
+
+            # Set up a new frame
+            frame = {}
+            frames << frame
+            frame[:objects] ||= {}
+            frame[:meta] ||= {}
+            
+            #puts "  Frame #{frames.size} opened"
+          end
+          
+          frame[:meta][SPECIALS[class_index]] = id_or_tag
+        else
+          # XXX Critical section
+          if sampled_content
+            # Normally object address strings and convert to a symbol
+            frame[:objects][id_or_tag] = [class_index, sampled_content]
+          else
+            frame[:objects][id_or_tag] = [class_index]
+          end          
+        end
+        
+      end
+      
+      # Work around for a Marshal/Hash bug on x86_64                                       
+      frames[-2][:objects] = frames[-2][:objects].to_a 
+      
+      # Junk unfinished frames
+      frames[0..-2]
+    end
+    
+    # Convert births back to hashes, necessary due to the Marshal workaround    
+    def self.rehash(frames)      
+      frames.each do |frame|
+        frame[:births_hash] = {}
+        frame[:births].each do |key, value|
+          frame[:births_hash][key] = value
+        end
+        frame.delete(:births)
+      end
+      nil
+    end
+    
+    # Parses and correlates a BleakHouse::Logger output file. 
     def self.run(logfile)
       logfile.chomp!(".cache")
       cachefile = logfile + ".cache"
@@ -67,114 +202,25 @@ module BleakHouse
       puts "Working..."
       
       frames = []
-      last_population = []
-      frame = nil
-      ix = nil
       
       if File.exist?(cachefile) and (!File.exists? logfile or File.stat(cachefile).mtime > File.stat(logfile).mtime)
-        # Cache is fresh
         puts "Using cache"
-        frames = Marshal.load(File.open(cachefile).read)
-        puts "#{frames.size - 1} frames"        
-        frames[0..-2].each_with_index do |frame, index|
-          calculate!(frame, index + 1, frames.size - 1)
-        end
-        
+        frames = read_cache(cachefile)        
       else                        
-        # Rebuild frames
-        total_frames = `grep '^-1' #{logfile} | wc`.to_i - 2
-                
-        puts "#{total_frames} frames"     
-
-        if total_frames < INITIAL_SKIP * 3
-          puts "Not enough frames for accurate results. Please record at least #{INITIAL_SKIP * 3} frames."
-          exit # Should be exit! but that messes up backticks capturing in the tests
-        end
-        
-        Ccsv.foreach(logfile) do |row|                
-        
-          # Stupid is fast
-          i = row[0].to_i
-          row[0] = i if i != 0
-          i = row[1].to_i
-          row[1] = i if i != 0
-          
-          if row[0].to_i < 0          
-            # Get frame meta-information
-            if MAGIC_KEYS[row[0]] == 'timestamp'
-  
-              # The frame has ended; process the last one            
-              if frame
-                population = frame['objects'].keys
-                births = population - last_population
-                deaths = last_population - population
-                last_population = population
-    
-                # assign births
-                frame['births'] = frame['objects'].slice(births).to_a # Work around a Marshal bug
-                
-                # assign deaths to previous frame
-                if final = frames[-2]
-                  final['deaths'] = final['objects'].slice(deaths).to_a # Work around a Marshal bug
-                  obj_count = final['objects'].size
-                  final.delete 'objects'
-                  
-                  4.times { GC.start } # Try to reduce memory footprint
-                  
-                  calculate!(final, frames.size - 1, total_frames, obj_count)
-                end
-              end
-  
-              # Set up a new frame
-              frame = {}
-              frames << frame
-              frame['objects'] ||= {}
-              frame['meta'] ||= {}
-              
-              #puts "  Frame #{frames.size} opened"
-            end
-            
-            frame['meta'][MAGIC_KEYS[row[0]]] = row[1]
-          else
-            # Not done with the frame, so assign this object to the object hash
-            
-            # Id
-            value = [row[0]]            
-            # Sample content, if it exists
-            value << row[2].gsub(/0x[\da-f]{8}/, "0xID") if row[2]
-
-            frame['objects'][row[1]] = value
-          end
-        end
-        
-        frames = frames[0..-2]       
-        frames.last['objects'] = frames.last['objects'].to_a # Work around a Marshal bug on x86_64
-        
+        frames = read(logfile)
         # Cache the result
         File.open(cachefile, 'w') do |f|
           f.write Marshal.dump(frames)
         end
-        
       end
       
       puts "\nRehashing."
       
-      # Convert births back to hashes, necessary due to the Marshal workaround    
-      frames.each do |frame|
-        frame['births_hash'] = {}
-        frame['births'].each do |key, value|
-          frame['births_hash'][key] = value
-        end
-        frame.delete('births')
-      end
-
-#      require 'ruby-debug'; Debugger.start
-#      
-#      debugger
+      rehash(frames)      
                              
       # See what objects are still laying around
-      population = frames.last['objects'].reject do |key, value|
-        frames.first['births_hash'][key] and frames.first['births_hash'][key].first == value.first
+      population = frames.last[:objects].reject do |key, value|
+        frames.first[:births_hash][key] and frames.first[:births_hash][key].first == value.first
       end
 
       puts "\n#{frames.size - 1} full frames. Removing #{INITIAL_SKIP} frames from each end of the run to account for\nstartup overhead and GC lag."
@@ -182,29 +228,29 @@ module BleakHouse
       # Remove border frames
       frames = frames[INITIAL_SKIP..-INITIAL_SKIP]
       
+      # Sum all births
       total_births = frames.inject(0) do |births, frame|
-        births + frame['births_hash'].size
+        births + frame[:births_hash].size
       end
+      
+      # Sum all deaths
       total_deaths = frames.inject(0) do |deaths, frame|
-        deaths + frame['deaths'].size
+        deaths + frame[:deaths].size
       end
       
       puts "\n#{total_births} total births, #{total_deaths} total deaths, #{population.size} uncollected objects."
       
       leakers = {}
       
-#      debugger
-      
       # Find the sources of the leftover objects in the final population
       population.each do |id, value|
         klass = value[0]
         content = value[1]
-        leaker = backwards_detect(frames) do |frame|
-          frame['births_hash'][id] and frame['births_hash'][id].first == klass
+        leaker = reverse_detect(frames) do |frame|
+          frame[:births_hash][id] and frame[:births_hash][id].first == klass
         end
         if leaker
-#          debugger
-          tag = leaker['meta']['tag']
+          tag = leaker[:meta][:tag]
           klass = CLASS_KEYS[klass] if klass.is_a? Fixnum
           leakers[tag] ||= Hash.new()
           leakers[tag][klass] ||= {:count => 0, :contents => []}
@@ -228,7 +274,7 @@ module BleakHouse
         puts "\nTags sorted by persistent uncollected objects. These objects did not exist at\nstartup, were instantiated by the associated tags during the run, and were\nnever garbage collected:"
         leakers.each do |tag, value|
           requests = frames.select do |frame|
-            frame['meta']['tag'] == tag
+            frame[:meta][:tag] == tag
           end.size
           puts "  #{tag} leaked per request (#{requests}):"
           value.each do |klass, hash|
@@ -263,8 +309,8 @@ module BleakHouse
       impacts = {}
       
       frames.each do |frame|
-        impacts[frame['meta']['tag']] ||= []
-        impacts[frame['meta']['tag']] << frame['meta']['impact'] * frame['meta']['ratio']
+        impacts[frame[:meta][:tag]] ||= []
+        impacts[frame[:meta][:tag]] << frame[:meta][:impact] * frame[:meta][:ratio]
       end      
       impacts = impacts.map do |tag, values|
         [tag, values.inject(0) {|acc, i| acc + i} / values.size.to_f]

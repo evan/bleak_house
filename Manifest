@@ -1,4 +1,5 @@
 bin/bleak
+bleak_house.gemspec
 CHANGELOG
 ext/bleak_house/logger/build_logger.rb
 ext/bleak_house/logger/build_ruby.rb
@@ -40,7 +41,6 @@ test/integration/app/config/initializers/inflections.rb
 test/integration/app/config/initializers/mime_types.rb
 test/integration/app/config/routes.rb
 test/integration/app/doc/README_FOR_APP
-test/integration/app/log/bleak_house_production.dump
 test/integration/app/public/404.html
 test/integration/app/public/422.html
 test/integration/app/public/500.html

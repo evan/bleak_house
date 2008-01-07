@@ -13,5 +13,4 @@ Echoe.new("bleak_house") do |p|
   p.rdoc_pattern = /^ext.*\.c|lib.*logger.*rb|analyzer|rails\/bleak_house|^README|^CHANGELOG|^TODO|^LICENSE|^COPYING$/
   p.test_pattern = ["test/integration/*.rb", "test/unit/*.rb"]
   p.clean_pattern << "**/bleak_house*dump*"
-  p p.clean_pattern
 end

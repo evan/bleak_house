@@ -12,8 +12,8 @@ module BleakHouse
   
     SPECIALS = {
       -1 => :timestamp,
-      -2 => :'mem usage/swap',
-      -3 => :'mem usage/real',
+      -2 => :'mem usage/swap', # Not used
+      -3 => :'mem usage/real',  # Not used
       -4 => :tag,
       -5 => :'heap/filled',
       -6 => :'heap/free'
@@ -142,7 +142,8 @@ module BleakHouse
                 
                 # Try to reduce memory footprint
                 final.delete :objects                  
-                GC.start
+                4.times do { GC.start }
+                sleep 1
                 
                 calculate!(final, frames.size - 1, total_frames, population.size)
               end
@@ -207,11 +208,7 @@ module BleakHouse
         puts "Using cache"
         frames = read_cache(cachefile)        
       else                        
-        frames = read(logfile)
-        # Cache the result
-        File.open(cachefile, 'w') do |f|
-          f.write Marshal.dump(frames)
-        end
+        frames = read(logfile, cachefile)
       end
       
       puts "\nRehashing."

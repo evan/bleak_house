@@ -44,9 +44,9 @@ static VALUE snapshot(VALUE self, VALUE _logfile, VALUE tag, VALUE _specials, VA
   fprintf(logfile, "-1,%li\n", time(0));
   
   /* get and write the memory usage */
-  VALUE mem = rb_funcall(self, rb_intern("mem_usage"), 0);
+  /* VALUE mem = rb_funcall(self, rb_intern("mem_usage"), 0);
   fprintf(logfile, "-2,%li\n", NUM2INT(RARRAY_PTR(mem)[0]));
-  fprintf(logfile, "-3,%li\n", NUM2INT(RARRAY_PTR(mem)[1]));
+  fprintf(logfile, "-3,%li\n", NUM2INT(RARRAY_PTR(mem)[1])); */
   
   int filled_slots = 0;
   int free_slots = 0;

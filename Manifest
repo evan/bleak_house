@@ -1,5 +1,4 @@
 bin/bleak
-bleak_house.gemspec
 CHANGELOG
 ext/bleak_house/logger/build_logger.rb
 ext/bleak_house/logger/build_ruby.rb
@@ -10,7 +9,6 @@ init.rb
 install.rb
 lib/bleak_house/analyzer/analyzer.rb
 lib/bleak_house/analyzer.rb
-lib/bleak_house/logger/mem_usage.rb
 lib/bleak_house/logger/source.rb
 lib/bleak_house/logger.rb
 lib/bleak_house/rails/action_controller.rb

@@ -160,8 +160,8 @@ module BleakHouse
 
                   # Try to reduce memory footprint
                   final.delete :objects
-                  4.times { GC.start }
-                  sleep 1
+                  GC.start
+                  sleep 1 # Give the GC thread a chance to do something
 
                   calculate!(final, frames.size - 1, total_frames, population.size)
                 end

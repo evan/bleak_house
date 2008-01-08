@@ -40,7 +40,7 @@ To setup a Rails app for profiling, just <tt>require 'bleak_house'</tt> in <tt>c
 Then, to engage the logger (ideally, in a live deployment situation), start a server instance as so:
   RAILS_ENV=production BLEAK_HOUSE=true ruby-bleak-house ./script/server 
 
-Browse around manually, thrash your entire app with a script, target troublesome controllers/actions, etc. The BleakHouse logger will dump a huge amount of data to <tt>log/bleak_house_production.dump</tt>--keep an eye on your disk space. I usually aim for a 2GB dump.
+Browse around manually, thrash your entire app with a script, target troublesome controllers/actions, etc. The BleakHouse logger will dump a huge amount of data to <tt>log/bleak_house_production.dump</tt>--keep an eye on your disk space. I usually aim for a 3GB dump.
 
 Then, to analyze the dump:
   bleak path/to/log/bleak_house_production.dump

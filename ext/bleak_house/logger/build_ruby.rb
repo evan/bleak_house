@@ -5,10 +5,15 @@ if RUBY_PLATFORM =~ /win32|windows/
   raise "Windows is not supported."
 end
 
+unless RUBY_VERSION == '1.8.6'
+  raise "Wrong Ruby version, you're at '#{RUBY_VERSION}', need 1.8.6"
+end
+
 source_dir = File.expand_path(File.dirname(__FILE__)) + "/../../../ruby"
 tmp = "/tmp/"
 
 require 'fileutils'
+require 'rbconfig'
 
 def which(basename)
   # system('which') is not compatible across Linux and BSD
@@ -17,7 +22,7 @@ def which(basename)
     path if File.exist? path
   end
 end
-  
+
 unless which('ruby-bleak-house')
   
   Dir.chdir(tmp) do
@@ -43,6 +48,29 @@ unless which('ruby-bleak-house')
           system("patch -p0 < \'#{source_dir}/gc.c.patch\' > ../gc.c.patch.log 2>&1")
           system("patch -p0 < \'#{source_dir}/parse.y.patch\' > ../parse.y.patch.log 2>&1")
           system("./configure --prefix=#{binary_dir[0..-5]} > ../configure.log 2>&1") # --with-static-linked-ext
+          
+          # Patch the makefile for arch/sitedir
+          makefile = File.read('Makefile')
+          %w{arch sitearch sitedir}.each do | key |
+            makefile.gsub!(/#{key} = .*/, "#{key} = #{Config::CONFIG[key]}")
+          end
+          File.open('Makefile', 'w'){|f| f.puts(makefile)}
+          
+          # Patch the config.h for constants
+          constants = {
+            'RUBY_LIB' => 'rubylibdir',          #define RUBY_LIB "/usr/lib/ruby/1.8"
+            'RUBY_SITE_LIB' => 'sitedir',        #define RUBY_SITE_LIB "/usr/lib/ruby/site_ruby"
+            'RUBY_SITE_LIB2' => 'sitelibdir',    #define RUBY_SITE_LIB2 "/usr/lib/ruby/site_ruby/1.8"
+            'RUBY_PLATFORM' => 'arch',           #define RUBY_PLATFORM "i686-linux"
+            'RUBY_ARCHLIB' => 'topdir',          #define RUBY_ARCHLIB "/usr/lib/ruby/1.8/i686-linux"
+            'RUBY_SITE_ARCHLIB' => 'sitearchdir' #define RUBY_SITE_ARCHLIB "/usr/lib/ruby/site_ruby/1.8/i686-linux"
+          }
+          config_h = File.read('config.h')
+          constants.each do | const, key |
+            config_h.gsub!(/#define #{const} .*/, "#define #{const} \"#{Config::CONFIG[key]}\"")
+          end
+          File.open('config.h', 'w'){|f| f.puts(config_h)}
+          
           system("make > ../make.log 2>&1")
   
           binary = "#{binary_dir}/ruby-bleak-house"

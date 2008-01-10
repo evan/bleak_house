@@ -82,8 +82,10 @@ module BleakHouse
 
       # Cache an object to disk.
       def write_cache(object, cachefile)
-        File.open(cachefile, 'w') do |f|
-          f.write Marshal.dump(object)
+        Thread.exclusive do
+          File.open(cachefile, 'w') do |f|
+            f.write Marshal.dump(object)
+          end
         end
       end
 
@@ -113,7 +115,7 @@ module BleakHouse
         end
 
         if row[2]
-          row[2] = row[2].gsub(/0x[\da-f]{8}/, "0xID").to_sym
+          row[2] = row[2].gsub(/0x[\da-f]{8,16}/, "0xID").to_sym
         end
 
         row
@@ -174,7 +176,7 @@ module BleakHouse
               frame[:meta] ||= {}
 
               # Write out an in-process cache, in case you run out of RAM
-              if frames.size % 5 == 0
+              if frames.size % 20 == 0
                 write_cache(frames, cachefile)
               end              
             end

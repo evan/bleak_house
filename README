@@ -53,7 +53,7 @@ Be patient; it's quite slow.
 
 BleakHouse can sample object contents, which might help you figure out the source of the leak. Just add <tt>SAMPLE_RATE=0.1</tt> to the environment string when you start your server. 
 
-Note that there is a chance this could _introduce_ leaks if you override <tt>inspect</tt> in leaky ways. That's why it's off by default.
+Note that there is a chance this could _introduce_ leaks if you override <tt>inspect</tt> in leaky ways. Unfortunately, the samping is of dubious usefulness and really increases the memory usage of the analyze task. That's why it's off by default. 
 
 = Extras
 

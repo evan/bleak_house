@@ -24,7 +24,7 @@ Index: configure.in
 +       [want_valgrind=$enableval], [want_valgrind=auto])
 +
 +if test x"$want_valgrind" != xno; then
-+  AC_CHECK_HEADERS(memcheck.h, have_valgrind=yes, have_valgrind=no)
++  AC_CHECK_HEADERS(valgrind/memcheck.h, have_valgrind=yes, have_valgrind=no)
 +	if test x"$have_valgrind" = xyes; then
 +		AC_DEFINE(HAVE_VALGRIND)
 +		VALGRIND_CFLAGS="";

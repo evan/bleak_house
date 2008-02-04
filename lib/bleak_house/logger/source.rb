@@ -1,4 +1,6 @@
 
+#:stopdoc:
+
 # Doesn't work
 
 module BleakHouse
@@ -15,3 +17,5 @@ class String
 end
 
 String.new
+
+#:startdoc:

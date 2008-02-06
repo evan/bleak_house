@@ -53,7 +53,7 @@ diff -u ruby-1.8.6-p111/eval.c ruby-1.8.6-valgrind/eval.c
  {
      ruby_current_node = lhs;
 +
-+    VALGRIND_MAKE_MEM_DEFINED(&val, sizeof(void*));
++    VALGRIND_MAKE_MEM_DEFINED(&val, sizeof(val));
 +
      if (val == Qundef) {
  	rb_warning("assigning void value");
@@ -78,8 +78,8 @@ diff -u ruby-1.8.6-p111/gc.c ruby-1.8.6-valgrind/gc.c
  {
      void *mem;
  
-+    VALGRIND_MAKE_MEM_DEFINED(&malloc_increase, sizeof(long));
-+    VALGRIND_MAKE_MEM_DEFINED(&malloc_limit, sizeof(long));
++    VALGRIND_MAKE_MEM_DEFINED(&malloc_increase, sizeof(malloc_increase));
++    VALGRIND_MAKE_MEM_DEFINED(&malloc_limit, sizeof(malloc_limit));
 +
      if (size < 0) {
  	rb_raise(rb_eNoMemError, "negative allocation size (or too big)");

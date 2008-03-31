@@ -1,4 +1,5 @@
 
+require 'thread'
 require 'ccsv'
 # require 'memory'
 require 'fileutils'
@@ -105,19 +106,18 @@ module BleakHouse
         if (int = row[0].to_i) != 0
           row[0] = int
         else
-          row[0] = row[0].to_sym
+          row[0] = row[0] ? row[0].to_sym : 0
         end
 
         if (int = row[1].to_i) != 0
           row[1] = int
         else
-          row[1] = row[1].to_sym
+          row[1] = row[1] ? row[1].to_sym : 0
         end
 
         if row[2]
           row[2] = row[2].gsub(/0x[\da-f]{8,16}/, "0xID").to_sym
         end
-
         row
       end
 
@@ -157,6 +157,7 @@ module BleakHouse
 
                   final[:deaths] = [] # Uses an Array to work around a Marshal bug
                   deaths.each do |key|
+                    next unless final[:objects][key]
                     final[:deaths] << [key, [final[:objects][key].first]] # Don't need the sample content for deaths
                   end
 

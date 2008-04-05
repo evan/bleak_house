@@ -1,4 +1,6 @@
 
+v4.0. Rewrite to use nd_line and record spawn points instead of sampling.
+
 v3.7.1. Fix some nil issues with corrupted dumps (cody caughlan).
 
 v3.7. Sample object contents. Restore Rails 1.2.x compatibility.

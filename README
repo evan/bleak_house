@@ -17,7 +17,7 @@ If you use this software, please {make a donation}[http://blog.evanweaver.com/do
 * minimal impact on runtime performance
 * fast analysis step
 * tracks all objects allocated on the heap, including internal types like <tt>T_NODE</tt>
-* easy integration in any program, not just Rails
+* easy integration into any program, not just Rails
 
 == Requirements
 

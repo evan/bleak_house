@@ -8,15 +8,17 @@ module BleakHouse
       unless filled =~ /filled/ and free =~ /free/
         raise "#{file} is incomplete or corrupted"
       end
-        
-      length = `wc #{file}`.to_i - 2
-      
+
+      length = `wc #{file}`.to_i - 2      
+
       puts "#{length} total objects"
       puts "Final heap size #{filled}, #{free}"
-      puts "Displaying top #{lines} leakiest line/class pairs\n"
-      
-      leaks = `sort #{file} | uniq -c | sort -nr | head -#{lines}`
-      puts leaks
+      puts "Displaying top #{lines} leakiest line/class pairs\n"            
+        
+      cmd = ENV['NO_TRACE'] ? "awk -F: '{print $3}' " + file : "cat #{file}"      
+      cmd += " | sort | uniq -c | sort -nr | head -#{lines}"
+
+      puts `#{cmd}`
     end
     
   end

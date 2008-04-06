@@ -81,27 +81,27 @@ Do not try to detect Rails leaks in <tt>development</tt> mode. Make a separate <
 
 You can send <tt>SIGUSR2</tt> to a BleakHouse-instrumented program to snag a dump at any time. Once the dump completes, the program will continue to run. Dumps are named based on the host process id, and sequential dumps are numbered in ascending order.
 
-== Methodology
-
-The easiest way to fix a leak is to make it repeatable. 
-
-First, write a script that exercises your app in a deterministic way. Run it for a small number of loops, and run <tt>bleak</tt>. Then run it for a larger number, and run <tt>bleak</tt> again. The lines that grew significantly between runs are your leaks for that codepath.
-
-Now, look at those lines in the source and try to figure out what references them. Where do the return values go? Add some breakpoints or print stacktraces to <tt>STDERR</tt> as you go. Eventually you should find a point where it is relatively clear that a reference is getting maintained. 
-
-Try to remove that reference, run your determistic script again, and see if the leaks have dropped.
-
-Note, if BleakHouse doesn't report any heap growth but you still have leaks, you might have a broken C extension, or have encounted a {real leak in the interpreter}[http://groups.google.com/group/god-rb/browse_thread/thread/1cca2b7c4]. Try using Valgrind[http://blog.evanweaver.com/articles/2008/02/05/valgrind-and-ruby/] instead.
-
 == Tips
 
-It is normal to see lots of <tt>null:null</tt> references, especially for nodes. Using <tt>eval()</tt> too much is a common cause of node leaks. You can track <tt>eval()</tt> by using sourceline macros in your code:
+It is normal to see lots of <tt>null:null</tt> references, especially for nodes. Using <tt>eval()</tt> too much can be a cause of node leaks. You can track <tt>eval()</tt> by using sourceline macros in your code:
 
   eval("CODE", nil, __FILE__, __LINE__)
 
 You may get library require errors if you install <tt>ruby-bleak-house</tt> 1.8.6 alongside a different verson of Ruby. You could try to patch your local version of Ruby instead, or you could just upgrade to 1.8.6, which has a good trackrecord of stability.
 
 It is not recommended that you use <tt>ruby-bleak-house</tt> as your production Ruby binary, since it will be slightly slower and use slightly more memory. It is unlikely, however, to affect stability.
+
+== Methods
+
+The easiest way to fix a leak is to make it repeatable. 
+
+First, write a script that exercises your app in a deterministic way. Run it for a small number of loops; then run <tt>bleak</tt>. Then run it for a larger number of loops, and run <tt>bleak</tt> again. The lines that grow significantly between runs are your leaks for that codepath.
+
+Now, look at those lines in the source and try to figure out what references them. Where do the return values go? Add some breakpoints or output backtraces to <tt>STDERR</tt> as you go. Eventually you should find a point where it is relatively clear that a reference is getting maintained. 
+
+Try to remove that reference, run your script again, and see if the object counts have dropped.
+
+Note, if BleakHouse doesn't report any heap growth but you still have leaks, you might have a broken C extension, or have encounted a {real leak in the interpreter}[http://groups.google.com/group/god-rb/browse_thread/thread/1cca2b7c4]. Try using Valgrind[http://blog.evanweaver.com/articles/2008/02/05/valgrind-and-ruby/] instead.
 
 == Reporting problems
 

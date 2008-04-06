@@ -45,8 +45,10 @@ unless which('ruby-bleak-house')
         Dir.chdir("ruby-1.8.6-p114") do
   
           # Patch, configure, and build
-          system("patch -p0 < \'#{source_dir}/valgrind.patch\' > ../valgrind.patch 2>&1")
-          system("patch -p0 < \'#{source_dir}/bleak_house.patch\' > ../bleak_house.patch 2>&1")
+          ["valgrind", "configure", "gc"].each do |patch|
+            system("patch -p0 < \'#{source_dir}/#{patch}.patch\' > ../#{patch}_patch.log 2>&1")
+          end
+ 
           system("./configure --prefix=#{binary_dir[0..-5]} > ../configure.log 2>&1") # --with-static-linked-ext
           
           # Patch the makefile for arch/sitedir

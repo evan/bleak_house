@@ -48,7 +48,7 @@ Then, to engage the logger (possibly in a live deployment situation), start a se
 Look for the message:
   ** Bleakhouse: installed  
 
-Browse around manually, thrash your entire app with a script, target troublesome controllers/actions, etc. After a couple hundred requests, hit CTRL-C. The server will stop and BleakHouse will produce a dumpfile in <tt>/tmp</tt>:
+Exercise your app. After a couple hundred requests, hit CTRL-C. The server will stop and BleakHouse will produce a dumpfile in <tt>/tmp</tt>:
 
   ** BleakHouse: working...
   ** BleakHouse: complete
@@ -73,8 +73,6 @@ You can pass an integer as the second parameter to <tt>bleak</tt> if you want to
 
 The underscored types are special Ruby internal structs, but can be real leaks just as easily as fullblown classes. 
 
-Do not try to detect Rails leaks in <tt>development</tt> mode. Make a separate <tt>benchmark</tt> environment if you need to, and make sure all your production caching is turned on.
-
 = Extras
 
 == Injecting a signal
@@ -82,6 +80,8 @@ Do not try to detect Rails leaks in <tt>development</tt> mode. Make a separate <
 You can send <tt>SIGUSR2</tt> to a BleakHouse-instrumented program to snag a dump at any time. Once the dump completes, the program will continue to run. Dumps are named based on the host process id, and sequential dumps are numbered in ascending order.
 
 == Tips
+
+Do not try to detect Rails leaks in <tt>development</tt> mode. Make a separate <tt>benchmark</tt> environment if you need to, and make sure all your production caching is turned on.
 
 It is normal to see lots of <tt>null:null</tt> references, especially for nodes. Using <tt>eval()</tt> too much can be a cause of node leaks. You can track <tt>eval()</tt> by using sourceline macros in your code:
 

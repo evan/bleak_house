@@ -77,7 +77,7 @@ Do not try to detect Rails leaks in <tt>development</tt> mode. Make a separate <
 
 = Extras
 
-== Injecting a Signal
+== Injecting a signal
 
 You can send <tt>SIGUSR2</tt> to a BleakHouse-instrumented program to snag a dump at any time. Once the dump completes, the program will continue to run. Dumps are named based on the host process id, and sequential dumps are numbered in ascending order.
 

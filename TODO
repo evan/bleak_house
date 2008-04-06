@@ -1,2 +1,3 @@
 
+* Figure out why filename structs are getting corrupted
 * Log several levels of the backtrace instead of just the current node's information

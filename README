@@ -54,7 +54,7 @@ Exercise your app. After a couple hundred requests, hit CTRL-C. The server will 
   ** BleakHouse: complete
   ** Bleakhouse: run 'bleak /tmp/bleak.5979.0.dump' to analyze.
 
-To analyse it, just run the listed command. The top 20 leakiest lines will be listed:
+To analyze it, just run the listed command. The top 20 leakiest lines will be listed:
 
   191691 total objects
   Final heap size 191691 filled, 220961 free

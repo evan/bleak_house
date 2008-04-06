@@ -23,12 +23,20 @@ def which(basename)
   end
 end
 
-unless which('ruby-bleak-house')
-  
+if which('ruby-bleak-house') and 
+  `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i > 900
+  # OK
+else
+  # Build  
   Dir.chdir(tmp) do
     build_dir = "bleak_house"
     binary_dir = File.dirname(`which ruby`)
+    
     FileUtils.rm_rf(build_dir) rescue nil
+    if File.exist? build_dir
+      raise "Could not delete previous build dir #{Dir.pwd}/#{build_dir}"
+    end
+    
     Dir.mkdir(build_dir)
   
     begin

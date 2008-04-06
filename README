@@ -14,6 +14,7 @@ If you use this software, please {make a donation}[http://blog.evanweaver.com/do
 == Features
 
 * leak-proof C instrumentation
+* minimal impact on runtime performance
 * tracks all objects allocated on the heap, including internal types like <tt>T_NODE</tt>
 * easy integration in any program, not just Rails
 

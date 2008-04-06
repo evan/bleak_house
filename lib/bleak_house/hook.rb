@@ -15,11 +15,11 @@ unless ENV['NO_EXIT_HANDLER']
   Kernel.at_exit do
     BleakHouse.hook
   end
+  STDERR.puts "** Bleakhouse: installed"
 end
 
 Kernel.trap("USR2") do
   BleakHouse.hook
 end
 
-STDERR.puts "** Bleakhouse: installed"
 

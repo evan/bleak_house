@@ -1,7 +1,7 @@
 bin/bleak
 CHANGELOG
-ext/build_logger.rb
 ext/build_ruby.rb
+ext/build_snapshot.rb
 ext/extconf.rb
 ext/snapshot.c
 ext/snapshot.h

@@ -15,6 +15,7 @@ If you use this software, please {make a donation}[http://blog.evanweaver.com/do
 
 * leak-proof C instrumentation
 * minimal impact on runtime performance
+* fast analysis step
 * tracks all objects allocated on the heap, including internal types like <tt>T_NODE</tt>
 * easy integration in any program, not just Rails
 
@@ -51,23 +52,26 @@ Browse around manually, thrash your entire app with a script, target troublesome
 
   ** BleakHouse: working...
   ** BleakHouse: complete
-  ** Bleakhouse: Run 'bleak /tmp/bleak.5979.0.dump' to analyze.
+  ** Bleakhouse: run 'bleak /tmp/bleak.5979.0.dump' to analyze.
 
 To analyse it, just run the listed command. The top 20 leakiest lines will be listed:
 
-  $ bleak /tmp/bleak.5979.0.dump 
-  714582 total objects
-  Final heap size 714582 filled, 650406 free
-  Displaying top 20 leakiest line/class pairs
-  9373 /app/vendor/rails/activesupport/lib/active_support/inflector.rb:257:__node__
-  9356 (eval):3:__node__
-  9326 /app/vendor/gems/mime-types-1.15/lib/mime/types.rb:1558:String
-  5173 /app/vendor/rails/activesupport/lib/active_support/inflector.rb:257:String
+  191691 total objects
+  Final heap size 191691 filled, 220961 free
+  Displaying top 20 most common line/class pairs
+  89513 __null__:__null__:__node__
+  41438 __null__:__null__:String
+  2348 /opt/local//lib/ruby/site_ruby/1.8/rubygems/specification.rb:557:Array
+  1508 /opt/local//lib/ruby/gems/1.8/specifications/gettext-1.90.0.gemspec:14:String
+  1021 /opt/local//lib/ruby/gems/1.8/specifications/heel-0.2.0.gemspec:14:String
+   951 /opt/local//lib/ruby/site_ruby/1.8/rubygems/version.rb:111:String
+   935 /opt/local//lib/ruby/site_ruby/1.8/rubygems/specification.rb:557:String
+   834 /opt/local//lib/ruby/site_ruby/1.8/rubygems/version.rb:146:Array
   ...
   
 You can pass an integer as the second parameter to <tt>bleak</tt> if you want to see more lines than the default.
 
-The underscored types are special Ruby internal structs, but can be real leaks just as easily as fullblown classes. Using <tt>eval()</tt> too much is a common cause of leaking <tt>node</tt> objects.
+The underscored types are special Ruby internal structs, but can be real leaks just as easily as fullblown classes. 
 
 Do not try to detect Rails leaks in <tt>development</tt> mode. Make a separate <tt>benchmark</tt> environment if you need to, and make sure all your production caching is turned on.
 
@@ -87,13 +91,17 @@ Now, look at those lines in the source and try to figure out what references the
 
 Try to remove that reference, run your determistic script again, and see if the leaks have dropped.
 
-Note, if BleakHouse doesn't report any large heap growth but you still have leaks, you might have a broken C extension, or have encounted a {real leak in the interpreter}[http://groups.google.com/group/god-rb/browse_thread/thread/1cca2b7c4]. Try using Valgrind[http://blog.evanweaver.com/articles/2008/02/05/valgrind-and-ruby/] instead.
+Note, if BleakHouse doesn't report any heap growth but you still have leaks, you might have a broken C extension, or have encounted a {real leak in the interpreter}[http://groups.google.com/group/god-rb/browse_thread/thread/1cca2b7c4]. Try using Valgrind[http://blog.evanweaver.com/articles/2008/02/05/valgrind-and-ruby/] instead.
 
-== Troubleshooting
+== Tips
+
+It is normal to see lots of <tt>null:null</tt> references, especially for nodes. Using <tt>eval()</tt> too much is a common cause of node leaks. You can track <tt>eval()</tt> by using sourceline macros in your code:
+
+  eval("CODE", nil, __FILE__, __LINE__)
 
 You may get library require errors if you install <tt>ruby-bleak-house</tt> 1.8.6 alongside a different verson of Ruby. You could try to patch your local version of Ruby instead, or you could just upgrade to 1.8.6, which has a good trackrecord of stability.
 
-It is not recommended that you use <tt>ruby-bleak-house</tt> as your production Ruby binary unless you are in the process of instrumenting your application. It will be slower. It is unlikely, however, to affect stability.
+It is not recommended that you use <tt>ruby-bleak-house</tt> as your production Ruby binary, since it will be slightly slower and use slightly more memory. It is unlikely, however, to affect stability.
 
 == Reporting problems
 

@@ -58,14 +58,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile) {
         if (obj->file) {
           chr = obj->file;          
           if (*chr != '\0') {
-            /* replace unprintable characters */
-            for (; *chr; chr++) {
-              if ((*chr < 33) || (*chr > 126)) {
-                fputc('_', logfile);
-              } else {
-                fputc(*chr, logfile);
-              }
-            }
+            fprintf(logfile, "%s", obj->file);
           } else {
             fprintf(logfile, "__empty__");   
           }

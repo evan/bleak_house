@@ -91,7 +91,7 @@ You may get library require errors if you install <tt>ruby-bleak-house</tt> 1.8.
 
 It is not recommended that you use <tt>ruby-bleak-house</tt> as your production Ruby binary, since it will be slightly slower and use slightly more memory. It is unlikely, however, to affect stability.
 
-If BleakHouse doesn't report any heap growth but you still have memory growth, you might have a broken C extension, or have encounted a {real leak in the interpreter}[http://groups.google.com/group/god-rb/browse_thread/thread/1cca2b7c4]. Try using Valgrind[http://blog.evanweaver.com/articles/2008/02/05/valgrind-and-ruby/] instead.
+If BleakHouse doesn't report any heap growth but you still have memory growth, you might have a broken C extension, or have encounted a {real leak in the interpreter}[http://groups.google.com/group/god-rb/browse_thread/thread/01cca2b7c4a581c2]. Try using Valgrind[http://blog.evanweaver.com/articles/2008/02/05/valgrind-and-ruby/] instead.
 
 == Methods
 

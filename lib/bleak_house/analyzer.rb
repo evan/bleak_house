@@ -13,7 +13,7 @@ module BleakHouse
 
       puts "#{length} total objects"
       puts "Final heap size #{filled}, #{free}"
-      puts "Displaying top #{lines} leakiest line/class pairs\n"            
+      puts "Displaying top #{lines} most common line/class pairs\n"            
         
       cmd = ENV['NO_TRACE'] ? "awk -F: '{print $3}' " + file : "cat #{file}"      
       cmd += " | sort | uniq -c | sort -nr | head -#{lines}"

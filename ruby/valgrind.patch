@@ -1,6 +1,20 @@
-diff -u ruby-1.8.6-p111/configure.in ruby-1.8.6-valgrind/configure.in
---- ruby-1.8.6-p111/configure.in	2007-09-07 00:38:51.000000000 -0700
-+++ ruby-1.8.6-valgrind/configure.in	2008-02-05 17:20:05.000000000 -0800
+Index: Makefile.in
+===================================================================
+--- Makefile.in	(revision 6439)
++++ Makefile.in	(working copy)
+@@ -34,7 +34,7 @@
+ 
+ empty =
+ OUTFLAG = @OUTFLAG@$(empty)
+-CFLAGS = @CFLAGS@ @XCFLAGS@ @ARCH_FLAG@
++CFLAGS = @CFLAGS@ @XCFLAGS@ @ARCH_FLAG@ @VALGRIND_CFLAGS@
+ CPPFLAGS = -I. -I$(srcdir) @CPPFLAGS@
+ LDFLAGS = @STATIC@ $(CFLAGS) @LDFLAGS@
+ EXTLDFLAGS = 
+Index: configure.in
+===================================================================
+--- configure.in	(revision 6439)
++++ configure.in	(working copy)
 @@ -895,6 +895,22 @@
      fi
  fi
@@ -32,9 +46,23 @@ diff -u ruby-1.8.6-p111/configure.in ruby-1.8.6-valgrind/configure.in
  AC_SUBST(XLDFLAGS)dnl
  AC_SUBST(LIBRUBY_LDSHARED)
  AC_SUBST(LIBRUBY_DLDFLAGS)
-diff -u ruby-1.8.6-p111/eval.c ruby-1.8.6-valgrind/eval.c
---- ruby-1.8.6-p111/eval.c	2007-09-22 17:01:50.000000000 -0700
-+++ ruby-1.8.6-valgrind/eval.c	2008-02-05 17:58:45.000000000 -0800
+Index: version.h
+===================================================================
+--- version.h	(revision 6439)
++++ version.h	(working copy)
+@@ -2,7 +2,7 @@
+ #define RUBY_RELEASE_DATE "2008-03-03"
+ #define RUBY_VERSION_CODE 186
+ #define RUBY_RELEASE_CODE 20080303
+-#define RUBY_PATCHLEVEL 114
++#define RUBY_PATCHLEVEL 901
+ 
+ #define RUBY_VERSION_MAJOR 1
+ #define RUBY_VERSION_MINOR 8
+Index: eval.c
+===================================================================
+--- eval.c	(revision 6439)
++++ eval.c	(working copy)
 @@ -28,6 +28,12 @@
  #define EXIT_FAILURE 1
  #endif
@@ -58,9 +86,10 @@ diff -u ruby-1.8.6-p111/eval.c ruby-1.8.6-valgrind/eval.c
      if (val == Qundef) {
  	rb_warning("assigning void value");
  	val = Qnil;
-diff -u ruby-1.8.6-p111/gc.c ruby-1.8.6-valgrind/gc.c
---- ruby-1.8.6-p111/gc.c	2007-03-02 23:30:46.000000000 -0800
-+++ ruby-1.8.6-valgrind/gc.c	2008-02-05 17:56:13.000000000 -0800
+Index: gc.c
+===================================================================
+--- gc.c	(revision 6439)
++++ gc.c	(working copy)
 @@ -30,6 +30,12 @@
  #include <sys/resource.h>
  #endif
@@ -105,27 +134,3 @@ diff -u ruby-1.8.6-p111/gc.c ruby-1.8.6-valgrind/gc.c
      if (rb_special_const_p(ptr)) return; /* special const not marked */
      if (obj->as.basic.flags == 0) return;       /* free cell */
      if (obj->as.basic.flags & FL_MARK) return;  /* already marked */
-diff -u ruby-1.8.6-p111/Makefile.in ruby-1.8.6-valgrind/Makefile.in
---- ruby-1.8.6-p111/Makefile.in	2007-02-12 15:01:19.000000000 -0800
-+++ ruby-1.8.6-valgrind/Makefile.in	2008-02-05 17:20:05.000000000 -0800
-@@ -34,7 +34,7 @@
- 
- empty =
- OUTFLAG = @OUTFLAG@$(empty)
--CFLAGS = @CFLAGS@ @XCFLAGS@ @ARCH_FLAG@
-+CFLAGS = @CFLAGS@ @XCFLAGS@ @ARCH_FLAG@ @VALGRIND_CFLAGS@
- CPPFLAGS = -I. -I$(srcdir) @CPPFLAGS@
- LDFLAGS = @STATIC@ $(CFLAGS) @LDFLAGS@
- EXTLDFLAGS = 
-diff -u ruby-1.8.6-p111/version.h ruby-1.8.6-valgrind/version.h
---- ruby-1.8.6-p111/version.h	2007-09-24 01:12:24.000000000 -0700
-+++ ruby-1.8.6-valgrind/version.h	2008-02-05 17:52:48.000000000 -0800
-@@ -2,7 +2,7 @@
- #define RUBY_RELEASE_DATE "2007-09-24"
- #define RUBY_VERSION_CODE 186
- #define RUBY_RELEASE_CODE 20070924
--#define RUBY_PATCHLEVEL 111
-+#define RUBY_PATCHLEVEL 999
- 
- #define RUBY_VERSION_MAJOR 1
- #define RUBY_VERSION_MINOR 8

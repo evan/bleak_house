@@ -1,51 +1,50 @@
 
-DIR = File.dirname(__FILE__) + "/../../"
+$LOAD_PATH.unshift(File.dirname(__FILE__) + "/../../lib")
+
+ENV['NO_EXIT_HANDLER'] = "1"
 
 require 'rubygems'
+require 'echoe'
 require 'test/unit'
-require 'yaml'
-require 'ruby-debug'
-require 'ccsv'
-Debugger.start
+require 'bleak_house'
   
 class BleakHouseTest < Test::Unit::TestCase
-  require "#{DIR}lib/bleak_house/logger"
 
-  SNAPSHOT_FILE = "/tmp/bleak_house.dump"
+  # Match the default hook filename, for convenience
+  FILE =  "/tmp/bleak.#{Process.pid}.0.dump" 
 
   def setup
-    File.delete SNAPSHOT_FILE rescue nil
+    File.delete FILE rescue nil
   end
 
   def test_snapshot
     symbol_count = Symbol.all_symbols.size
-    ::BleakHouse::Logger.new.snapshot(SNAPSHOT_FILE, "test", false, 0)
-    assert_equal symbol_count, Symbol.all_symbols.size # Test that no symbols leaked
-    assert File.exist?(SNAPSHOT_FILE)
-    assert_equal 0, sample_ratio(SNAPSHOT_FILE)
-  end
-  
-  def test_sampling
-    ::BleakHouse::Logger.new.snapshot(SNAPSHOT_FILE, "test", false, 0.5)  
-    ratio = sample_ratio(SNAPSHOT_FILE) 
-    assert(ratio > 0.45)
-    assert(ratio < 0.55)
+    BleakHouse.snapshot(FILE)
+    assert File.exist?(FILE)
+    assert BleakHouse.heaps_used > 0
+    assert BleakHouse.heaps_length > 0    
   end
   
   def test_exception
     assert_raises(RuntimeError) do
-      ::BleakHouse::Logger.new.snapshot("/", "test", false, 0)
+      BleakHouse.snapshot("/")
     end    
   end
   
-  def sample_ratio(file)
-    rows = 0
-    samples = 0
-    Ccsv.foreach(file) do |row|
-      rows += 1
-      samples += 1 if row[2]
+  def test_analyze
+    BleakHouse.snapshot(FILE)
+    Dir.chdir(File.dirname(__FILE__) + "/../../bin") do
+      output = `./bleak #{FILE}`.split("\n")
+      # require 'ruby-debug/debugger'
+      assert_match(/\d+ __null__:__null__:__node__/, output[3])
     end
-    samples / rows.to_f
   end
   
+  def test_signal
+    Echoe.silence do
+      system("kill -s SIGUSR2 #{Process.pid}")
+    end
+    assert File.exist?(FILE)
+  end
+
 end

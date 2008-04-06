@@ -8,19 +8,6 @@ if !ARGV[0]
 else
   $LOAD_PATH << "#{File.dirname(__FILE__)}/../lib/"
   require 'bleak_house/analyzer'
-
   require 'ruby-debug' if ENV['DEBUG']
-
-  if ENV['WATCH_MEM']
-    Thread.new do
-      while sleep(10)
-        free = `free -m`.split("\n")[2].split(" ")[3].to_i
-        if free < 20
-          exit!
-        end
-      end
-    end
-  end
-
-  BleakHouse::Analyzer.run(ARGV[0])
+  BleakHouse::Analyzer.run(ARGV[0], ARGV[1] || 20)
 end

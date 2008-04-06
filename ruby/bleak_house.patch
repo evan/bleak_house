@@ -1,0 +1,52 @@
+Index: parse.y
+===================================================================
+--- parse.y	(revision 6439)
++++ parse.y	(working copy)
+@@ -6168,6 +6168,11 @@
+  *                                     :wait2, :$>]
+  */
+ 
++struct st_table * 
++rb_parse_sym_tbl() {
++  return sym_tbl;
++}
++
+ VALUE
+ rb_sym_all_symbols()
+ {
+Index: gc.c
+===================================================================
+--- gc.c	(revision 6440)
++++ gc.c	(working copy)
+@@ -260,7 +260,7 @@
+     }
+ }
+ 
+-#undef GC_DEBUG
++#define GC_DEBUG
+ 
+ void
+ rb_global_variable(var)
+@@ -318,6 +318,22 @@
+ static int heaps_length = 0;
+ static int heaps_used   = 0;
+ 
++struct heaps_slot *
++rb_gc_heap_slots()
++{
++    return heaps;
++}
++
++int
++rb_gc_heaps_used() {
++    return heaps_used;
++}
++
++int
++rb_gc_heaps_length() {
++    return heaps_length;
++}
++
+ #define HEAP_MIN_SLOTS 10000
+ static int heap_slots = HEAP_MIN_SLOTS;
+ 

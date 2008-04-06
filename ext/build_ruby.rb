@@ -9,7 +9,7 @@ unless RUBY_VERSION == '1.8.6'
   raise "Wrong Ruby version, you're at '#{RUBY_VERSION}', need 1.8.6"
 end
 
-source_dir = File.expand_path(File.dirname(__FILE__)) + "/../../../ruby"
+source_dir = File.expand_path(File.dirname(__FILE__)) + "/../ruby"
 tmp = "/tmp/"
 
 require 'fileutils'
@@ -35,18 +35,18 @@ unless which('ruby-bleak-house')
       Dir.chdir(build_dir) do
   
         # Copy Ruby source
-        bz2 = "ruby-1.8.6-p110.tar.bz2"
+        bz2 = "ruby-1.8.6-p114.tar.bz2"
         FileUtils.copy "#{source_dir}/#{bz2}", bz2
   
         # Extract
         system("tar xjf #{bz2} > tar.log 2>&1")
         File.delete bz2
     
-        Dir.chdir("ruby-1.8.6-p110") do
+        Dir.chdir("ruby-1.8.6-p114") do
   
           # Patch, configure, and build
-          system("patch -p0 < \'#{source_dir}/gc.c.patch\' > ../gc.c.patch.log 2>&1")
-          system("patch -p0 < \'#{source_dir}/parse.y.patch\' > ../parse.y.patch.log 2>&1")
+          system("patch -p0 < \'#{source_dir}/valgrind.patch\' > ../valgrind.patch 2>&1")
+          system("patch -p0 < \'#{source_dir}/bleak_house.patch\' > ../bleak_house.patch 2>&1")
           system("./configure --prefix=#{binary_dir[0..-5]} > ../configure.log 2>&1") # --with-static-linked-ext
           
           # Patch the makefile for arch/sitedir

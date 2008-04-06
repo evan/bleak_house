@@ -1,4 +1,6 @@
 
+v4.0. Track spawn points live instead of sampling.
+
 v3.7.1. Fix some nil issues with corrupted dumps (cody caughlan).
 
 v3.7. Sample object contents. Restore Rails 1.2.x compatibility.

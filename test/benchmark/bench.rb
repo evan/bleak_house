@@ -5,12 +5,12 @@ require 'dike'
 $LOAD_PATH.unshift(File.dirname(__FILE__) + "/../../lib")
 require 'bleak_house'
 
-Dike.logfactory(".")
+Dike.logfactory("/tmp")
 if ARGV[0] 
   Dike.finger
-  exec('cat 0')
+  exec('cat /tmp/0')
 else
-  BleakHouse.snapshot("0")
-  exec("#{$LOAD_PATH.first}/../bin/bleak 0")
+  BleakHouse.snapshot("/tmp/0")
+  exec("#{$LOAD_PATH.first}/../bin/bleak /tmp/0")
 end
 

@@ -15,6 +15,7 @@ README
 ruby/bleak_house.patch
 ruby/ruby-1.8.6-p114.tar.bz2
 ruby/valgrind.patch
+test/benchmark/bench.rb
 test/test_helper.rb
 test/unit/test_bleak_house.rb
 TODO

@@ -1,3 +1,7 @@
 
-* Add some kind of delta support
-* Log several levels of the backtrace instead of just the current node's information
+* Mimic Valgrind's output format as much as possible
+* Log remaining heap reference traces
+* Add some kind of start/end delta support
+* Log entire backtrace by allocating pointer arrays on the heap
+  - Add some kind of hashing procedure to avoid duplicating identical backtrace pointer arrays
+* Report individual types of nodes

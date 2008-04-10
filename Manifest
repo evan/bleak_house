@@ -12,7 +12,6 @@ LICENSE
 LICENSE_BSD
 Manifest
 README
-ruby/bleak_house.patch
 ruby/configure.patch
 ruby/gc.patch
 ruby/ruby-1.8.6-p114.tar.bz2

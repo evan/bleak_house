@@ -1,4 +1,5 @@
 
+* Override Kernel#eval to always include sourceline macros.
 * Mimic Valgrind's output format as much as possible
 * Log remaining heap reference traces
 * Add some kind of start/end delta support

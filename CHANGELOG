@@ -1,4 +1,6 @@
 
+v4.1. Support calculating deltas in analyze utility.
+
 v4.0. Track spawn points live instead of sampling.
 
 v3.7.1. Fix some nil issues with corrupted dumps (cody caughlan).

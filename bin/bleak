@@ -3,11 +3,11 @@
 require 'rubygems'
 
 if !ARGV[0]
-  puts "Please specify a BleakHouse logfile"
+  puts "Please specify up to two BleakHouse logfiles"
   exit
 else
   $LOAD_PATH << "#{File.dirname(__FILE__)}/../lib/"
   require 'bleak_house/analyzer'
   require 'ruby-debug' if ENV['DEBUG']
-  BleakHouse::Analyzer.run(ARGV[0], ARGV[1] || 20)
+  BleakHouse::Analyzer.run(*ARGV)
 end

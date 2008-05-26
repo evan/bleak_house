@@ -36,7 +36,9 @@ class BleakHouseTest < Test::Unit::TestCase
     Dir.chdir(File.dirname(__FILE__) + "/../../bin") do
       output = `./bleak #{FILE}`.split("\n")
       # require 'ruby-debug/debugger'
-      assert_match(/\d+ __null__:__null__:__node__/, output[3])
+      assert_match(/top 20 most common/, output[0])
+      assert_match(/free heap/, output[3])
+      assert_match(/\d+ __null__:__null__:__node__/, output[4])
     end
   end
   

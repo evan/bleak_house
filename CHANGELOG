@@ -1,4 +1,6 @@
 
+v4.1.1. Update bundled Ruby to patchlevel 230. Delete your current ruby-bleak-house and reinstall.
+
 v4.1. Support calculating deltas in analyze utility.
 
 v4.0. Track spawn points live instead of sampling.

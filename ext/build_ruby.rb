@@ -24,7 +24,7 @@ def which(basename)
 end
 
 if which('ruby-bleak-house') and 
-  `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i > 900
+  `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i >= 902
   # OK
 else
   # Build  
@@ -43,14 +43,14 @@ else
       Dir.chdir(build_dir) do
   
         # Copy Ruby source
-        bz2 = "ruby-1.8.6-p114.tar.bz2"
+        bz2 = "ruby-1.8.6-p230.tar.bz2"
         FileUtils.copy "#{source_dir}/#{bz2}", bz2
   
         # Extract
         system("tar xjf #{bz2} > tar.log 2>&1")
         File.delete bz2
     
-        Dir.chdir("ruby-1.8.6-p114") do
+        Dir.chdir("ruby-1.8.6-p230") do
   
           # Patch, configure, and build
           ["valgrind", "configure", "gc"].each do |patch|

@@ -119,11 +119,11 @@ Index: version.h
 --- version.h	(revision 6439)
 +++ version.h	(working copy)
 @@ -2,7 +2,7 @@
- #define RUBY_RELEASE_DATE "2008-03-03"
+ #define RUBY_RELEASE_DATE "2008-06-20"
  #define RUBY_VERSION_CODE 186
- #define RUBY_RELEASE_CODE 20080303
--#define RUBY_PATCHLEVEL 114
-+#define RUBY_PATCHLEVEL 901
+ #define RUBY_RELEASE_CODE 20080620
+-#define RUBY_PATCHLEVEL 230
++#define RUBY_PATCHLEVEL 902
  
  #define RUBY_VERSION_MAJOR 1
  #define RUBY_VERSION_MINOR 8

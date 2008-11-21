@@ -1,13 +1,13 @@
 
 BleakHouse
 
-A library for finding memory leaks. 
+A library for finding memory leaks.
 
 == License
 
-Copyright 2007, 2008 Cloudburst, LLC. Licensed under the AFL 3. See the included LICENSE file. Portions copyright 2006 Eric Hodel and used with permission. See the included LICENSE_BSD file. 
+Copyright 2007, 2008 Cloudburst, LLC. Licensed under the AFL 3. See the included LICENSE file. Portions copyright 2006 Eric Hodel and used with permission. See the included LICENSE_BSD file.
 
-The public certificate for this gem is here[http://rubyforge.org/frs/download.php/25331/evan_weaver-original-public_cert.pem]. 
+The public certificate for this gem is here[http://rubyforge.org/frs/download.php/25331/evan_weaver-original-public_cert.pem].
 
 If you use this software, please {make a donation}[http://blog.evanweaver.com/donate/], or {recommend Evan}[http://www.workingwithrails.com/person/7739-evan-weaver] at Working with Rails.
 
@@ -43,10 +43,10 @@ First, to setup the app for profiling, add the following at the bottom of <tt>co
   require 'bleak_house' if ENV['BLEAK_HOUSE']
 
 Then, to engage the logger (possibly in a live deployment situation), start a server instance as so:
-  RAILS_ENV=production BLEAK_HOUSE=1 ruby-bleak-house ./script/server 
+  RAILS_ENV=production BLEAK_HOUSE=1 ruby-bleak-house ./script/server
 
 Look for the message:
-  ** Bleakhouse: installed  
+  ** Bleakhouse: installed
 
 Exercise your app. After a couple hundred requests, hit CTRL-C. The server will stop and BleakHouse will produce a dumpfile in <tt>/tmp</tt>:
 
@@ -68,10 +68,10 @@ To analyze it, just run the listed command. The top 20 leakiest lines will be li
    935 /opt/local//lib/ruby/site_ruby/1.8/rubygems/specification.rb:557:String
    834 /opt/local//lib/ruby/site_ruby/1.8/rubygems/version.rb:146:Array
   ...
-  
+
 You can pass an integer as the second parameter to <tt>bleak</tt> if you want to see more lines than the default.
 
-The underscored types are special Ruby internal structs, but can be real leaks just as easily as fullblown classes. 
+The underscored types are special Ruby internal structs, but can be real leaks just as easily as fullblown classes.
 
 = Extras
 
@@ -95,11 +95,11 @@ If BleakHouse doesn't report any heap growth but you still have memory growth, y
 
 == Methods
 
-The easiest way to fix a leak is to make it repeatable. 
+The easiest way to fix a leak is to make it repeatable.
 
 First, write a script that exercises your app in a deterministic way. Run it for a small number of loops; then run <tt>bleak</tt>. Then run it for a larger number of loops, and run <tt>bleak</tt> again. The lines that grow significantly between runs are your leaks for that codepath.
 
-Now, look at those lines in the source and try to figure out what references them. Where do the return values go? Add some breakpoints or output backtraces to <tt>STDERR</tt> as you go. Eventually you should find a point where it is relatively clear that a reference is getting maintained. 
+Now, look at those lines in the source and try to figure out what references them. Where do the return values go? Add some breakpoints or output backtraces to <tt>STDERR</tt> as you go. Eventually you should find a point where it is relatively clear that a reference is getting maintained.
 
 Try to remove that reference, run your script again, and see if the object counts have dropped.
 

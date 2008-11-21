@@ -6,7 +6,7 @@ module BleakHouse
     filename = "/tmp/bleak.#{Process.pid}.#{@count}.dump"
     STDERR.puts "** BleakHouse: working..."
     BleakHouse.snapshot(filename)
-    STDERR.puts "** BleakHouse: complete\n** Bleakhouse: Run 'bleak #{filename}' to analyze."  
+    STDERR.puts "** BleakHouse: complete\n** Bleakhouse: Run 'bleak #{filename}' to analyze."
     @count += 1
   end
 end
@@ -21,5 +21,3 @@ end
 Kernel.trap("USR2") do
   BleakHouse.hook
 end
-
-

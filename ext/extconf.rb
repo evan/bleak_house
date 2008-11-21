@@ -4,7 +4,7 @@ module BleakHouse
   def self.write_to_log(filename, message)
     File.open(filename, 'a') { |fp| fp.write("#{message}\n") }
   end
-  
+
   def self.execute(command)
     puts "$}- #{command}"
     exit -1 unless system(command)

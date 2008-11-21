@@ -23,49 +23,49 @@ def which(basename)
   end
 end
 
-if which('ruby-bleak-house') and 
+if which('ruby-bleak-house') and
   `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i >= 902
   # OK
 else
-  # Build  
+  # Build
   Dir.chdir(tmp) do
     build_dir = "bleak_house"
     binary_dir = File.dirname(`which ruby`)
-    
+
     FileUtils.rm_rf(build_dir) rescue nil
     if File.exist? build_dir
       raise "Could not delete previous build dir #{Dir.pwd}/#{build_dir}"
     end
-    
+
     Dir.mkdir(build_dir)
-  
+
     begin
       Dir.chdir(build_dir) do
-  
+
         # Copy Ruby source
         bz2 = "ruby-1.8.6-p230.tar.bz2"
         FileUtils.copy "#{source_dir}/#{bz2}", bz2
-  
+
         # Extract
         system("tar xjf #{bz2} > tar.log 2>&1")
         File.delete bz2
-    
+
         Dir.chdir("ruby-1.8.6-p230") do
-  
+
           # Patch, configure, and build
           ["valgrind", "configure", "gc"].each do |patch|
             system("patch -p0 < \'#{source_dir}/#{patch}.patch\' > ../#{patch}_patch.log 2>&1")
           end
- 
+
           system("./configure --prefix=#{binary_dir[0..-5]} > ../configure.log 2>&1") # --with-static-linked-ext
-          
+
           # Patch the makefile for arch/sitedir
           makefile = File.read('Makefile')
           %w{arch sitearch sitedir}.each do | key |
             makefile.gsub!(/#{key} = .*/, "#{key} = #{Config::CONFIG[key]}")
           end
           File.open('Makefile', 'w'){|f| f.puts(makefile)}
-          
+
           # Patch the config.h for constants
           constants = {
             'RUBY_LIB' => 'rubylibdir',          #define RUBY_LIB "/usr/lib/ruby/1.8"
@@ -80,13 +80,13 @@ else
             config_h.gsub!(/#define #{const} .*/, "#define #{const} \"#{Config::CONFIG[key]}\"")
           end
           File.open('config.h', 'w'){|f| f.puts(config_h)}
-          
+
           system("make > ../make.log 2>&1")
-  
+
           binary = "#{binary_dir}/ruby-bleak-house"
-  
+
           # Install binary
-          if File.exist? "ruby"        
+          if File.exist? "ruby"
             # Avoid "Text file busy" error
             File.delete binary if File.exist? binary
             exec("cp ./ruby #{binary}; chmod 755 #{binary}")
@@ -94,13 +94,13 @@ else
             raise "Binary did not build"
           end
         end
-        
+
       end
     rescue Object => e
       raise "Please see the last modified log file in #{tmp}#{build_dir}, perhaps\nit will contain a clue.\n#{e.to_s}"
     end
-    
+
     # Success
-  end    
-  
+  end
+
 end

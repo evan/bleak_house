@@ -3,14 +3,14 @@ Index: Makefile.in
 --- Makefile.in	(revision 6439)
 +++ Makefile.in	(working copy)
 @@ -34,7 +34,7 @@
- 
+
  empty =
  OUTFLAG = @OUTFLAG@$(empty)
 -CFLAGS = @CFLAGS@ @XCFLAGS@ @ARCH_FLAG@
 +CFLAGS = @CFLAGS@ @XCFLAGS@ @ARCH_FLAG@ @VALGRIND_CFLAGS@
  CPPFLAGS = -I. -I$(srcdir) @CPPFLAGS@
  LDFLAGS = @STATIC@ $(CFLAGS) @LDFLAGS@
- EXTLDFLAGS = 
+ EXTLDFLAGS =
 Index: configure.in
 ===================================================================
 --- configure.in	(revision 6439)
@@ -18,7 +18,7 @@ Index: configure.in
 @@ -895,6 +895,22 @@
      fi
  fi
- 
+
 +AC_ARG_ENABLE(valgrind,
 +       [  --enable-valgrind       use valgrind support],
 +       [want_valgrind=$enableval], [want_valgrind=auto])
@@ -37,10 +37,10 @@ Index: configure.in
 +
  dnl default value for $KANJI
  DEFAULT_KCODE="KCODE_NONE"
- 
+
 @@ -1504,6 +1520,7 @@
  esac
- 
+
  AC_SUBST(XCFLAGS)dnl
 +AC_SUBST(VALGRIND_CFLAGS)dnl
  AC_SUBST(XLDFLAGS)dnl
@@ -53,7 +53,7 @@ Index: eval.c
 @@ -28,6 +28,12 @@
  #define EXIT_FAILURE 1
  #endif
- 
+
 +#ifdef HAVE_VALGRIND
 +#include <valgrind/memcheck.h>
 +#else
@@ -61,7 +61,7 @@ Index: eval.c
 +#endif
 +
  #include <stdio.h>
- 
+
  #include "st.h"
 @@ -5225,6 +5231,9 @@
      int pcall;
@@ -80,7 +80,7 @@ Index: gc.c
 @@ -30,6 +30,12 @@
  #include <sys/resource.h>
  #endif
- 
+
 +#ifdef HAVE_VALGRIND
 +#include <valgrind/memcheck.h>
 +#else
@@ -93,7 +93,7 @@ Index: gc.c
 @@ -93,6 +99,9 @@
  {
      void *mem;
- 
+
 +    VALGRIND_MAKE_MEM_DEFINED(&malloc_increase, sizeof(malloc_increase));
 +    VALGRIND_MAKE_MEM_DEFINED(&malloc_limit, sizeof(malloc_limit));
 +
@@ -113,7 +113,7 @@ Index: gc.c
 @@ -713,7 +725,10 @@
  {
      register RVALUE *obj;
- 
+
 +    VALGRIND_MAKE_MEM_DEFINED(&ptr, sizeof(ptr));
      obj = RANY(ptr);
 +    VALGRIND_MAKE_MEM_DEFINED(obj, sizeof(*obj));

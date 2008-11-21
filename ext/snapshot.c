@@ -19,8 +19,8 @@ static VALUE snapshot(VALUE self, VALUE _logfile) {
   Check_Type(_logfile, T_STRING);
 
   RVALUE *obj, *obj_end;
-  st_table_entry *sym; 
-  
+  st_table_entry *sym;
+
   struct heaps_slot * heaps = rb_gc_heap_slots();
   struct st_table * sym_tbl = rb_parse_sym_tbl();
 
@@ -37,15 +37,15 @@ static VALUE snapshot(VALUE self, VALUE _logfile) {
   int filled_slots = 0;
   int free_slots = 0;
 
-  int i; 
+  int i;
   char * chr;
-    
+
   for (i = 0; i < 3; i++) {
     /* request GC run */
     rb_funcall(rb_mGC, rb_intern("start"), 0);
     rb_thread_schedule();
   }
-  
+
   /* walk the heap */
   for (i = 0; i < rb_gc_heaps_used(); i++) {
     obj = heaps[i].slot;
@@ -53,27 +53,27 @@ static VALUE snapshot(VALUE self, VALUE _logfile) {
     for (; obj < obj_end; obj++) {
       if (obj->as.basic.flags) { /* always 0 for freed objects */
         filled_slots ++;
-        
+
         /* write the source file*/
         if (obj->file) {
-          chr = obj->file;          
+          chr = obj->file;
           if (*chr != '\0') {
             fprintf(logfile, "%s", obj->file);
           } else {
-            fprintf(logfile, "__empty__");   
+            fprintf(logfile, "__empty__");
           }
         } else {
           fprintf(logfile, "__null__");
         }
-        
+
         /* write the source line */
-        fprintf(logfile, ":");        
+        fprintf(logfile, ":");
         if (obj->line) {
           fprintf(logfile, "%i", obj->line);
         } else {
           fprintf(logfile, "__null__");
         }
-        
+
         /* write the class */
         fprintf(logfile, ":");
         switch (TYPE(obj)) {
@@ -96,7 +96,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile) {
               fprintf(logfile, rb_obj_classname((VALUE)obj));
             }
         }
-        
+
         /* write newline */
         fprintf(logfile, "\n");
       } else {
@@ -104,30 +104,30 @@ static VALUE snapshot(VALUE self, VALUE _logfile) {
       }
     }
   }
-  
-  /* walk the symbol table */  
+
+  /* walk the symbol table */
   /* hashed = lookup_builtin("Symbol");
   for (i = 0; i < sym_tbl->num_bins; i++) {
     for (sym = sym_tbl->bins[i]; sym != 0; sym = sym->next) {
       fprintf(logfile, "%i,%lu\n", hashed + 1, sym->record);
     }
   } */
-    
+
   fprintf(logfile, "%i filled\n", filled_slots);
   fprintf(logfile, "%i free\n", free_slots);
   fclose(logfile);
-  
+
   return Qnil;
 }
 
 
 /*
 
-This class performs the actual object logging of BleakHouse. To use it directly, you need to make calls to BleakHouse.snapshot. 
+This class performs the actual object logging of BleakHouse. To use it directly, you need to make calls to BleakHouse.snapshot.
 
-By default, BleakHouse records a snapshot on exit. You can disable this by setting the environment variable <tt>NO_EXIT_HANDLER</tt> before startup. 
+By default, BleakHouse records a snapshot on exit. You can disable this by setting the environment variable <tt>NO_EXIT_HANDLER</tt> before startup.
 
-It is also possible to externally trigger the snapshot at any time by sending <tt>SIGUSR2</tt> to the process. 
+It is also possible to externally trigger the snapshot at any time by sending <tt>SIGUSR2</tt> to the process.
 
 == Example
 
@@ -138,7 +138,7 @@ At the start of your app, put:
 
 Run your app. Once it exits, analyze your data:
   bleak /path/to/logfile
-  
+
 */
 void
 Init_snapshot()

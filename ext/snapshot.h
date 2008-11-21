@@ -31,7 +31,7 @@ typedef struct RVALUE {
         struct SCOPE   scope;
     } as;
     char *file;
-    int   line;    
+    int   line;
 } RVALUE;
 
 struct heaps_slot {

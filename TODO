@@ -1,4 +1,6 @@
 
+* Figure out why Rubygems 1.2.0 is a hard requirement
+
 * Override Kernel#eval to always include sourceline macros.
 * Mimic Valgrind's output format as much as possible
 * Log remaining heap reference traces

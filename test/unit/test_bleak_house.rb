@@ -7,11 +7,11 @@ require 'rubygems'
 require 'echoe'
 require 'test/unit'
 require 'bleak_house'
-  
+
 class BleakHouseTest < Test::Unit::TestCase
 
   # Match the default hook filename, for convenience
-  FILE =  "/tmp/bleak.#{Process.pid}.0.dump" 
+  FILE =  "/tmp/bleak.#{Process.pid}.0.dump"
 
   def setup
     File.delete FILE rescue nil
@@ -22,15 +22,15 @@ class BleakHouseTest < Test::Unit::TestCase
     BleakHouse.snapshot(FILE)
     assert File.exist?(FILE)
     assert BleakHouse.heaps_used > 0
-    assert BleakHouse.heaps_length > 0    
+    assert BleakHouse.heaps_length > 0
   end
-  
+
   def test_exception
     assert_raises(RuntimeError) do
       BleakHouse.snapshot("/")
-    end    
+    end
   end
-  
+
   def test_analyze
     BleakHouse.snapshot(FILE)
     Dir.chdir(File.dirname(__FILE__) + "/../../bin") do
@@ -41,7 +41,7 @@ class BleakHouseTest < Test::Unit::TestCase
       assert_match(/\d+ __null__:__null__:__node__/, output[4])
     end
   end
-  
+
   def test_signal
     Echoe.silence do
       system("kill -s SIGUSR2 #{Process.pid}")

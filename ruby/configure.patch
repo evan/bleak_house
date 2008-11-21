@@ -53,7 +53,7 @@ Index: configure
 @@ -15768,6 +15766,172 @@
      fi
  fi
- 
+
 +# Check whether --enable-valgrind was given.
 +if test "${enable_valgrind+set}" = set; then
 +  enableval=$enable_valgrind; want_valgrind=$enableval
@@ -221,8 +221,8 @@ Index: configure
 +fi
 +
  DEFAULT_KCODE="KCODE_NONE"
- 
- 
+
+
 @@ -17854,6 +18018,7 @@
  ARCHFILE!$ARCHFILE$ac_delim
  RDOCTARGET!$RDOCTARGET$ac_delim
@@ -234,7 +234,7 @@ Index: configure
 @@ -17887,7 +18052,7 @@
  LTLIBOBJS!$LTLIBOBJS$ac_delim
  _ACEOF
- 
+
 -  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 42; then
 +  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 43; then
      break

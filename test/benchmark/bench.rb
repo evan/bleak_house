@@ -6,7 +6,7 @@ $LOAD_PATH.unshift(File.dirname(__FILE__) + "/../../lib")
 require 'bleak_house'
 
 Dike.logfactory("/tmp")
-if ARGV[0] 
+if ARGV[0]
   Dike.finger
   exec('cat /tmp/0')
 else

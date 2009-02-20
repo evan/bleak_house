@@ -1,23 +1,26 @@
 require 'fileutils'
 
 module BleakHouse
-  def self.write_to_log(filename, message)
-    File.open(filename, 'a') { |fp| fp.write("#{message}\n") }
+
+  LOGDIR = File.expand_path('../../log', __FILE__)
+  LOGFILE = File.join(LOGDIR, 'bleak_house.log')
+  
+  FileUtils.mkdir_p(LOGDIR)
+  
+  def self.write_to_log(message)
+    File.open(LOGFILE, 'a') { |f| f.puts message }
   end
 
-  def self.execute(command)
-    puts "$}- #{command}"
-    exit -1 unless system(command)
+  def self.execute(command)    
+    unless system(command)
+      puts File.open(LOGFILE).read
+      exit -1 
+    end
   end
 end
 
-logdir = File.expand_path('../../log', __FILE__)
+BleakHouse.write_to_log('-%{ BUILDING RUBY }%-')
+BleakHouse.execute("ruby build_ruby.rb >> #{BleakHouse::LOGFILE} 2>&1")
 
-logfile = File.join(logdir, 'bleak_house.log')
-FileUtils.mkdir_p(logdir)
-
-BleakHouse.write_to_log(logfile, '-%{ BUILDING RUBY }%-')
-BleakHouse.execute("ruby build_ruby.rb >> #{logfile} 2>&1")
-
-BleakHouse.write_to_log(logfile, '-%{ BUILDING SNAPSHOT }%-')
-BleakHouse.execute("ruby-bleak-house build_snapshot.rb >> #{logfile} 2>&1")
+BleakHouse.write_to_log('-%{ BUILDING SNAPSHOT }%-')
+BleakHouse.execute("ruby-bleak-house build_snapshot.rb >> #{BleakHouse::LOGFILE} 2>&1")

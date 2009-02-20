@@ -50,14 +50,14 @@ else
       Dir.chdir(build_dir) do
 
         puts "Copy Ruby source"
-        bz2 = "ruby-1.8.6-p230.tar.bz2"
+        bz2 = "ruby-1.8.6-p286.tar.bz2"
         FileUtils.copy "#{source_dir}/#{bz2}", bz2
 
         puts "Extract"
         execute("tar xjf #{bz2}")
         File.delete bz2
 
-        Dir.chdir("ruby-1.8.6-p230") do
+        Dir.chdir("ruby-1.8.6-p286") do
 
           puts "Patch, configure, and build"
           ["valgrind", "configure", "gc"].each do |patch|

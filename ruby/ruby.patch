@@ -1,318 +1,464 @@
-diff -r ruby-1.8.6-p286-clean/Makefile.in ruby-1.8.6-p286/Makefile.in
-37c37
-< CFLAGS = @CFLAGS@ @XCFLAGS@ @ARCH_FLAG@
----
-> CFLAGS = @CFLAGS@ @XCFLAGS@ @ARCH_FLAG@ @VALGRIND_CFLAGS@
-Only in ruby-1.8.6-p286: Makefile.in.orig
-diff -r ruby-1.8.6-p286-clean/configure ruby-1.8.6-p286/configure
-722a723
-> VALGRIND_CFLAGS
-1358a1360
->   --enable-valgrind       use valgrind support
-12993,12994c12995
-< #include <sys/types.h> /* for off_t */
-<      #include <stdio.h>
----
-> #include <stdio.h>
-12998,12999c12999
-< int (*fp) (FILE *, off_t, int) = fseeko;
-<      return fseeko (stdin, 0, 0) && fp (stdin, 0, 0);
----
-> return fseeko (stdin, 0, 0) && (fseeko) (stdin, 0, 0);
-13039,13040c13039
-< #include <sys/types.h> /* for off_t */
-<      #include <stdio.h>
----
-> #include <stdio.h>
-13044,13045c13043
-< int (*fp) (FILE *, off_t, int) = fseeko;
-<      return fseeko (stdin, 0, 0) && fp (stdin, 0, 0);
----
-> return fseeko (stdin, 0, 0) && (fseeko) (stdin, 0, 0);
-16308a16307,16472
-> # Check whether --enable-valgrind was given.
-> if test "${enable_valgrind+set}" = set; then
->   enableval=$enable_valgrind; want_valgrind=$enableval
-> else
->   want_valgrind=auto
-> fi
-> 
-> 
-> if test x"$want_valgrind" != xno; then
-> 
-> for ac_header in valgrind/memcheck.h
-> do
-> as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
-> if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
->   { echo "$as_me:$LINENO: checking for $ac_header" >&5
-> echo $ECHO_N "checking for $ac_header... $ECHO_C" >&6; }
-> if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
->   echo $ECHO_N "(cached) $ECHO_C" >&6
-> fi
-> ac_res=`eval echo '${'$as_ac_Header'}'`
-> 	       { echo "$as_me:$LINENO: result: $ac_res" >&5
-> echo "${ECHO_T}$ac_res" >&6; }
-> else
->   # Is the header compilable?
-> { echo "$as_me:$LINENO: checking $ac_header usability" >&5
-> echo $ECHO_N "checking $ac_header usability... $ECHO_C" >&6; }
-> cat >conftest.$ac_ext <<_ACEOF
-> /* confdefs.h.  */
-> _ACEOF
-> cat confdefs.h >>conftest.$ac_ext
-> cat >>conftest.$ac_ext <<_ACEOF
-> /* end confdefs.h.  */
-> $ac_includes_default
-> #include <$ac_header>
-> _ACEOF
-> rm -f conftest.$ac_objext
-> if { (ac_try="$ac_compile"
-> case "(($ac_try" in
->   *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
->   *) ac_try_echo=$ac_try;;
-> esac
-> eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
->   (eval "$ac_compile") 2>conftest.er1
->   ac_status=$?
->   grep -v '^ *+' conftest.er1 >conftest.err
->   rm -f conftest.er1
->   cat conftest.err >&5
->   echo "$as_me:$LINENO: \$? = $ac_status" >&5
->   (exit $ac_status); } && {
-> 	 test -z "$ac_c_werror_flag" ||
-> 	 test ! -s conftest.err
->        } && test -s conftest.$ac_objext; then
->   ac_header_compiler=yes
-> else
->   echo "$as_me: failed program was:" >&5
-> sed 's/^/| /' conftest.$ac_ext >&5
-> 
-> 	ac_header_compiler=no
-> fi
-> 
-> rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
-> { echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
-> echo "${ECHO_T}$ac_header_compiler" >&6; }
-> 
-> # Is the header present?
-> { echo "$as_me:$LINENO: checking $ac_header presence" >&5
-> echo $ECHO_N "checking $ac_header presence... $ECHO_C" >&6; }
-> cat >conftest.$ac_ext <<_ACEOF
-> /* confdefs.h.  */
-> _ACEOF
-> cat confdefs.h >>conftest.$ac_ext
-> cat >>conftest.$ac_ext <<_ACEOF
-> /* end confdefs.h.  */
-> #include <$ac_header>
-> _ACEOF
-> if { (ac_try="$ac_cpp conftest.$ac_ext"
-> case "(($ac_try" in
->   *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
->   *) ac_try_echo=$ac_try;;
-> esac
-> eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
->   (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
->   ac_status=$?
->   grep -v '^ *+' conftest.er1 >conftest.err
->   rm -f conftest.er1
->   cat conftest.err >&5
->   echo "$as_me:$LINENO: \$? = $ac_status" >&5
->   (exit $ac_status); } >/dev/null && {
-> 	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
-> 	 test ! -s conftest.err
->        }; then
->   ac_header_preproc=yes
-> else
->   echo "$as_me: failed program was:" >&5
-> sed 's/^/| /' conftest.$ac_ext >&5
-> 
->   ac_header_preproc=no
-> fi
-> 
-> rm -f conftest.err conftest.$ac_ext
-> { echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
-> echo "${ECHO_T}$ac_header_preproc" >&6; }
-> 
-> # So?  What about this header?
-> case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
->   yes:no: )
->     { echo "$as_me:$LINENO: WARNING: $ac_header: accepted by the compiler, rejected by the preprocessor!" >&5
-> echo "$as_me: WARNING: $ac_header: accepted by the compiler, rejected by the preprocessor!" >&2;}
->     { echo "$as_me:$LINENO: WARNING: $ac_header: proceeding with the compiler's result" >&5
-> echo "$as_me: WARNING: $ac_header: proceeding with the compiler's result" >&2;}
->     ac_header_preproc=yes
->     ;;
->   no:yes:* )
->     { echo "$as_me:$LINENO: WARNING: $ac_header: present but cannot be compiled" >&5
-> echo "$as_me: WARNING: $ac_header: present but cannot be compiled" >&2;}
->     { echo "$as_me:$LINENO: WARNING: $ac_header:     check for missing prerequisite headers?" >&5
-> echo "$as_me: WARNING: $ac_header:     check for missing prerequisite headers?" >&2;}
->     { echo "$as_me:$LINENO: WARNING: $ac_header: see the Autoconf documentation" >&5
-> echo "$as_me: WARNING: $ac_header: see the Autoconf documentation" >&2;}
->     { echo "$as_me:$LINENO: WARNING: $ac_header:     section \"Present But Cannot Be Compiled\"" >&5
-> echo "$as_me: WARNING: $ac_header:     section \"Present But Cannot Be Compiled\"" >&2;}
->     { echo "$as_me:$LINENO: WARNING: $ac_header: proceeding with the preprocessor's result" >&5
-> echo "$as_me: WARNING: $ac_header: proceeding with the preprocessor's result" >&2;}
->     { echo "$as_me:$LINENO: WARNING: $ac_header: in the future, the compiler will take precedence" >&5
-> echo "$as_me: WARNING: $ac_header: in the future, the compiler will take precedence" >&2;}
-> 
->     ;;
-> esac
-> { echo "$as_me:$LINENO: checking for $ac_header" >&5
-> echo $ECHO_N "checking for $ac_header... $ECHO_C" >&6; }
-> if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
->   echo $ECHO_N "(cached) $ECHO_C" >&6
-> else
->   eval "$as_ac_Header=\$ac_header_preproc"
-> fi
-> ac_res=`eval echo '${'$as_ac_Header'}'`
-> 	       { echo "$as_me:$LINENO: result: $ac_res" >&5
-> echo "${ECHO_T}$ac_res" >&6; }
-> 
-> fi
-> if test `eval echo '${'$as_ac_Header'}'` = yes; then
->   cat >>confdefs.h <<_ACEOF
-> #define `echo "HAVE_$ac_header" | $as_tr_cpp` 1
-> _ACEOF
->  have_valgrind=yes
-> else
->   have_valgrind=no
-> fi
-> 
-> done
-> 
-> 	if test x"$have_valgrind" = xyes; then
-> 		cat >>confdefs.h <<\_ACEOF
-> #define HAVE_VALGRIND 1
-> _ACEOF
-> 
-> 		VALGRIND_CFLAGS="";
-> 	elif test x"$want_valgrind" = xyes -a x"$have_valgrind" = xno; then
-> 		{ { echo "$as_me:$LINENO: error: valgrind support requested but valgrind not found" >&5
-> echo "$as_me: error: valgrind support requested but valgrind not found" >&2;}
->    { (exit 1); exit 1; }; }
-> 	else
-> 	  VALGRIND_CFLAGS="";
-> 	fi
-> fi
-> 
-18388a18553
-> VALGRIND_CFLAGS!$VALGRIND_CFLAGS$ac_delim
-18422c18587
-<   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 42; then
----
->   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 43; then
-diff -r ruby-1.8.6-p286-clean/configure.in ruby-1.8.6-p286/configure.in
-958a959,974
-> AC_ARG_ENABLE(valgrind,
->        [  --enable-valgrind       use valgrind support],
->        [want_valgrind=$enableval], [want_valgrind=auto])
-> 
-> if test x"$want_valgrind" != xno; then
->   AC_CHECK_HEADERS(valgrind/memcheck.h, have_valgrind=yes, have_valgrind=no)
-> 	if test x"$have_valgrind" = xyes; then
-> 		AC_DEFINE(HAVE_VALGRIND)
-> 		VALGRIND_CFLAGS="";
-> 	elif test x"$want_valgrind" = xyes -a x"$have_valgrind" = xno; then
-> 		AC_MSG_ERROR(valgrind support requested but valgrind not found)
-> 	else
-> 	  VALGRIND_CFLAGS="";
-> 	fi
-> fi
-> 
-1567a1584
-> AC_SUBST(VALGRIND_CFLAGS)dnl
-Only in ruby-1.8.6-p286: configure.in.orig
-Only in ruby-1.8.6-p286: configure.orig
-diff -r ruby-1.8.6-p286-clean/eval.c ruby-1.8.6-p286/eval.c
-30a31,36
-> #ifdef HAVE_VALGRIND
-> #include <valgrind/memcheck.h>
-> #else
-> #define VALGRIND_MAKE_MEM_DEFINED(p, n) /* empty */
-> #endif
-> 
-5258a5265,5267
-> 
->     VALGRIND_MAKE_MEM_DEFINED(&val, sizeof(val));
-> 
-Only in ruby-1.8.6-p286: eval.c.orig
-diff -r ruby-1.8.6-p286-clean/gc.c ruby-1.8.6-p286/gc.c
-32a33,38
-> #ifdef HAVE_VALGRIND
-> #include <valgrind/memcheck.h>
-> #else
-> #define VALGRIND_MAKE_MEM_DEFINED(p, n) /* empty */
-> #endif
-> 
-101a108,110
->     VALGRIND_MAKE_MEM_DEFINED(&malloc_increase, sizeof(malloc_increase));
->     VALGRIND_MAKE_MEM_DEFINED(&malloc_limit, sizeof(malloc_limit));
-> 
-260,261d268
-< #undef GC_DEBUG
-< 
-296d302
-< #ifdef GC_DEBUG
-299d304
-< #endif
-317a323,338
-> struct heaps_slot *
-> rb_gc_heap_slots()
-> {
->     return heaps;
-> }
-> 
-> int
-> rb_gc_heaps_used() {
->     return heaps_used;
-> }
-> 
-> int
-> rb_gc_heaps_length() {
->     return heaps_length;
-> }
-> 
-404a426,430
->     if (ruby_current_node && ruby_current_node->nd_file) {
->       RANY(obj)->file = ruby_current_node->nd_file;
->       RANY(obj)->line = nd_line(ruby_current_node);
->     }
-> 
-640a667,669
-> 
->     VALGRIND_MAKE_MEM_DEFINED(x, sizeof(*x) * n);
-> 
-730a760
->     VALGRIND_MAKE_MEM_DEFINED(&ptr, sizeof(ptr));
-731a762,763
->     VALGRIND_MAKE_MEM_DEFINED(obj, sizeof(*obj));
-> 
-734a767
-> 
-735a769,770
->     /* mark our new reference point for sourcefile objects */
->     mark_source_filename(RANY(obj)->file);
-Only in ruby-1.8.6-p286: gc.c.orig
-Only in ruby-1.8.6-p286: gc.c.rej
-diff -r ruby-1.8.6-p286-clean/parse.c ruby-1.8.6-p286/parse.c
-11182a11183,11187
-> struct st_table *
-> rb_parse_sym_tbl() {
->   return sym_tbl;
-> }
-> 
-Only in ruby-1.8.6-p286: parse.c.orig
-diff -r ruby-1.8.6-p286-clean/parse.y ruby-1.8.6-p286/parse.y
-6193a6194,6198
-> struct st_table *
-> rb_parse_sym_tbl() {
->   return sym_tbl;
-> }
-> 
-Only in ruby-1.8.6-p286: parse.y.orig
-diff -r ruby-1.8.6-p286-clean/version.h ruby-1.8.6-p286/version.h
-5c5
-< #define RUBY_PATCHLEVEL 286
----
-> #define RUBY_PATCHLEVEL 903
+diff -u Makefile.in Makefile.in
+--- Makefile.in	2009-02-20 17:55:35.000000000 -0800
++++ Makefile.in	2009-02-20 18:06:52.000000000 -0800
+@@ -34,7 +34,7 @@
+ 
+ empty =
+ OUTFLAG = @OUTFLAG@$(empty)
+-CFLAGS = @CFLAGS@ @XCFLAGS@ @ARCH_FLAG@
++CFLAGS = @CFLAGS@ @XCFLAGS@ @ARCH_FLAG@ @VALGRIND_CFLAGS@
+ CPPFLAGS = -I. -I$(srcdir) @CPPFLAGS@
+ LDFLAGS = @STATIC@ $(CFLAGS) @LDFLAGS@
+ EXTLDFLAGS = 
+diff -u configure configure
+--- configure	2009-02-20 17:55:33.000000000 -0800
++++ configure	2009-02-20 18:06:58.000000000 -0800
+@@ -720,6 +720,7 @@
+ ARCHFILE
+ RDOCTARGET
+ XCFLAGS
++VALGRIND_CFLAGS
+ XLDFLAGS
+ LIBRUBY_LDSHARED
+ LIBRUBY_DLDFLAGS
+@@ -1356,6 +1357,7 @@
+   --enable-pthread        use pthread library.
+   --disable-fastthread    do not use the fastthread mutex
+   --enable-setreuid       use setreuid()/setregid() according to need even if obsolete.
++  --enable-valgrind       use valgrind support
+   --disable-rpath         embed run path into extension libraries.
+   --enable-shared         build a shared library for Ruby.
+   --enable-install-doc    build and install rdoc indexes during install
+@@ -12990,13 +12992,11 @@
+ cat confdefs.h >>conftest.$ac_ext
+ cat >>conftest.$ac_ext <<_ACEOF
+ /* end confdefs.h.  */
+-#include <sys/types.h> /* for off_t */
+-     #include <stdio.h>
++#include <stdio.h>
+ int
+ main ()
+ {
+-int (*fp) (FILE *, off_t, int) = fseeko;
+-     return fseeko (stdin, 0, 0) && fp (stdin, 0, 0);
++return fseeko (stdin, 0, 0) && (fseeko) (stdin, 0, 0);
+   ;
+   return 0;
+ }
+@@ -13036,13 +13036,11 @@
+ cat >>conftest.$ac_ext <<_ACEOF
+ /* end confdefs.h.  */
+ #define _LARGEFILE_SOURCE 1
+-#include <sys/types.h> /* for off_t */
+-     #include <stdio.h>
++#include <stdio.h>
+ int
+ main ()
+ {
+-int (*fp) (FILE *, off_t, int) = fseeko;
+-     return fseeko (stdin, 0, 0) && fp (stdin, 0, 0);
++return fseeko (stdin, 0, 0) && (fseeko) (stdin, 0, 0);
+   ;
+   return 0;
+ }
+@@ -16306,6 +16304,172 @@
+     fi
+ fi
+ 
++# Check whether --enable-valgrind was given.
++if test "${enable_valgrind+set}" = set; then
++  enableval=$enable_valgrind; want_valgrind=$enableval
++else
++  want_valgrind=auto
++fi
++
++
++if test x"$want_valgrind" != xno; then
++
++for ac_header in valgrind/memcheck.h
++do
++as_ac_Header=`echo "ac_cv_header_$ac_header" | $as_tr_sh`
++if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
++  { echo "$as_me:$LINENO: checking for $ac_header" >&5
++echo $ECHO_N "checking for $ac_header... $ECHO_C" >&6; }
++if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++fi
++ac_res=`eval echo '${'$as_ac_Header'}'`
++	       { echo "$as_me:$LINENO: result: $ac_res" >&5
++echo "${ECHO_T}$ac_res" >&6; }
++else
++  # Is the header compilable?
++{ echo "$as_me:$LINENO: checking $ac_header usability" >&5
++echo $ECHO_N "checking $ac_header usability... $ECHO_C" >&6; }
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++$ac_includes_default
++#include <$ac_header>
++_ACEOF
++rm -f conftest.$ac_objext
++if { (ac_try="$ac_compile"
++case "(($ac_try" in
++  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++  *) ac_try_echo=$ac_try;;
++esac
++eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
++  (eval "$ac_compile") 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } && {
++	 test -z "$ac_c_werror_flag" ||
++	 test ! -s conftest.err
++       } && test -s conftest.$ac_objext; then
++  ac_header_compiler=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++	ac_header_compiler=no
++fi
++
++rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
++{ echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
++echo "${ECHO_T}$ac_header_compiler" >&6; }
++
++# Is the header present?
++{ echo "$as_me:$LINENO: checking $ac_header presence" >&5
++echo $ECHO_N "checking $ac_header presence... $ECHO_C" >&6; }
++cat >conftest.$ac_ext <<_ACEOF
++/* confdefs.h.  */
++_ACEOF
++cat confdefs.h >>conftest.$ac_ext
++cat >>conftest.$ac_ext <<_ACEOF
++/* end confdefs.h.  */
++#include <$ac_header>
++_ACEOF
++if { (ac_try="$ac_cpp conftest.$ac_ext"
++case "(($ac_try" in
++  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
++  *) ac_try_echo=$ac_try;;
++esac
++eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
++  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
++  ac_status=$?
++  grep -v '^ *+' conftest.er1 >conftest.err
++  rm -f conftest.er1
++  cat conftest.err >&5
++  echo "$as_me:$LINENO: \$? = $ac_status" >&5
++  (exit $ac_status); } >/dev/null && {
++	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
++	 test ! -s conftest.err
++       }; then
++  ac_header_preproc=yes
++else
++  echo "$as_me: failed program was:" >&5
++sed 's/^/| /' conftest.$ac_ext >&5
++
++  ac_header_preproc=no
++fi
++
++rm -f conftest.err conftest.$ac_ext
++{ echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
++echo "${ECHO_T}$ac_header_preproc" >&6; }
++
++# So?  What about this header?
++case $ac_header_compiler:$ac_header_preproc:$ac_c_preproc_warn_flag in
++  yes:no: )
++    { echo "$as_me:$LINENO: WARNING: $ac_header: accepted by the compiler, rejected by the preprocessor!" >&5
++echo "$as_me: WARNING: $ac_header: accepted by the compiler, rejected by the preprocessor!" >&2;}
++    { echo "$as_me:$LINENO: WARNING: $ac_header: proceeding with the compiler's result" >&5
++echo "$as_me: WARNING: $ac_header: proceeding with the compiler's result" >&2;}
++    ac_header_preproc=yes
++    ;;
++  no:yes:* )
++    { echo "$as_me:$LINENO: WARNING: $ac_header: present but cannot be compiled" >&5
++echo "$as_me: WARNING: $ac_header: present but cannot be compiled" >&2;}
++    { echo "$as_me:$LINENO: WARNING: $ac_header:     check for missing prerequisite headers?" >&5
++echo "$as_me: WARNING: $ac_header:     check for missing prerequisite headers?" >&2;}
++    { echo "$as_me:$LINENO: WARNING: $ac_header: see the Autoconf documentation" >&5
++echo "$as_me: WARNING: $ac_header: see the Autoconf documentation" >&2;}
++    { echo "$as_me:$LINENO: WARNING: $ac_header:     section \"Present But Cannot Be Compiled\"" >&5
++echo "$as_me: WARNING: $ac_header:     section \"Present But Cannot Be Compiled\"" >&2;}
++    { echo "$as_me:$LINENO: WARNING: $ac_header: proceeding with the preprocessor's result" >&5
++echo "$as_me: WARNING: $ac_header: proceeding with the preprocessor's result" >&2;}
++    { echo "$as_me:$LINENO: WARNING: $ac_header: in the future, the compiler will take precedence" >&5
++echo "$as_me: WARNING: $ac_header: in the future, the compiler will take precedence" >&2;}
++
++    ;;
++esac
++{ echo "$as_me:$LINENO: checking for $ac_header" >&5
++echo $ECHO_N "checking for $ac_header... $ECHO_C" >&6; }
++if { as_var=$as_ac_Header; eval "test \"\${$as_var+set}\" = set"; }; then
++  echo $ECHO_N "(cached) $ECHO_C" >&6
++else
++  eval "$as_ac_Header=\$ac_header_preproc"
++fi
++ac_res=`eval echo '${'$as_ac_Header'}'`
++	       { echo "$as_me:$LINENO: result: $ac_res" >&5
++echo "${ECHO_T}$ac_res" >&6; }
++
++fi
++if test `eval echo '${'$as_ac_Header'}'` = yes; then
++  cat >>confdefs.h <<_ACEOF
++#define `echo "HAVE_$ac_header" | $as_tr_cpp` 1
++_ACEOF
++ have_valgrind=yes
++else
++  have_valgrind=no
++fi
++
++done
++
++	if test x"$have_valgrind" = xyes; then
++		cat >>confdefs.h <<\_ACEOF
++#define HAVE_VALGRIND 1
++_ACEOF
++
++		VALGRIND_CFLAGS="";
++	elif test x"$want_valgrind" = xyes -a x"$have_valgrind" = xno; then
++		{ { echo "$as_me:$LINENO: error: valgrind support requested but valgrind not found" >&5
++echo "$as_me: error: valgrind support requested but valgrind not found" >&2;}
++   { (exit 1); exit 1; }; }
++	else
++	  VALGRIND_CFLAGS="";
++	fi
++fi
++
+ DEFAULT_KCODE="KCODE_NONE"
+ 
+ 
+@@ -18386,6 +18550,7 @@
+ ARCHFILE!$ARCHFILE$ac_delim
+ RDOCTARGET!$RDOCTARGET$ac_delim
+ XCFLAGS!$XCFLAGS$ac_delim
++VALGRIND_CFLAGS!$VALGRIND_CFLAGS$ac_delim
+ XLDFLAGS!$XLDFLAGS$ac_delim
+ LIBRUBY_LDSHARED!$LIBRUBY_LDSHARED$ac_delim
+ LIBRUBY_DLDFLAGS!$LIBRUBY_DLDFLAGS$ac_delim
+@@ -18419,7 +18584,7 @@
+ LTLIBOBJS!$LTLIBOBJS$ac_delim
+ _ACEOF
+ 
+-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 42; then
++  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 43; then
+     break
+   elif $ac_last_try; then
+     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
+diff -u configure.in configure.in
+--- configure.in	2009-02-20 17:55:33.000000000 -0800
++++ configure.in	2009-02-20 18:06:52.000000000 -0800
+@@ -956,6 +956,22 @@
+     fi
+ fi
+ 
++AC_ARG_ENABLE(valgrind,
++       [  --enable-valgrind       use valgrind support],
++       [want_valgrind=$enableval], [want_valgrind=auto])
++
++if test x"$want_valgrind" != xno; then
++  AC_CHECK_HEADERS(valgrind/memcheck.h, have_valgrind=yes, have_valgrind=no)
++	if test x"$have_valgrind" = xyes; then
++		AC_DEFINE(HAVE_VALGRIND)
++		VALGRIND_CFLAGS="";
++	elif test x"$want_valgrind" = xyes -a x"$have_valgrind" = xno; then
++		AC_MSG_ERROR(valgrind support requested but valgrind not found)
++	else
++	  VALGRIND_CFLAGS="";
++	fi
++fi
++
+ dnl default value for $KANJI
+ DEFAULT_KCODE="KCODE_NONE"
+ 
+@@ -1565,6 +1581,7 @@
+ 
+ CPPFLAGS="$CPPFLAGS "'$(DEFS)'
+ AC_SUBST(XCFLAGS)dnl
++AC_SUBST(VALGRIND_CFLAGS)dnl
+ AC_SUBST(XLDFLAGS)dnl
+ AC_SUBST(LIBRUBY_LDSHARED)
+ AC_SUBST(LIBRUBY_DLDFLAGS)
+diff -u eval.c eval.c
+--- eval.c	2009-02-20 17:55:33.000000000 -0800
++++ eval.c	2009-02-20 18:06:52.000000000 -0800
+@@ -28,6 +28,12 @@
+ #define EXIT_FAILURE 1
+ #endif
+ 
++#ifdef HAVE_VALGRIND
++#include <valgrind/memcheck.h>
++#else
++#define VALGRIND_MAKE_MEM_DEFINED(p, n) /* empty */
++#endif
++
+ #include <stdio.h>
+ 
+ #include "st.h"
+@@ -5256,6 +5262,9 @@
+     int pcall;
+ {
+     ruby_current_node = lhs;
++
++    VALGRIND_MAKE_MEM_DEFINED(&val, sizeof(val));
++
+     if (val == Qundef) {
+ 	rb_warning("assigning void value");
+ 	val = Qnil;
+diff -u gc.c gc.c
+--- gc.c	2009-02-20 17:55:35.000000000 -0800
++++ gc.c	2009-02-20 18:10:38.000000000 -0800
+@@ -30,6 +30,12 @@
+ #include <sys/resource.h>
+ #endif
+ 
++#ifdef HAVE_VALGRIND
++#include <valgrind/memcheck.h>
++#else
++#define VALGRIND_MAKE_MEM_DEFINED(p, n) /* empty */
++#endif
++
+ #if defined _WIN32 || defined __CYGWIN__
+ #include <windows.h>
+ #endif
+@@ -99,6 +105,9 @@
+ {
+     void *mem;
+ 
++    VALGRIND_MAKE_MEM_DEFINED(&malloc_increase, sizeof(malloc_increase));
++    VALGRIND_MAKE_MEM_DEFINED(&malloc_limit, sizeof(malloc_limit));
++
+     if (size < 0) {
+ 	rb_raise(rb_eNoMemError, "negative allocation size (or too big)");
+     }
+@@ -257,8 +266,6 @@
+     }
+ }
+ 
+-#undef GC_DEBUG
+-
+ void
+ rb_global_variable(var)
+     VALUE *var;
+@@ -293,10 +300,8 @@
+ 	struct RVarmap varmap;
+ 	struct SCOPE   scope;
+     } as;
+-#ifdef GC_DEBUG
+     char *file;
+     int   line;
+-#endif
+ } RVALUE;
+ 
+ #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(__CYGWIN__)
+@@ -315,6 +320,22 @@
+ static int heaps_length = 0;
+ static int heaps_used   = 0;
+ 
++struct heaps_slot *
++rb_gc_heap_slots()
++{
++    return heaps;
++}
++
++int
++rb_gc_heaps_used() {
++    return heaps_used;
++}
++
++int
++rb_gc_heaps_length() {
++    return heaps_length;
++}
++
+ #define HEAP_MIN_SLOTS 10000
+ static int heap_slots = HEAP_MIN_SLOTS;
+ 
+@@ -402,6 +423,11 @@
+     RANY(obj)->file = ruby_sourcefile;
+     RANY(obj)->line = ruby_sourceline;
+ #endif
++    if (ruby_current_node && ruby_current_node->nd_file) {
++      RANY(obj)->file = ruby_current_node->nd_file;
++      RANY(obj)->line = nd_line(ruby_current_node);
++    }
++
+     return obj;
+ }
+ 
+@@ -638,6 +664,9 @@
+     register long n;
+ {
+     VALUE v;
++
++    VALGRIND_MAKE_MEM_DEFINED(x, sizeof(*x) * n);
++
+     while (n--) {
+         v = *x;
+ 	if (is_pointer_to_heap((void *)v)) {
+@@ -728,11 +757,17 @@
+ {
+     register RVALUE *obj;
+ 
++    VALGRIND_MAKE_MEM_DEFINED(&ptr, sizeof(ptr));
+     obj = RANY(ptr);
++    VALGRIND_MAKE_MEM_DEFINED(obj, sizeof(*obj));
++
+     if (rb_special_const_p(ptr)) return; /* special const not marked */
+     if (obj->as.basic.flags == 0) return;       /* free cell */
+     if (obj->as.basic.flags & FL_MARK) return;  /* already marked */
++
+     obj->as.basic.flags |= FL_MARK;
++    /* mark our new reference point for sourcefile objects */
++    mark_source_filename(RANY(obj)->file);
+ 
+     if (lev > GC_LEVEL_MAX || (lev == 0 && ruby_stack_check())) {
+ 	if (!mark_stack_overflow) {
+diff -u parse.c parse.c
+--- parse.c	2009-02-20 17:55:35.000000000 -0800
++++ parse.c	2009-02-20 18:07:07.000000000 -0800
+@@ -11180,6 +11180,11 @@
+  *                                     :wait2, :$>]
+  */
+ 
++struct st_table *
++rb_parse_sym_tbl() {
++  return sym_tbl;
++}
++
+ VALUE
+ rb_sym_all_symbols()
+ {
+diff -u parse.y parse.y
+--- parse.y	2009-02-20 17:55:35.000000000 -0800
++++ parse.y	2009-02-20 18:07:07.000000000 -0800
+@@ -6191,6 +6191,11 @@
+  *                                     :wait2, :$>]
+  */
+ 
++struct st_table *
++rb_parse_sym_tbl() {
++  return sym_tbl;
++}
++
+ VALUE
+ rb_sym_all_symbols()
+ {
+diff -u version.h version.h
+--- version.h	2009-02-20 17:55:36.000000000 -0800
++++ version.h	2009-02-20 18:07:51.000000000 -0800
+@@ -2,7 +2,7 @@
+ #define RUBY_RELEASE_DATE "2008-08-08"
+ #define RUBY_VERSION_CODE 186
+ #define RUBY_RELEASE_CODE 20080808
+-#define RUBY_PATCHLEVEL 286
++#define RUBY_PATCHLEVEL 903
+ 
+ #define RUBY_VERSION_MAJOR 1
+ #define RUBY_VERSION_MINOR 8

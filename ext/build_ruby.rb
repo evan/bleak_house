@@ -31,7 +31,7 @@ def which(basename)
 end
 
 if which('ruby-bleak-house') and
-  (patchlevel  = `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i) >= 902
+  (patchlevel  = `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i) >= 903
   puts "Binary `ruby-bleak-house` is already available (patchlevel #{patchlevel})"
 else
   # Build
@@ -60,9 +60,7 @@ else
         Dir.chdir("ruby-1.8.6-p286") do
 
           puts "Patch, configure, and build"
-          ["valgrind", "configure", "gc"].each do |patch|
-            execute("patch -p0 < \'#{source_dir}/#{patch}.patch\'")
-          end
+          execute("patch -p0 < \'#{source_dir}/ruby.patch\'")
 
           execute("./configure --prefix=#{binary_dir[0..-5]}") # --with-static-linked-ext
 

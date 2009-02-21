@@ -1,4 +1,6 @@
 
+v4.2. Harden patch/build process. Fix bug.
+
 v4.1.1. Update bundled Ruby to patchlevel 230.
 
 v4.1. Support calculating deltas in analyze utility.

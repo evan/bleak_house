@@ -16,6 +16,7 @@ require 'fileutils'
 require 'rbconfig'
 
 def execute(command)    
+  puts command
   unless system(command)
     puts "Failed: #{command.inspect}"
     exit -1 
@@ -32,7 +33,7 @@ end
 
 if which('ruby-bleak-house') and
   (patchlevel  = `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i) >= 903
-  puts "Binary `ruby-bleak-house` is already available (patchlevel #{patchlevel})"
+  puts "** Binary `ruby-bleak-house` is already available (patchlevel #{patchlevel})"
 else
   # Build
   Dir.chdir(tmp) do
@@ -48,52 +49,32 @@ else
     begin
       Dir.chdir(build_dir) do
 
-        puts "Copy Ruby source"
+        puts "** Copy Ruby source"
         bz2 = "ruby-1.8.6-p286.tar.bz2"
         FileUtils.copy "#{source_dir}/#{bz2}", bz2
 
-        puts "Extract"
+        puts "** Extract"
         execute("tar xjf #{bz2}")
         File.delete bz2
 
         Dir.chdir("ruby-1.8.6-p286") do
 
-          puts "Patch, configure, and build"
+          puts "** Patch"
           execute("patch -p0 < '#{source_dir}/ruby.patch'")
 
+          puts "** Configure"
           execute("./configure #{Config::CONFIG['configure_args']}")
+          
+          env = Config::CONFIG.map do |key, value|
+            "#{key}=#{value.inspect}" if key.upcase == key and value
+          end.compact.join(" ")            
 
-          puts "Patch the makefile for arch/sitedir"
-          makefile = File.read('Makefile')
-          %w{arch sitearch sitedir CFLAGS CPPFLAGS ARCH_FLAG}.each do | key |
-            makefile.gsub!(/#{key} = .*/, "#{key} = #{Config::CONFIG[key]}")
-          end
-          File.open('Makefile', 'w'){|f| f.puts(makefile)}
+          puts "** Make"
+          execute("env #{env} make")
 
-          # FIXME Is this necessary now with line 64?
-          puts "Patch the config.h for constants"
-          constants = {
-            'RUBY_LIB' => 'rubylibdir',          #define RUBY_LIB "/usr/lib/ruby/1.8"
-            'RUBY_SITE_LIB' => 'sitedir',        #define RUBY_SITE_LIB "/usr/lib/ruby/site_ruby"
-            'RUBY_SITE_LIB2' => 'sitelibdir',    #define RUBY_SITE_LIB2 "/usr/lib/ruby/site_ruby/1.8"
-            'RUBY_PLATFORM' => 'arch',           #define RUBY_PLATFORM "i686-linux"
-            'RUBY_ARCHLIB' => 'topdir',          #define RUBY_ARCHLIB "/usr/lib/ruby/1.8/i686-linux"
-            'RUBY_SITE_ARCHLIB' => 'sitearchdir' #define RUBY_SITE_ARCHLIB "/usr/lib/ruby/site_ruby/1.8/i686-linux"
-          }
-          config_h = File.read('config.h')
-          constants.each do | const, key |
-            config_h.gsub!(/#define #{const} .*/, "#define #{const} \"#{Config::CONFIG[key]}\"")
-          end
+          binary = "#{Config::CONFIG['bindir']}/ruby-bleak-house"
 
-          File.open('config.h', 'w') do |f| 
-            f.puts(config_h)
-          end
-
-          execute("make")
-
-          binary = "#{Config::CONFIG["bindir"]}/ruby-bleak-house"
-
-          puts "Install binary"
+          puts "** Install binary"
           if File.exist? "ruby"
             # Avoid "Text file busy" error
             File.delete binary if File.exist? binary

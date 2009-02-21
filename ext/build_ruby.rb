@@ -37,7 +37,6 @@ else
   # Build
   Dir.chdir(tmp) do
     build_dir = "bleak_house"
-    binary_dir = File.dirname(`which ruby`)
 
     FileUtils.rm_rf(build_dir) rescue nil
     if File.exist? build_dir
@@ -60,17 +59,18 @@ else
         Dir.chdir("ruby-1.8.6-p286") do
 
           puts "Patch, configure, and build"
-          execute("patch -p0 < \'#{source_dir}/ruby.patch\'")
+          execute("patch -p0 < '#{source_dir}/ruby.patch'")
 
-          execute("./configure --prefix=#{binary_dir[0..-5]}") # --with-static-linked-ext
+          execute("./configure #{Config::CONFIG['configure_args']}")
 
           puts "Patch the makefile for arch/sitedir"
           makefile = File.read('Makefile')
-          %w{arch sitearch sitedir}.each do | key |
+          %w{arch sitearch sitedir CFLAGS CPPFLAGS ARCH_FLAG}.each do | key |
             makefile.gsub!(/#{key} = .*/, "#{key} = #{Config::CONFIG[key]}")
           end
           File.open('Makefile', 'w'){|f| f.puts(makefile)}
 
+          # FIXME Is this necessary now with line 64?
           puts "Patch the config.h for constants"
           constants = {
             'RUBY_LIB' => 'rubylibdir',          #define RUBY_LIB "/usr/lib/ruby/1.8"
@@ -84,11 +84,14 @@ else
           constants.each do | const, key |
             config_h.gsub!(/#define #{const} .*/, "#define #{const} \"#{Config::CONFIG[key]}\"")
           end
-          File.open('config.h', 'w'){|f| f.puts(config_h)}
+
+          File.open('config.h', 'w') do |f| 
+            f.puts(config_h)
+          end
 
           execute("make")
 
-          binary = "#{binary_dir}/ruby-bleak-house"
+          binary = "#{Config::CONFIG["bindir"]}/ruby-bleak-house"
 
           puts "Install binary"
           if File.exist? "ruby"

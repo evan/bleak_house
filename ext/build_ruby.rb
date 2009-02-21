@@ -59,11 +59,37 @@ else
 
         Dir.chdir("ruby-1.8.6-p286") do
 
-          puts "** Patch"
+          puts "** Patch Ruby"
           execute("patch -p0 < '#{source_dir}/ruby.patch'")
 
           puts "** Configure"
-          execute("./configure #{Config::CONFIG['configure_args']}")
+          execute("./configure #{Config::CONFIG['configure_args']}".sub("'--enable-shared'", ""))
+
+          puts "Patch Makefile"
+          # FIXME Why is this necessary?
+          makefile = File.read('Makefile')
+          %w{arch sitearch sitedir}.each do | key |
+            makefile.gsub!(/#{key} = .*/, "#{key} = #{Config::CONFIG[key]}")
+          end
+          File.open('Makefile', 'w'){|f| f.puts(makefile)}
+
+          puts "Patch config.h"
+          constants = {
+            'RUBY_LIB' => 'rubylibdir',
+            'RUBY_SITE_LIB' => 'sitedir',
+            'RUBY_SITE_LIB2' => 'sitelibdir',
+            'RUBY_PLATFORM' => 'arch',
+            'RUBY_ARCHLIB' => 'topdir',
+            'RUBY_SITE_ARCHLIB' => 'sitearchdir'
+          }
+          config_h = File.read('config.h')
+          constants.each do | const, key |
+            config_h.gsub!(/#define #{const} .*/, "#define #{const} \"#{Config::CONFIG[key]}\"")
+          end
+
+          File.open('config.h', 'w') do |f| 
+            f.puts(config_h)
+          end
           
           env = Config::CONFIG.map do |key, value|
             "#{key}=#{value.inspect}" if key.upcase == key and value

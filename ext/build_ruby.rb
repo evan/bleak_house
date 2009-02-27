@@ -32,7 +32,7 @@ def which(basename)
 end
 
 if which('ruby-bleak-house') and
-  (patchlevel  = `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i) >= 903
+  (patchlevel  = `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i) >= 904
   puts "** Binary `ruby-bleak-house` is already available (patchlevel #{patchlevel})"
 else
   # Build
@@ -62,8 +62,12 @@ else
           puts "** Patch Ruby"
           execute("patch -p0 < '#{source_dir}/ruby.patch'")
 
+          env = Config::CONFIG.map do |key, value|
+            "#{key}=#{value.inspect}" if key.upcase == key and value
+          end.compact.join(" ")            
+
           puts "** Configure"
-          execute("./configure #{Config::CONFIG['configure_args']}".sub("'--enable-shared'", ""))
+          execute("env #{env} ./configure #{Config::CONFIG['configure_args']}".sub("'--enable-shared'", ""))
 
           puts "Patch Makefile"
           # FIXME Why is this necessary?
@@ -86,15 +90,10 @@ else
           constants.each do | const, key |
             config_h.gsub!(/#define #{const} .*/, "#define #{const} \"#{Config::CONFIG[key]}\"")
           end
-
           File.open('config.h', 'w') do |f| 
             f.puts(config_h)
           end
           
-          env = Config::CONFIG.map do |key, value|
-            "#{key}=#{value.inspect}" if key.upcase == key and value
-          end.compact.join(" ")            
-
           puts "** Make"
           execute("env #{env} make")
 

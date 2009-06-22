@@ -13,8 +13,8 @@ LICENSE_BSD
 Manifest
 Rakefile
 README
-ruby/ruby-1.8.6-p286.tar.bz2
-ruby/ruby.patch
+ruby/ruby-1.8.7-p72.tar.bz2
+ruby/ruby187.patch
 ruby/valgrind.patch
 test/benchmark/bench.rb
 test/test_helper.rb

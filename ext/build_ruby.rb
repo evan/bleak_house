@@ -5,8 +5,8 @@ if RUBY_PLATFORM =~ /win32|windows/
   raise "Windows is not supported."
 end
 
-unless RUBY_VERSION == '1.8.6'
-  raise "Wrong Ruby version, you're at '#{RUBY_VERSION}', need 1.8.6"
+unless RUBY_VERSION == '1.8.7'
+  raise "Wrong Ruby version, you're at '#{RUBY_VERSION}', need 1.8.7"
 end
 
 source_dir = File.expand_path(File.dirname(__FILE__)) + "/../ruby"
@@ -50,17 +50,18 @@ else
       Dir.chdir(build_dir) do
 
         puts "** Copy Ruby source"
-        bz2 = "ruby-1.8.6-p286.tar.bz2"
+        # bz2 = "ruby-1.8.6-p286.tar.bz2"
+        bz2 = "ruby-1.8.7-p72.tar.bz2"
         FileUtils.copy "#{source_dir}/#{bz2}", bz2
 
         puts "** Extract"
         execute("tar xjf #{bz2}")
         File.delete bz2
 
-        Dir.chdir("ruby-1.8.6-p286") do
+        Dir.chdir("ruby-1.8.7-p72") do
 
           puts "** Patch Ruby"
-          execute("patch -p0 < '#{source_dir}/ruby.patch'")
+          execute("patch -p1 < '#{source_dir}/ruby187.patch'")
 
           env = Config::CONFIG.map do |key, value|
             "#{key}=#{value.inspect}" if key.upcase == key and value

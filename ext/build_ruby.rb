@@ -97,13 +97,14 @@ else
           puts "** Make"
           execute("env #{env} make")
 
-          binary = "#{Config::CONFIG['bindir']}/ruby-bleak-house"
+          bleak_binary = "#{Config::CONFIG['bindir']}/ruby-bleak-house"
+          ruby_binary = Config::CONFIG["RUBY_INSTALL_NAME"] || "ruby"
 
           puts "** Install binary"
-          if File.exist? "ruby"
+          if File.exist? ruby_binary
             # Avoid "Text file busy" error
-            File.delete binary if File.exist? binary
-            exec("cp ./ruby #{binary}; chmod 755 #{binary}")
+            File.delete bleak_binary if File.exist? bleak_binary
+            exec("cp ./#{ruby_binary} #{bleak_binary}; chmod 755 #{bleak_binary}")
           else
             raise
           end

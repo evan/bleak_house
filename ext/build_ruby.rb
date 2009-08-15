@@ -32,7 +32,7 @@ def which(basename)
 end
 
 if which('ruby-bleak-house') and
-  (patchlevel  = `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i) >= 904
+  (patchlevel  = `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i) >= 903
   puts "** Binary `ruby-bleak-house` is already available (patchlevel #{patchlevel})"
 else
   # Build
@@ -61,6 +61,23 @@ else
 
           puts "** Patch Ruby"
           execute("patch -p0 < '#{source_dir}/ruby.patch'")
+
+	  puts "** Determining OpenSSL version"
+	  cmd = open("|openssl version")
+	  openssl_version_string = cmd.gets
+	  cmd.close
+
+          if openssl_version_string.nil?
+	    puts "** Could not determine openssl version, skipping patches"
+	  else
+	    openssl_version = openssl_version_string.split(/\s/)[1]
+	    if openssl_version >= "0.9.8j"
+	      puts "** Applying openssl patches to build against #{openssl_version_string}"
+	      execute( "patch -p3 < '#{source_dir}/ruby-1.8.6-openssl.patch'")
+	    else
+	      puts "** No patching need for #{openssl_version_string}"
+	    end
+	  end
 
           env = Config::CONFIG.map do |key, value|
             "#{key}=#{value.inspect}" if key.upcase == key and value
@@ -97,13 +114,14 @@ else
           puts "** Make"
           execute("env #{env} make")
 
-          binary = "#{Config::CONFIG['bindir']}/ruby-bleak-house"
+          bleak_binary = "#{Config::CONFIG['bindir']}/ruby-bleak-house"
+          ruby_binary = Config::CONFIG["RUBY_INSTALL_NAME"] || "ruby"
 
           puts "** Install binary"
-          if File.exist? "ruby"
+          if File.exist? ruby_binary
             # Avoid "Text file busy" error
-            File.delete binary if File.exist? binary
-            exec("cp ./ruby #{binary}; chmod 755 #{binary}")
+            File.delete bleak_binary if File.exist? bleak_binary
+            exec("cp ./#{ruby_binary} #{bleak_binary}; chmod 755 #{bleak_binary}")
           else
             raise
           end

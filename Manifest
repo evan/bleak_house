@@ -13,6 +13,7 @@ LICENSE_BSD
 Manifest
 Rakefile
 README
+ruby/ruby-1.8.6-openssl.patch
 ruby/ruby-1.8.6-p286.tar.bz2
 ruby/ruby.patch
 ruby/valgrind.patch

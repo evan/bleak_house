@@ -1,4 +1,6 @@
 
+v4.3. Build against OpenSSL 0.9.8j or later (kennethkalmer). Bugfixes (Pete Hodgson, joshuabates).
+
 v4.2.1. Harden patch/build process. Fix bug.
 
 v4.1.1. Update bundled Ruby to patchlevel 230.

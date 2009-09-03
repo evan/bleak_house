@@ -70,6 +70,7 @@ else
           
           args = Config::CONFIG['configure_args']
           args.sub("'--enable-shared'", "")
+          args << " --disable-shared"
           args << " --enable-valgrind" if which("valgrind")          
           execute("env #{env} ./configure #{args}")
 

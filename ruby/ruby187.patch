@@ -1,39 +1,40 @@
-diff -u Makefile.in Makefile.in
---- Makefile.in	2009-02-20 17:55:35.000000000 -0800
-+++ Makefile.in	2009-02-20 18:06:52.000000000 -0800
-@@ -34,7 +34,7 @@
+diff --git a/Makefile.in b/Makefile.in
+index a37bcf6..52f723c 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -34,7 +34,7 @@ RIDATADIR = $(DESTDIR)$(datadir)/ri/$(MAJOR).$(MINOR)/system
  
  empty =
  OUTFLAG = @OUTFLAG@$(empty)
 -CFLAGS = @CFLAGS@ @XCFLAGS@ @ARCH_FLAG@
 +CFLAGS = @CFLAGS@ @XCFLAGS@ @ARCH_FLAG@ @VALGRIND_CFLAGS@
- CPPFLAGS = -I. -I$(srcdir) @CPPFLAGS@
- LDFLAGS = @STATIC@ $(CFLAGS) @LDFLAGS@
- EXTLDFLAGS = 
-diff -u configure configure
---- configure	2009-02-20 17:55:33.000000000 -0800
-+++ configure	2009-02-20 18:06:58.000000000 -0800
-@@ -720,6 +720,7 @@
- ARCHFILE
- RDOCTARGET
+ cflags = @cflags@
+ optflags = @optflags@
+ debugflags = @debugflags@
+diff --git a/configure b/configure
+index faf2b45..16287ca 100755
+--- a/configure
++++ b/configure
+@@ -724,6 +724,7 @@ cflags
+ optflags
+ debugflags
  XCFLAGS
 +VALGRIND_CFLAGS
  XLDFLAGS
  LIBRUBY_LDSHARED
  LIBRUBY_DLDFLAGS
-@@ -1356,6 +1357,7 @@
-   --enable-pthread        use pthread library.
-   --disable-fastthread    do not use the fastthread mutex
+@@ -1353,6 +1354,7 @@ Optional Features:
    --enable-setreuid       use setreuid()/setregid() according to need even if obsolete.
-+  --enable-valgrind       use valgrind support
    --disable-rpath         embed run path into extension libraries.
    --enable-shared         build a shared library for Ruby.
++  --enable-valgrind       Use valgrind support
    --enable-install-doc    build and install rdoc indexes during install
-@@ -12990,13 +12992,11 @@
- cat confdefs.h >>conftest.$ac_ext
+ 
+ Optional Packages:
+@@ -13012,12 +13014,11 @@ cat confdefs.h >>conftest.$ac_ext
  cat >>conftest.$ac_ext <<_ACEOF
  /* end confdefs.h.  */
--#include <sys/types.h> /* for off_t */
+ #include <sys/types.h> /* for off_t */
 -     #include <stdio.h>
 +#include <stdio.h>
  int
@@ -45,23 +46,7 @@ diff -u configure configure
    ;
    return 0;
  }
-@@ -13036,13 +13036,11 @@
- cat >>conftest.$ac_ext <<_ACEOF
- /* end confdefs.h.  */
- #define _LARGEFILE_SOURCE 1
--#include <sys/types.h> /* for off_t */
--     #include <stdio.h>
-+#include <stdio.h>
- int
- main ()
- {
--int (*fp) (FILE *, off_t, int) = fseeko;
--     return fseeko (stdin, 0, 0) && fp (stdin, 0, 0);
-+return fseeko (stdin, 0, 0) && (fseeko) (stdin, 0, 0);
-   ;
-   return 0;
- }
-@@ -16306,6 +16304,172 @@
+@@ -16462,6 +16463,173 @@ done
      fi
  fi
  
@@ -231,30 +216,32 @@ diff -u configure configure
 +	fi
 +fi
 +
++
  DEFAULT_KCODE="KCODE_NONE"
  
  
-@@ -18386,6 +18550,7 @@
- ARCHFILE!$ARCHFILE$ac_delim
- RDOCTARGET!$RDOCTARGET$ac_delim
+@@ -18588,6 +18756,7 @@ cflags!$cflags$ac_delim
+ optflags!$optflags$ac_delim
+ debugflags!$debugflags$ac_delim
  XCFLAGS!$XCFLAGS$ac_delim
 +VALGRIND_CFLAGS!$VALGRIND_CFLAGS$ac_delim
  XLDFLAGS!$XLDFLAGS$ac_delim
  LIBRUBY_LDSHARED!$LIBRUBY_LDSHARED$ac_delim
  LIBRUBY_DLDFLAGS!$LIBRUBY_DLDFLAGS$ac_delim
-@@ -18419,7 +18584,7 @@
+@@ -18622,7 +18791,7 @@ MANTYPE!$MANTYPE$ac_delim
  LTLIBOBJS!$LTLIBOBJS$ac_delim
  _ACEOF
  
--  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 42; then
-+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 43; then
+-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 47; then
++  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 48; then
      break
    elif $ac_last_try; then
      { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
-diff -u configure.in configure.in
---- configure.in	2009-02-20 17:55:33.000000000 -0800
-+++ configure.in	2009-02-20 18:06:52.000000000 -0800
-@@ -956,6 +956,22 @@
+diff --git a/configure.in b/configure.in
+index fe63c0c..e0cdcdd 100644
+--- a/configure.in
++++ b/configure.in
+@@ -1043,6 +1043,23 @@ if test x"$ac_cv_header_ucontext_h" = xyes; then
      fi
  fi
  
@@ -274,20 +261,22 @@ diff -u configure.in configure.in
 +	fi
 +fi
 +
++
  dnl default value for $KANJI
  DEFAULT_KCODE="KCODE_NONE"
  
-@@ -1565,6 +1581,7 @@
- 
- CPPFLAGS="$CPPFLAGS "'$(DEFS)'
+@@ -1663,6 +1680,7 @@ AC_SUBST(cflags, ['${optflags} ${debugflags}'])dnl
+ AC_SUBST(optflags)dnl
+ AC_SUBST(debugflags)dnl
  AC_SUBST(XCFLAGS)dnl
 +AC_SUBST(VALGRIND_CFLAGS)dnl
  AC_SUBST(XLDFLAGS)dnl
  AC_SUBST(LIBRUBY_LDSHARED)
  AC_SUBST(LIBRUBY_DLDFLAGS)
-diff -u eval.c eval.c
---- eval.c	2009-02-20 17:55:33.000000000 -0800
-+++ eval.c	2009-02-20 18:06:52.000000000 -0800
+diff --git a/eval.c b/eval.c
+index 11264f7..09ec7a6 100644
+--- a/eval.c
++++ b/eval.c
 @@ -28,6 +28,12 @@
  #define EXIT_FAILURE 1
  #endif
@@ -301,7 +290,7 @@ diff -u eval.c eval.c
  #include <stdio.h>
  
  #include "st.h"
-@@ -5256,6 +5262,9 @@
+@@ -5290,6 +5296,9 @@ assign(self, lhs, val, pcall)
      int pcall;
  {
      ruby_current_node = lhs;
@@ -311,9 +300,10 @@ diff -u eval.c eval.c
      if (val == Qundef) {
  	rb_warning("assigning void value");
  	val = Qnil;
-diff -u gc.c gc.c
---- gc.c	2009-02-20 17:55:35.000000000 -0800
-+++ gc.c	2009-02-20 18:10:38.000000000 -0800
+diff --git a/gc.c b/gc.c
+index 45facf0..933b76e 100644
+--- a/gc.c
++++ b/gc.c
 @@ -30,6 +30,12 @@
  #include <sys/resource.h>
  #endif
@@ -327,7 +317,7 @@ diff -u gc.c gc.c
  #if defined _WIN32 || defined __CYGWIN__
  #include <windows.h>
  #endif
-@@ -99,6 +105,9 @@
+@@ -138,6 +144,9 @@ ruby_xmalloc(size)
  {
      void *mem;
  
@@ -337,7 +327,7 @@ diff -u gc.c gc.c
      if (size < 0) {
  	rb_raise(rb_eNoMemError, "negative allocation size (or too big)");
      }
-@@ -257,8 +266,6 @@
+@@ -297,8 +306,6 @@ rb_gc_unregister_address(addr)
      }
  }
  
@@ -346,7 +336,7 @@ diff -u gc.c gc.c
  void
  rb_global_variable(var)
      VALUE *var;
-@@ -293,10 +300,8 @@
+@@ -333,10 +340,8 @@ typedef struct RVALUE {
  	struct RVarmap varmap;
  	struct SCOPE   scope;
      } as;
@@ -357,7 +347,7 @@ diff -u gc.c gc.c
  } RVALUE;
  
  #if defined(_MSC_VER) || defined(__BORLANDC__) || defined(__CYGWIN__)
-@@ -315,6 +320,22 @@
+@@ -355,6 +360,22 @@ static struct heaps_slot {
  static int heaps_length = 0;
  static int heaps_used   = 0;
  
@@ -380,19 +370,19 @@ diff -u gc.c gc.c
  #define HEAP_MIN_SLOTS 10000
  static int heap_slots = HEAP_MIN_SLOTS;
  
-@@ -402,6 +423,11 @@
+@@ -442,6 +463,11 @@ rb_newobj()
      RANY(obj)->file = ruby_sourcefile;
      RANY(obj)->line = ruby_sourceline;
  #endif
++
 +    if (ruby_current_node && ruby_current_node->nd_file) {
 +      RANY(obj)->file = ruby_current_node->nd_file;
 +      RANY(obj)->line = nd_line(ruby_current_node);
 +    }
-+
      return obj;
  }
  
-@@ -638,6 +664,9 @@
+@@ -678,6 +704,9 @@ mark_locations_array(x, n)
      register long n;
  {
      VALUE v;
@@ -402,7 +392,7 @@ diff -u gc.c gc.c
      while (n--) {
          v = *x;
  	if (is_pointer_to_heap((void *)v)) {
-@@ -728,11 +757,17 @@
+@@ -768,12 +797,18 @@ gc_mark(ptr, lev)
  {
      register RVALUE *obj;
  
@@ -413,17 +403,19 @@ diff -u gc.c gc.c
      if (rb_special_const_p(ptr)) return; /* special const not marked */
      if (obj->as.basic.flags == 0) return;       /* free cell */
      if (obj->as.basic.flags & FL_MARK) return;  /* already marked */
-+
      obj->as.basic.flags |= FL_MARK;
+ 
 +    /* mark our new reference point for sourcefile objects */
 +    mark_source_filename(RANY(obj)->file);
- 
++
      if (lev > GC_LEVEL_MAX || (lev == 0 && ruby_stack_check())) {
  	if (!mark_stack_overflow) {
-diff -u parse.c parse.c
---- parse.c	2009-02-20 17:55:35.000000000 -0800
-+++ parse.c	2009-02-20 18:07:07.000000000 -0800
-@@ -11180,6 +11180,11 @@
+ 	    if (mark_stack_ptr - mark_stack < MARK_STACK_MAX) {
+diff --git a/parse.c b/parse.c
+index 6b3d80d..b320cf2 100644
+--- a/parse.c
++++ b/parse.c
+@@ -11403,6 +11403,11 @@ symbols_i(key, value, ary)
   *                                     :wait2, :$>]
   */
  
@@ -435,10 +427,11 @@ diff -u parse.c parse.c
  VALUE
  rb_sym_all_symbols()
  {
-diff -u parse.y parse.y
---- parse.y	2009-02-20 17:55:35.000000000 -0800
-+++ parse.y	2009-02-20 18:07:07.000000000 -0800
-@@ -6191,6 +6191,11 @@
+diff --git a/parse.y b/parse.y
+index ab0b83c..3ce1dfb 100644
+--- a/parse.y
++++ b/parse.y
+@@ -6263,6 +6263,11 @@ symbols_i(key, value, ary)
   *                                     :wait2, :$>]
   */
  
@@ -450,15 +443,16 @@ diff -u parse.y parse.y
  VALUE
  rb_sym_all_symbols()
  {
-diff -u version.h version.h
---- version.h	2009-02-20 17:55:36.000000000 -0800
-+++ version.h	2009-02-20 18:07:51.000000000 -0800
+diff --git a/version.h b/version.h
+index 70fc28a..76aa188 100644
+--- a/version.h
++++ b/version.h
 @@ -2,7 +2,7 @@
- #define RUBY_RELEASE_DATE "2008-08-08"
- #define RUBY_VERSION_CODE 186
- #define RUBY_RELEASE_CODE 20080808
--#define RUBY_PATCHLEVEL 286
-+#define RUBY_PATCHLEVEL 903
+ #define RUBY_RELEASE_DATE "2008-08-11"
+ #define RUBY_VERSION_CODE 187
+ #define RUBY_RELEASE_CODE 20080811
+-#define RUBY_PATCHLEVEL 72
++#define RUBY_PATCHLEVEL 904
  
  #define RUBY_VERSION_MAJOR 1
  #define RUBY_VERSION_MINOR 8

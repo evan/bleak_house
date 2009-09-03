@@ -87,11 +87,13 @@ You can send <tt>SIGUSR2</tt> to a BleakHouse-instrumented program to snag a dum
 
 Do not try to detect Rails leaks in <tt>development</tt> mode. Make a separate <tt>benchmark</tt> environment if you need to, and make sure all your production caching is turned on.
 
-It is normal to see lots of <tt>null:null</tt> references, especially for nodes. Using <tt>eval()</tt> too much can be a cause of node leaks. You can track <tt>eval()</tt> by using sourceline macros in your code:
+It is normal to see lots of <tt>null:null</tt> references, especially for nodes. Using <tt>eval()</tt> too much can be a cause of node leaks. You can sometimes track <tt>eval()</tt> by using sourceline macros in your code:
 
   eval("CODE", nil, __FILE__, __LINE__)
 
-You may get library require errors if you install <tt>ruby-bleak-house</tt> 1.8.6 alongside a different verson of Ruby. You could try to patch your local version of Ruby instead, or you could just upgrade to 1.8.6, which has a good trackrecord of stability.
+You may get library require errors if you install <tt>ruby-bleak-house</tt> 1.8.7 alongside a different verson of Ruby. You could try to patch your local version of Ruby instead, or you can get <tt>ruby-bleak-house</tt> to lie about its version. Just make sure that the <tt>bleak-house</tt> library is the first thing required (even before Rubygems):
+
+  ruby-bleak-house -I `ruby -e 'puts \`gem which bleak_house\`.split("\n")[1][0..-16]'` -rbleak_house
 
 It is not recommended that you use <tt>ruby-bleak-house</tt> as your production Ruby binary, since it will be slightly slower and use slightly more memory. It is unlikely, however, to affect stability.
 

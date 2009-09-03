@@ -3,10 +3,10 @@ $LOAD_PATH.unshift(File.dirname(__FILE__) + "/../../lib")
 
 ENV['NO_EXIT_HANDLER'] = "1"
 
+require 'bleak_house'
 require 'rubygems'
 require 'echoe'
 require 'test/unit'
-require 'bleak_house'
 
 class BleakHouseTest < Test::Unit::TestCase
 

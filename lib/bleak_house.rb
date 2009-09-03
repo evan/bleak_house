@@ -1,5 +1,5 @@
 
-unless RUBY_PATCHLEVEL >= 903
+unless RUBY_PATCHLEVEL >= 904
   raise "This build of Ruby has not been successfully patched for BleakHouse."
 end
 

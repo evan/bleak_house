@@ -32,7 +32,7 @@ def which(basename)
 end
 
 if which('ruby-bleak-house') and
-  (patchlevel  = `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i) >= 903
+  (patchlevel  = `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i) >= 904
   puts "** Binary `ruby-bleak-house` is already available (patchlevel #{patchlevel})"
 else
   # Build

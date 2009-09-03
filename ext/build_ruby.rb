@@ -32,7 +32,7 @@ def which(basename)
 end
 
 if which('ruby-bleak-house') and
-  (patchlevel  = `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i) >= 904
+  (patchlevel  = `ruby-bleak-house -e "puts RUBY_PATCHLEVEL"`.to_i) >= 905
   puts "** Binary `ruby-bleak-house` is already available (patchlevel #{patchlevel})"
 else
   # Build
@@ -60,7 +60,7 @@ else
         Dir.chdir("ruby-1.8.7-p174") do
 
           puts "** Patch Ruby"
-          execute("patch -p1 < '#{source_dir}/ruby187.patch'")
+          execute("patch -p1 < '#{source_dir}/ruby-1.8.7.patch'")
 
           env = Config::CONFIG.map do |key, value|
             "#{key}=#{value.inspect}" if key.upcase == key and value

@@ -290,6 +290,15 @@ index 11264f7..09ec7a6 100644
  #include <stdio.h>
  
  #include "st.h"
+@@ -1149,7 +1149,7 @@ static VALUE trace_func = 0;
+ static int tracing = 0;
+ static void call_trace_func _((rb_event_t,NODE*,VALUE,ID,VALUE));
+ 
+-#if 0
++#if 1
+ #define SET_CURRENT_SOURCE() (ruby_sourcefile = ruby_current_node->nd_file, \
+ 			      ruby_sourceline = nd_line(ruby_current_node))
+ #else
 @@ -5290,6 +5296,9 @@ assign(self, lhs, val, pcall)
      int pcall;
  {
@@ -449,5 +458,5 @@ index 70fc28a..76aa188 100644
 +++ b/version.h
 @@ -5,2 +5,2 @@
 -#define RUBY_PATCHLEVEL 174
-+#define RUBY_PATCHLEVEL 904
++#define RUBY_PATCHLEVEL 905
 

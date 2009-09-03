@@ -1,13 +1,7 @@
 
 # Extension abuse in order to build our patched binary as part of the gem install process.
 
-if RUBY_PLATFORM =~ /win32|windows/
-  raise "Windows is not supported."
-end
-
-unless RUBY_VERSION == '1.8.7'
-  raise "Wrong Ruby version, you're at '#{RUBY_VERSION}', need 1.8.7"
-end
+raise "Windows is not supported." if RUBY_PLATFORM =~ /win32|windows/
 
 source_dir = File.expand_path(File.dirname(__FILE__)) + "/../ruby"
 tmp = "/tmp/"

@@ -11,7 +11,7 @@ require 'bleak_house'
 class BleakHouseTest < Test::Unit::TestCase
 
   # Match the default hook filename, for convenience
-  FILE =  "/tmp/bleak.#{Process.pid}.0.dump"
+  FILE =  "/tmp/bleak.#{Process.pid}.000.dump"
 
   def setup
     File.delete FILE rescue nil

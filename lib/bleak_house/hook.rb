@@ -19,5 +19,6 @@ unless ENV['NO_EXIT_HANDLER']
 end
 
 Kernel.trap("USR2") do
+  STDERR.puts "** BleakHouse: we get signal."
   BleakHouse.hook
 end

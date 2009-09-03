@@ -62,19 +62,6 @@ else
           puts "** Patch Ruby"
           execute("patch -p1 < '#{source_dir}/ruby187.patch'")
 
-          puts "** Determining OpenSSL version"
-          cmd = open("|openssl version")
-          openssl_version_string = cmd.gets
-          cmd.close
-          
-            if openssl_version_string
-            openssl_version = openssl_version_string.split(/\s/)[1]
-            if openssl_version >= "0.9.8j"
-              puts "** Applying openssl patches to build against #{openssl_version_string}"
-              execute( "patch -p3 < '#{source_dir}/openssl.patch'")
-            end
-          end
-
           env = Config::CONFIG.map do |key, value|
             "#{key}=#{value.inspect}" if key.upcase == key and value
           end.compact.join(" ")            

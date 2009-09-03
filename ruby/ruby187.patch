@@ -447,12 +447,7 @@ diff --git a/version.h b/version.h
 index 70fc28a..76aa188 100644
 --- a/version.h
 +++ b/version.h
-@@ -2,7 +2,7 @@
- #define RUBY_RELEASE_DATE "2008-08-11"
- #define RUBY_VERSION_CODE 187
- #define RUBY_RELEASE_CODE 20080811
+@@ -5,2 +5,2 @@
 -#define RUBY_PATCHLEVEL 174
 +#define RUBY_PATCHLEVEL 904
- 
- #define RUBY_VERSION_MAJOR 1
- #define RUBY_VERSION_MINOR 8
+

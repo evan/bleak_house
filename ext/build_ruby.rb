@@ -67,7 +67,11 @@ else
           end.compact.join(" ")            
 
           puts "** Configure"
-          execute("env #{env} ./configure #{Config::CONFIG['configure_args']}".sub("'--enable-shared'", ""))
+          
+          args = Config::CONFIG['configure_args']
+          args.sub("'--enable-shared'", "")
+          args << " --enable-valgrind" if which("valgrind")          
+          execute("env #{env} ./configure #{args}")
 
           puts "Patch Makefile"
           # FIXME Why is this necessary?
@@ -101,13 +105,9 @@ else
           ruby_binary = Config::CONFIG["RUBY_INSTALL_NAME"] || "ruby"
 
           puts "** Install binary"
-          if File.exist? ruby_binary
-            # Avoid "Text file busy" error
-            File.delete bleak_binary if File.exist? bleak_binary
-            exec("cp ./#{ruby_binary} #{bleak_binary}; chmod 755 #{bleak_binary}")
-          else
-            raise
-          end
+          raise unless File.exist? ruby_binary          
+          File.delete bleak_binary if File.exist? bleak_binary # Avoid "Text file busy" error
+          exec("cp ./#{ruby_binary} #{bleak_binary}; chmod 755 #{bleak_binary}")
         end
 
       end

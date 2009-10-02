@@ -1,5 +1,5 @@
 
-v4.6. Allow snapshotting without running the GC first.
+v4.6.1. Allow snapshotting without running the GC first.
 
 v4.5. Enable SET_CURRENT_SOURCE() for better reporting (tmm1, joedamato).
 

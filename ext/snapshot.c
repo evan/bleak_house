@@ -39,13 +39,15 @@ static VALUE ext_snapshot(VALUE self, VALUE _logfile, VALUE _gc_runs) {
   int free_slots = 0;
 
   int i;
+  int gc_runs = FIX2INT(_gc_runs);
   char * chr;
 
-  for (i = 0; i < FIX2INT(_gc_runs); i++) {
+  for (i = 0; i < gc_runs; i++) {
     /* request GC run */
     rb_funcall(rb_mGC, rb_intern("start"), 0);
     rb_thread_schedule();
   }
+  fprintf(logfile, "%i GC runs performed before dump\n", gc_runs);
 
   /* walk the heap */
   for (i = 0; i < rb_gc_heaps_used(); i++) {

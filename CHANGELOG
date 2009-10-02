@@ -1,4 +1,6 @@
 
+v4.6. Allow snapshotting without running the GC first.
+
 v4.5. Enable SET_CURRENT_SOURCE() for better reporting (tmm1, joedamato).
 
 v4.4. Switch to Ruby 1.8.7p174.

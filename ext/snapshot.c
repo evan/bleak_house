@@ -14,9 +14,10 @@ static VALUE heaps_length(VALUE self) {
   return INT2FIX(rb_gc_heaps_length());
 }
 
-/* Walk the live, instrumented objects on the heap and write them to <tt>_logfile</tt>. */
-static VALUE snapshot(VALUE self, VALUE _logfile) {
+/* Inner method; call BleakHouse.snapshot instead. */
+static VALUE ext_snapshot(VALUE self, VALUE _logfile, VALUE _gc_runs) {
   Check_Type(_logfile, T_STRING);
+  Check_Type(_gc_runs, T_FIXNUM);
 
   RVALUE *obj, *obj_end;
   st_table_entry *sym;
@@ -40,7 +41,7 @@ static VALUE snapshot(VALUE self, VALUE _logfile) {
   int i;
   char * chr;
 
-  for (i = 0; i < 3; i++) {
+  for (i = 0; i < FIX2INT(_gc_runs); i++) {
     /* request GC run */
     rb_funcall(rb_mGC, rb_intern("start"), 0);
     rb_thread_schedule();
@@ -144,7 +145,7 @@ void
 Init_snapshot()
 {
   rb_mB = rb_define_module("BleakHouse");
-  rb_define_singleton_method(rb_mB, "snapshot", snapshot, 1);
+  rb_define_singleton_method(rb_mB, "ext_snapshot", ext_snapshot, 2);
   rb_define_singleton_method(rb_mB, "heaps_used", heaps_used, 0);
   rb_define_singleton_method(rb_mB, "heaps_length", heaps_length, 0);
 }

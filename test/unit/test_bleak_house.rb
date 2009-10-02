@@ -18,8 +18,14 @@ class BleakHouseTest < Test::Unit::TestCase
   end
 
   def test_snapshot
-    symbol_count = Symbol.all_symbols.size
     BleakHouse.snapshot(FILE)
+    assert File.exist?(FILE)
+    assert BleakHouse.heaps_used > 0
+    assert BleakHouse.heaps_length > 0
+  end
+
+  def test_snapshot_gc_runs
+    BleakHouse.snapshot(FILE, 0)
     assert File.exist?(FILE)
     assert BleakHouse.heaps_used > 0
     assert BleakHouse.heaps_length > 0

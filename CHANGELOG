@@ -1,4 +1,6 @@
 
+v7.2. Bump version to prevent gemcutter from picking up an ancient mirror.
+
 v4.6.1. Allow snapshotting without running the GC first.
 
 v4.5. Enable SET_CURRENT_SOURCE() for better reporting (tmm1, joedamato).

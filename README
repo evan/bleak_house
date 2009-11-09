@@ -1,11 +1,7 @@
 
 BleakHouse
 
-A library for finding memory leaks. Patched for Ruby 1.8.7p72. 
-
-An experiment.
-Run git clone and then rake gem;
-gem install bleak_house
+A library for finding memory leaks.
 
 == License
 

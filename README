@@ -7,7 +7,7 @@ A library for finding memory leaks.
 
 Copyright 2007, 2008 Cloudburst, LLC. Licensed under the AFL 3. See the included LICENSE file. Portions copyright 2006 Eric Hodel and used with permission. See the included LICENSE_BSD file.
 
-The public certificate for this gem is here[http://rubyforge.org/frs/download.php/25331/evan_weaver-original-public_cert.pem].
+The public certificate for this gem is here[http://blog.evanweaver.com/files/evan_weaver-original-public_cert.pem].
 
 If you use this software, please {make a donation}[http://blog.evanweaver.com/donate/], or {recommend Evan}[http://www.workingwithrails.com/person/7739-evan-weaver] at Working with Rails.
 
@@ -33,7 +33,7 @@ Install the gem:
 
 The installation takes a long time because it compiles a patched Ruby 1.8.7 binary for you. It is installed as <tt>ruby-bleak-house</tt> alongside your regular <tt>ruby</tt> binary.
 
-Please see the forum ( http://rubyforge.org/forum/forum.php?forum_id=13983 ) if you have installation problems.
+Please see the forum ( http://github.com/fauna/bleak_house/issues ) if you have installation problems.
 
 == Usage
 
@@ -107,7 +107,7 @@ Try to remove that reference, run your script again, and see if the object count
 
 == Reporting problems
 
-The support forum is here[http://rubyforge.org/forum/forum.php?forum_id=13983].
+The support forum is here[http://github.com/fauna/bleak_house/issues].
 
 Patches and contributions are very welcome. Please note that contributors are required to assign copyright for their additions to Cloudburst, LLC.
 

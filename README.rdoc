@@ -3,6 +3,10 @@ BleakHouse
 
 A library for finding memory leaks.
 
+== DEPRECATED
+
+Please use Kiji[https://github.com/twitter/rubyenterpriseedition187-248/] instead.
+
 == License
 
 Copyright 2007, 2008 Cloudburst, LLC. Licensed under the AFL 3. See the included LICENSE file. Portions copyright 2006 Eric Hodel and used with permission. See the included LICENSE_BSD file.

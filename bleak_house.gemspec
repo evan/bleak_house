@@ -22,7 +22,6 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib", "ext"]
   s.rubyforge_project = %q{fauna}
   s.rubygems_version = %q{1.3.5}
-  s.signing_key = %q{/Users/eweaver/p/configuration/gem_certificates/evan_weaver-original-private_key.pem}
   s.summary = %q{A library for finding memory leaks.}
   s.test_files = ["test/test_helper.rb", "test/unit/test_bleak_house.rb"]
 

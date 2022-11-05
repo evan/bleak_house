@@ -4,7 +4,7 @@ require "bleak_house/version"
 
 Gem::Specification.new do |s|
   s.name = %q{bleak_house}
-  s.version     = BleakHouse::VERSION
+  s.version = "7.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Test"]

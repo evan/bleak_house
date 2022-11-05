@@ -15,10 +15,10 @@ Gem::Specification.new do |s|
   s.email = %q{}
   s.executables = ["bleak"]
   s.extensions = ["ext/extconf.rb"]
-  s.extra_rdoc_files = ["CHANGELOG", "LICENSE", "LICENSE_BSD", "README", "TODO", "ext/snapshot.c", "lib/bleak_house.rb", "lib/bleak_house/analyzer.rb", "lib/bleak_house/hook.rb"]
-  s.files = ["CHANGELOG", "LICENSE", "LICENSE_BSD", "Manifest", "README", "Rakefile", "TODO", "bin/bleak", "ext/build_ruby.rb", "ext/build_snapshot.rb", "ext/extconf.rb", "ext/snapshot.c", "ext/snapshot.h", "lib/bleak_house.rb", "lib/bleak_house/analyzer.rb", "lib/bleak_house/hook.rb", "ruby/ruby-1.8.7-p174.tar.bz2", "ruby/ruby-1.8.7.patch", "test/benchmark/bench.rb", "test/test_helper.rb", "test/unit/test_bleak_house.rb", "bleak_house.gemspec"]
+  s.extra_rdoc_files = ["CHANGELOG", "LICENSE", "LICENSE_BSD", "TODO", "ext/snapshot.c", "lib/bleak_house.rb", "lib/bleak_house/analyzer.rb", "lib/bleak_house/hook.rb"]
+  s.files = ["CHANGELOG", "LICENSE", "LICENSE_BSD", "Manifest", "Rakefile", "TODO", "bin/bleak", "ext/build_ruby.rb", "ext/build_snapshot.rb", "ext/extconf.rb", "ext/snapshot.c", "ext/snapshot.h", "lib/bleak_house.rb", "lib/bleak_house/analyzer.rb", "lib/bleak_house/hook.rb", "ruby/ruby-1.8.7-p174.tar.bz2", "ruby/ruby-1.8.7.patch", "test/benchmark/bench.rb", "test/test_helper.rb", "test/unit/test_bleak_house.rb", "bleak_house.gemspec"]
   s.homepage = %q{http://blog.evanweaver.com/files/doc/fauna/bleak_house/}
-  s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Bleak_house", "--main", "README"]
+  s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Bleak_house", "--main"]
   s.require_paths = ["lib", "ext"]
   s.rubyforge_project = %q{fauna}
   s.rubygems_version = %q{1.3.5}

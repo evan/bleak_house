@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.homepage    = "http://github.com/mjacobus/very_simple_menu"
   s.summary     = "bleak_house Helper"
   s.description = "bleak_house Helper"
-  s.files = Dir["{app,config,db,lib}/**/*"] + ["Rakefile"]
+  s.files = Dir["{app,config,db,ext,bin,ruby,test,lib}/**/*"] + ["Rakefile"]
   s.license     = "bleak_house"
   s.add_dependency "rails"
 end

@@ -8,7 +8,6 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Test"]
-  s.cert_chain = ["/Users/eweaver/p/configuration/gem_certificates/evan_weaver-original-public_cert.pem"]
   s.date = %q{2009-11-18}
   s.default_executable = %q{bleak}
   s.description = %q{A library for finding memory leaks.}

@@ -5,6 +5,9 @@ require "bleak_house/version"
 Gem::Specification.new do |s|
   s.name        = "bleak_house"
   s.version     = BleakHouse::VERSION
+  s.authors     = ["TEST BY LOMESH"]
+  s.email       = ["lomesh.vohra@gmail.com"]
+  s.homepage    = "http://github.com/mjacobus/very_simple_menu"
   s.summary     = "bleak_house Helper"
   s.description = "bleak_house Helper"
   s.license     = "bleak_house"

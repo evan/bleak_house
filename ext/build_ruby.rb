@@ -31,7 +31,7 @@ if which('ruby-bleak-house') and
 else
   # Build
   Dir.chdir(tmp) do
-    build_dir = "bleak_house"
+    build_dir = "bleak_house*"
 
     FileUtils.rm_rf(build_dir) rescue nil
     if File.exist? build_dir
